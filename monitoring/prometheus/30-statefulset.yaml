@@ -21,15 +21,15 @@ spec:
         - name: prometheus
           image: prom/prometheus:v2.15.2
           ports:
-            - name: web
+            - name: http
               containerPort: 9090
           readinessProbe:
             httpGet:
-              port: web
+              port: http
               path: /-/ready
           livenessProbe:
             httpGet:
-              port: web
+              port: http
               path: /-/healthy
           resources:
             requests:
@@ -55,7 +55,7 @@ spec:
     - metadata:
         name: data
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes: [ReadWriteOnce]
         resources:
           requests:
             storage: 50Gi
