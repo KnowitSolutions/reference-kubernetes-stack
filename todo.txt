@@ -1,0 +1,9 @@
+Install PrometheusOperator
+Install Prometheus
+Configure Prometheus to scrape Kubernetes
+Install Graphana
+Install Istio with Jaeger and Kiali
+Install Keycloak
+Install Loki?
+Tune Prometheus storag
+Tune Prometheus storage
