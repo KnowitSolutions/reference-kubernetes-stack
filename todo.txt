@@ -1,9 +1,7 @@
-Install PrometheusOperator
-Install Prometheus
-Configure Prometheus to scrape Kubernetes
-Install Graphana
-Install Istio with Jaeger and Kiali
-Install Keycloak
+Configure Keycloak to run in cluster mode
+Configure Keycloak to use frontend URL
+Fix Keycloak domain
+Install Jaeger
+Configure Grafana dashboards
 Install Loki?
-Tune Prometheus storag
 Tune Prometheus storage

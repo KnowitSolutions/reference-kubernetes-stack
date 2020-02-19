@@ -38,6 +38,12 @@ spec:
               value: postgres
             - name: JGROUPS_DISCOVERY_PROTOCOL
               value: kubernetes.KUBE_PING
+            #- name: KEYCLOAK_FRONTEND_URL
+            #  value: http://sso.krsdev.app/auth
+            - name: PROXY_ADDRESS_FORWARDING
+              value: 'true'
+            - name: KEYCLOAK_STATISTICS
+              value: all
           ports:
             - name: http
               containerPort: 8080
