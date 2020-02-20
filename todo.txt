@@ -1,4 +1,3 @@
-Configure Keycloak to run in cluster mode
 Configure Keycloak to use frontend URL
 Fix Keycloak domain
 Install Jaeger

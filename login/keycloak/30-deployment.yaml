@@ -1,12 +1,11 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: keycloak
   namespace: login
   labels:
     app: keycloak
 spec:
-  serviceName: keycloak
   replicas: 2
   selector:
     matchLabels:
@@ -38,8 +37,10 @@ spec:
               value: postgres
             - name: JGROUPS_DISCOVERY_PROTOCOL
               value: kubernetes.KUBE_PING
-            #- name: KEYCLOAK_FRONTEND_URL
-            #  value: http://sso.krsdev.app/auth
+            - name: JGROUPS_DISCOVERY_PROPERTIES
+              value: namespace=login
+            - name: KEYCLOAK_FRONTEND_URL
+              value: http://sso.krsdev.app/auth
             - name: PROXY_ADDRESS_FORWARDING
               value: 'true'
             - name: KEYCLOAK_STATISTICS

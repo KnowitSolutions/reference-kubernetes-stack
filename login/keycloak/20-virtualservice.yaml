@@ -5,7 +5,7 @@ metadata:
   namespace: login
 spec:
   hosts:
-    - sso.fake.no
+    - sso.krsdev.app
   gateways:
     - keycloak
   http:

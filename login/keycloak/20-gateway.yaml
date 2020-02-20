@@ -8,7 +8,7 @@ spec:
     istio: ingressgateway
   servers:
     - hosts:
-        - sso.fake.no
+        - sso.krsdev.app
       port:
         name: http
         protocol: HTTP
