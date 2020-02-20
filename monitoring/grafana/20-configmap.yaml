@@ -13,13 +13,13 @@ data:
 
     [auth]
     oauth_auto_login = true
-    signout_redirect_url = http://sso.krsdev.local/auth/realms/local/protocol/openid-connect/logout?redirect_uri=http%3A%2F%2Fgrafana.krsdev.local
+    signout_redirect_url = http://sso.krsdev.local/auth/realms/cluster/protocol/openid-connect/logout?redirect_uri=http%3A%2F%2Fgrafana.krsdev.local
 
     [auth.generic_oauth]
     enabled = true
     allow_sign_up = true
     client_id = grafana
-    client_secret = 040c155f-d45a-4497-b155-cb26f8f0b2fe
-    auth_url = http://sso.krsdev.local/auth/realms/local/protocol/openid-connect/auth
-    token_url = http://keycloak.login:8080/auth/realms/local/protocol/openid-connect/token
-    api_url = http://keycloak.login:8080/auth/realms/local/protocol/openid-connect/userinfo
+    client_secret = secret
+    auth_url = http://sso.krsdev.local/auth/realms/cluster/protocol/openid-connect/auth
+    token_url = http://keycloak.login:8080/auth/realms/cluster/protocol/openid-connect/token
+    api_url = http://keycloak.login:8080/auth/realms/cluster/protocol/openid-connect/userinfo

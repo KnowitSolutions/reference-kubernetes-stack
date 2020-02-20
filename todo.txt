@@ -1,5 +1,3 @@
-Configure Keycloak to use frontend URL
-Fix Keycloak domain
 Install Jaeger
 Configure Grafana dashboards
 Install Loki?

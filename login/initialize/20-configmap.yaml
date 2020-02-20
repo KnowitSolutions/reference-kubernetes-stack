@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: initialize
+  namespace: login
+data:
+  initialize.sh: |
+    #!/bin/bash
+    set -e
+    export PATH="/opt/jboss/keycloak/bin:$PATH"
+
+    kcadm.sh config credentials \
+      --server http://keycloak:8080/auth \
+      --realm master \
+      --user admin \
+      --password admin
+
+    kcadm.sh create realms \
+      --set realm=cluster \
+      --set enabled=true \
+      --set displayName='Knowit'
+
+    kcadm.sh create clients \
+      --target-realm cluster \
+      --set clientId=grafana \
+      --set redirectUris='["http://grafana.krsdev.local/*"]' \
+      --set secret=secret
+    
+    curl --request POST --silent --fail http://localhost:15020/quitquitquit
