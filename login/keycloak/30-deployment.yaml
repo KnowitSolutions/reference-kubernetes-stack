@@ -40,7 +40,7 @@ spec:
             - name: JGROUPS_DISCOVERY_PROPERTIES
               value: namespace=login
             - name: KEYCLOAK_FRONTEND_URL
-              value: http://sso.krsdev.app/auth
+              value: http://sso.krsdev.local/auth
             - name: PROXY_ADDRESS_FORWARDING
               value: 'true'
             - name: KEYCLOAK_STATISTICS

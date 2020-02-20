@@ -30,12 +30,18 @@ spec:
               cpu: 500m
               memory: 2500Mi
           volumeMounts:
+            - name: config
+              mountPath: /etc/grafana
             - name: data
               mountPath: /var/lib/grafana
       nodeSelector:
         kubernetes.io/os: linux
       securityContext:
         runAsUser: 472
+      volumes:
+        - name: config
+          configMap:
+            name: grafana
   volumeClaimTemplates:
     - metadata:
         name: data
