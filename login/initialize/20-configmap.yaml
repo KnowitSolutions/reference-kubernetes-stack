@@ -24,7 +24,7 @@ data:
     )
 
     kcadm.sh update "users/$admin_id" \
-      --set email=admin@example.com \
+      --set email=admin@localhost \
       --set emailVerified=true
 
     client_id=$(

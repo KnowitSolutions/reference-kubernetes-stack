@@ -17,9 +17,9 @@ data:
 
     [auth.generic_oauth]
     enabled = true
-    allow_sign_up = true
     client_id = grafana
     client_secret = secret
     auth_url = http://sso.krsdev.local/auth/realms/master/protocol/openid-connect/auth
     token_url = http://keycloak.login:8080/auth/realms/master/protocol/openid-connect/token
     api_url = http://keycloak.login:8080/auth/realms/master/protocol/openid-connect/userinfo
+    role_attribute_path = contains(roles, 'admin') && 'Admin' || 'Viewer'
