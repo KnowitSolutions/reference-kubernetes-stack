@@ -15,15 +15,34 @@ data:
       --user admin \
       --password admin
 
-    kcadm.sh create realms \
-      --set realm=cluster \
-      --set enabled=true \
-      --set displayName='Knowit'
+    admin_id=$(
+      kcadm.sh get users \
+        --fields id \
+        --query username=admin \
+        --format csv | \
+      tr -d '"'
+    )
 
-    kcadm.sh create clients \
-      --target-realm cluster \
-      --set clientId=grafana \
-      --set redirectUris='["http://grafana.krsdev.local/*"]' \
-      --set secret=secret
-    
+    kcadm.sh update "users/$admin_id" \
+      --set email=admin@example.com \
+      --set emailVerified=true
+
+    client_id=$(
+      kcadm.sh create clients \
+        --id \
+        --set clientId=grafana \
+        --set redirectUris='["http://grafana.krsdev.local/*"]' \
+        --set secret=secret
+    )
+    echo "Created new client with id '$client_id'"
+
+    kcadm.sh create "clients/$client_id/protocol-mappers/models" \
+      --set protocol=openid-connect \
+      --set name=Roles \
+      --set protocolMapper=oidc-usermodel-realm-role-mapper \
+      --set config.multivalued=true \
+      --set 'config."claim.name"=roles' \
+      --set 'config."jsonType.label"=String' \
+      --set 'config."userinfo.token.claim"=true'
+
     curl --request POST --silent --fail http://localhost:15020/quitquitquit
