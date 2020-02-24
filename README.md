@@ -6,8 +6,9 @@ Operations deployment to Kubernetes
 
 ```
 istioctl manifest apply \
-  --set values.kiali.enabled=true \
   --set values.global.mtls.enabled=true \
-  --set values.global.controlPlaneSecurityEnabled=true
+  --set values.global.controlPlaneSecurityEnabled=true \
+  --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true \
+  --set values.kiali.enabled=true
 kubectl apply -Rf .
 ```

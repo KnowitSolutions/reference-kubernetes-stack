@@ -1,0 +1,13 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  host: prometheus
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    loadBalancer:
+      consistentHash:
+        useSourceIp: true
