@@ -23,3 +23,10 @@ data:
     token_url = http://keycloak.login:8080/auth/realms/master/protocol/openid-connect/token
     api_url = http://keycloak.login:8080/auth/realms/master/protocol/openid-connect/userinfo
     role_attribute_path = contains(roles, 'admin') && 'Admin' || 'Viewer'
+  prometheus.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://prometheus:9090
