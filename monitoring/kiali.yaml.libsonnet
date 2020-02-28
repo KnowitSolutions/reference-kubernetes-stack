@@ -3,6 +3,7 @@ function(config) {
   auth: { strategy: 'anonymous' },
   deployment: { accessible_namespaces: ['**'] },
 
+  // TODO: Figure out how these work
   istio_namespace: 'istio-system',
   istio_component_namespaces: {
     grafana: 'istio-system',
@@ -11,6 +12,7 @@ function(config) {
     tracing: 'istio-system',
   },
 
+  // TODO: Configure external URLs
   external_services: {
     grafana: {
       url: null,

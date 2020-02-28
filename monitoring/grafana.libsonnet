@@ -38,7 +38,7 @@ function(config)
     metadata.new(app, ns=ns) +
     configmap.data({
       'grafana.ini': std.manifestIni((import 'grafana.ini.libsonnet')(config)),
-      'datasources.yaml': std.manifestYamlDoc((import 'datasources.yaml.libsonnet')(config)),
+      'datasources.yaml': importstr 'datasources.yaml',
     }),
 
     statefulset.new() +
