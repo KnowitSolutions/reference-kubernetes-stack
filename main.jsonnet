@@ -1,11 +1,14 @@
 local keycloak = import 'login/keycloak.libsonnet';
 local grafana = import 'monitoring/grafana.libsonnet';
+local kiali = import 'monitoring/kiali.libsonnet';
 local prometheus = import 'monitoring/prometheus.libsonnet';
 local metadata = import 'templates/metadata.libsonnet';
 local namespace = import 'templates/namespace.libsonnet';
 
 function(
   keycloak_address='sso.localhost',
+  kiali_address='kiali.localhost',
+  kiali_client_secret='Regenerate me',
   grafana_address='grafana.localhost',
   grafana_client_secret='Regenerate me'
 )
@@ -17,6 +20,14 @@ function(
     },
     prometheus: {
       namespace: 'monitoring',
+    },
+    kiali: {
+      namespace: 'monitoring',
+      external_address: kiali_address,
+      oidc: {
+        client_id: 'kiali',
+        client_secret: kiali_client_secret,
+      },
     },
     grafana: {
       namespace: 'monitoring',
@@ -37,4 +48,5 @@ function(
   ] +
   keycloak(config) +
   prometheus(config) +
+  kiali(config) +
   grafana(config)

@@ -16,6 +16,11 @@ function(config)
   local ns = config.prometheus.namespace;
 
   [
+    destinationrule.new('prometheus.istio-system.svc.cluster.local') +
+    metadata.new('prometheus-istio-system', ns=ns) +
+    destinationrule.mtls(false),
+
+    // TODO: Remove in favour of Istio Prometheus
     serviceaccount.new() +
     metadata.new(app, ns=ns),
 

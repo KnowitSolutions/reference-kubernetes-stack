@@ -10,6 +10,14 @@
     },
   },
 
+  mtls(mtls):: {
+    spec+: {
+      trafficPolicy: {
+        tls: { mode: if mtls then 'ISTIO_MUTUAL' else 'DISABLE' },
+      },
+    },
+  },
+
   sticky():: {
     spec+: {
       trafficPolicy+: {

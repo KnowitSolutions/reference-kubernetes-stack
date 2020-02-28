@@ -17,7 +17,9 @@ kubectl --namespace db expose deployment postgres --port 5432
 istioctl manifest apply \
   --set values.global.mtls.enabled=true \
   --set values.global.controlPlaneSecurityEnabled=true \
-  --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true \
-  --set values.kiali.enabled=true
-kubectl apply -Rf .
+  --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true
+```
+
+```
+jsonnet --yaml-stream main.jsonnet | kubectl apply --filename -
 ```

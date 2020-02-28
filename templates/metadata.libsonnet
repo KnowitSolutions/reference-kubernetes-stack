@@ -6,6 +6,12 @@
     },
   },
 
+  annotations(annotations):: {
+    metadata+: {
+      annotations+: annotations,
+    },
+  },
+
   label(key, value):: self.labels({ [key]: value }),
 
   labels(labels):: {
