@@ -20,7 +20,7 @@ function(config)
     metadata.new(app, ns=ns),
 
     role.new(cluster=true) +
-    metadata.new(app) +
+    metadata.new('%s-%s' % [app, ns]) +
     role.rule({
       apiGroups: [''],
       verbs: ['get', 'list', 'watch'],
@@ -38,8 +38,8 @@ function(config)
     }),
 
     rolebinding.new(cluster=true) +
-    metadata.new(app) +
-    rolebinding.role(app, cluster=true) +
+    metadata.new('%s-%s' % [app, ns]) +
+    rolebinding.role('%s-%s' % [app, ns], cluster=true) +
     rolebinding.subject('ServiceAccount', app, ns=ns),
 
     service.new(app) +

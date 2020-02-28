@@ -5,8 +5,8 @@ local metadata = import 'templates/metadata.libsonnet';
 local namespace = import 'templates/namespace.libsonnet';
 
 function(
-  keycloak_address='sso.local',
-  grafana_address='grafana.local',
+  keycloak_address='sso.localhost',
+  grafana_address='grafana.localhost',
   grafana_client_secret='Regenerate me'
 )
   local config = {
