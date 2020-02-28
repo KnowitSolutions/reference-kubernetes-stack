@@ -15,7 +15,7 @@ kubectl --namespace db expose deployment postgres --port 5432
 
 ```
 istioctl manifest apply \
-  --set values.global.mtls.enabled=true \
+  --set values.global.mtls.enabled=true \  # TODO: Check if this is needed when using istio-injection=enabled
   --set values.global.controlPlaneSecurityEnabled=true \
   --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true
 ```

@@ -1,5 +1,6 @@
 local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
+local destinationrule = import '../templates/destinationrule.libsonnet';
 local gateway = import '../templates/gateway.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
@@ -16,6 +17,10 @@ function(config)
   local keycloak = config.keycloak;
 
   [
+    destinationrule.new('prometheus.istio-system.svc.cluster.local') +
+    metadata.new('prometheus-istio-system', ns=ns) +
+    destinationrule.mtls(false),
+
     gateway.new(grafana.external_address) +
     metadata.new(app, ns=ns),
 

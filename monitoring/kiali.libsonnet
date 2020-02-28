@@ -1,6 +1,7 @@
 local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
+local destinationrule = import '../templates/destinationrule.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local role = import '../templates/role.libsonnet';
@@ -15,6 +16,14 @@ function(config)
   local ns = config.kiali.namespace;
 
   [
+    destinationrule.new('istio-pilot.istio-system.svc.cluster.local') +
+    metadata.new('istio-pilot-istio-system', ns=ns) +
+    destinationrule.mtls(false),
+
+    destinationrule.new('prometheus.istio-system.svc.cluster.local') +
+    metadata.new('prometheus-istio-system', ns=ns) +
+    destinationrule.mtls(false),
+
     serviceaccount.new() +
     metadata.new(app, ns=ns),
 
@@ -93,7 +102,6 @@ function(config)
         'prometheus.io/scrape': 'true',
         'prometheus.io/port': '9090',
         'kiali.io/runtimes': 'go,kiali',
-        //'sidecar.istio.io/inject': 'false',  // TODO: Remove
       }) +
       pod.container(
         container.new(app, image) +

@@ -5,6 +5,10 @@ local prometheus = import 'monitoring/prometheus.libsonnet';
 local metadata = import 'templates/metadata.libsonnet';
 local namespace = import 'templates/namespace.libsonnet';
 
+local ns(name) =
+  namespace.new() +
+  metadata.new(name);
+
 function(
   keycloak_address='sso.localhost',
   kiali_address='kiali.localhost',
@@ -39,14 +43,7 @@ function(
     },
   };
 
-  [
-    namespace.new() +
-    metadata.new('login'),
-
-    namespace.new() +
-    metadata.new('monitoring'),
-  ] +
+  [ns('login'), ns('monitoring')] +
   keycloak(config) +
-  prometheus(config) +
   kiali(config) +
   grafana(config)

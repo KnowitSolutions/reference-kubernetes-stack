@@ -5,7 +5,7 @@ function(config) {
       name: 'Prometheus',
       type: 'prometheus',
       access: 'proxy',
-      url: 'http://prometheus.%s:9090' % [config.prometheus.namespace],
+      url: 'http://prometheus.istio-system:9090',
     },
   ],
 }
