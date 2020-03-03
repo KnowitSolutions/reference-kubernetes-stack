@@ -1,7 +1,8 @@
 local keycloak = import 'login/keycloak.libsonnet';
 local grafana = import 'monitoring/grafana.libsonnet';
 local kiali = import 'monitoring/kiali.libsonnet';
-local prometheus = import 'monitoring/prometheus.libsonnet';
+local loki = import 'monitoring/loki.libsonnet';
+local promtail = import 'monitoring/promtail.libsonnet';
 local metadata = import 'templates/metadata.libsonnet';
 local namespace = import 'templates/namespace.libsonnet';
 
@@ -14,24 +15,19 @@ function(
   kiali_address='kiali.localhost',
   kiali_client_secret='Regenerate me',
   grafana_address='grafana.localhost',
-  grafana_client_secret='Regenerate me'
+  grafana_client_secret='Regenerate me',
 )
   local config = {
+    loki: {
+      namespace: 'monitoring',
+    },
+    promtail: {
+      namespace: 'monitoring',
+    },
     keycloak: {
       namespace: 'login',
       external_address: keycloak_address,
       internal_address: 'keycloak.login',
-    },
-    prometheus: {
-      namespace: 'monitoring',
-    },
-    kiali: {
-      namespace: 'monitoring',
-      external_address: kiali_address,
-      oidc: {
-        client_id: 'kiali',
-        client_secret: kiali_client_secret,
-      },
     },
     grafana: {
       namespace: 'monitoring',
@@ -41,9 +37,19 @@ function(
         client_secret: grafana_client_secret,
       },
     },
+    kiali: {
+      namespace: 'monitoring',
+      external_address: kiali_address,
+      oidc: {
+        client_id: 'kiali',
+        client_secret: kiali_client_secret,
+      },
+    },
   };
 
   [ns('login'), ns('monitoring')] +
+  loki(config) +
+  promtail(config) +
   keycloak(config) +
-  kiali(config) +
-  grafana(config)
+  grafana(config) +
+  kiali(config)

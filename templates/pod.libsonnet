@@ -13,6 +13,20 @@ local metadata = import 'metadata.libsonnet';
     },
   },
 
+  volume_hostpath(name, path, type='Directory'):: {
+    spec+: {
+      volumes+: [
+        {
+          name: name,
+          hostPath: {
+            path: path,
+            type: type,
+          },
+        },
+      ],
+    },
+  },
+
   volume_configmap(name, configmap, items=null, default_mode=null):: {
     spec+: {
       volumes+: [

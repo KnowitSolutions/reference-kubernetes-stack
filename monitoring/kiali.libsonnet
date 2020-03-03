@@ -100,12 +100,12 @@ function(config)
       pod.new() +
       metadata.annotations({
         'prometheus.io/scrape': 'true',
-        'prometheus.io/port': '9090',
+        'prometheus.io/port': '9090',  // TODO: Check what port is correct
         'kiali.io/runtimes': 'go,kiali',
       }) +
       pod.container(
         container.new(app, image) +
-        container.command(['kiali', '-config', '/etc/kiali/config.yaml']) +
+        container.args(['-config', '/etc/kiali/config.yaml']) +
         container.port('http', 20001) +
         container.volume('config', '/etc/kiali') +
         container.resources(cpu_request='10m') +

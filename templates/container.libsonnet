@@ -8,9 +8,16 @@
     command: command,
   },
 
+  args(args):: {
+    args: args,
+  },
+
   env(env):: {
     env+: [
-      { name: key, value: env[key] }
+      { name: key } +
+      if std.isString(env[key])
+      then { value: env[key] }
+      else { valueFrom: env[key] }
       for key in std.objectFields(env)
     ],
   },
@@ -46,12 +53,13 @@
     },
   },
 
-  volume(name, path, sub_path=null):: {
+  volume(name, path, sub_path=null, read_only=false):: {
     volumeMounts+: [
       {
         name: name,
         mountPath: path,
         [if sub_path != null then 'subPath']: sub_path,
+        readOnly: read_only,
       },
     ],
   },
