@@ -138,7 +138,8 @@ function(config)
 
     service.new(app) +
     metadata.new(app, ns=ns) +
-    service.port(8080),
+    service.port(8080) +
+    service.port(8081, name='http-telemetry'),
 
     deployment.new() +
     metadata.new(app, ns=ns) +
@@ -149,11 +150,11 @@ function(config)
       }) +
       pod.container(
         container.new(app, image) +
-        container.port('http-metrics', 8080) +
+        container.port('http', 8080) +
         container.port('http-telemetry', 8081) +
         container.resources('100m', '100m', '200Mi', '200Mi') +
         container.http_probe('readiness', '/', port='http-telemetry') +
-        container.http_probe('liveness', '/healthz', port='http-metrics')
+        container.http_probe('liveness', '/healthz')
       ) +
       pod.service_account(app) +
       pod.security_context({ runAsUser: 65534 })

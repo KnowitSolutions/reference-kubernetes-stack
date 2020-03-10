@@ -86,7 +86,8 @@ function(config)
 
     service.new(app) +
     metadata.new(app, ns=ns) +
-    service.port(20001),
+    service.port(20001) +
+    service.port(9090, name='http-telemetry'),
 
     configmap.new() +
     metadata.new(app, ns=ns) +
@@ -107,6 +108,7 @@ function(config)
         container.new(app, image) +
         container.args(['-config', '/etc/kiali/config.yaml']) +
         container.port('http', 20001) +
+        container.port('http-telemetry', 9090) +
         container.volume('config', '/etc/kiali') +
         container.resources(cpu_request='10m') +
         container.http_probe('readiness', '/healthz') +

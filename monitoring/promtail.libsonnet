@@ -5,6 +5,7 @@ local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local role = import '../templates/role.libsonnet';
 local rolebinding = import '../templates/rolebinding.libsonnet';
+local service = import '../templates/service.libsonnet';
 local serviceaccount = import '../templates/serviceaccount.libsonnet';
 
 local app = 'promtail';
@@ -30,6 +31,10 @@ function(config)
     rolebinding.role('%s-%s' % [app, ns], cluster=true) +
     rolebinding.subject('ServiceAccount', app, ns=ns),
 
+    service.new(app) +
+    metadata.new(app, ns=ns) +
+    service.port(8080, name='http-telemetry'),
+
     configmap.new() +
     metadata.new(app, ns=ns) +
     configmap.data({
@@ -48,7 +53,7 @@ function(config)
         container.new(app, image) +
         container.args(['-config.file', '/etc/promtail/promtail.yaml']) +
         container.env({ HOSTNAME: { fieldRef: { fieldPath: 'spec.nodeName' } } }) +
-        container.port('http', 80) +
+        container.port('http-telemetry', 80) +
         container.volume('config', '/etc/promtail') +
         container.volume('logs', '/var/log') +
         container.resources('100m', '200m', '128Mi', '256Mi') +
