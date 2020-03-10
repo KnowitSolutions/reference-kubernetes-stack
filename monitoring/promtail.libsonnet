@@ -33,7 +33,7 @@ function(config)
 
     service.new(app) +
     metadata.new(app, ns=ns) +
-    service.port(8080, name='http-telemetry'),
+    service.port(80, name='http-telemetry'),
 
     configmap.new() +
     metadata.new(app, ns=ns) +
@@ -47,7 +47,7 @@ function(config)
       pod.new() +
       metadata.annotations({
         'prometheus.io/scrape': 'true',
-        'prometheus.io/port': 'http',
+        'prometheus.io/port': '80',
       }) +
       pod.container(
         container.new(app, image) +

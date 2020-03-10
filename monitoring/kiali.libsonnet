@@ -101,7 +101,7 @@ function(config)
       pod.new() +
       metadata.annotations({
         'prometheus.io/scrape': 'true',
-        'prometheus.io/port': '9090',  // TODO: Check what port is correct
+        'prometheus.io/port': '9090',
         'kiali.io/runtimes': 'go,kiali',
       }) +
       pod.container(
