@@ -1,6 +1,7 @@
 local keycloak = import 'login/keycloak.libsonnet';
 local grafana = import 'monitoring/grafana.libsonnet';
 local kiali = import 'monitoring/kiali.libsonnet';
+local kube_state_metrics = import 'monitoring/kube-state-metrics.libsonnet';
 local loki = import 'monitoring/loki.libsonnet';
 local promtail = import 'monitoring/promtail.libsonnet';
 local metadata = import 'templates/metadata.libsonnet';
@@ -22,6 +23,9 @@ function(
       namespace: 'monitoring',
     },
     promtail: {
+      namespace: 'monitoring',
+    },
+    kube_state_metrics: {
       namespace: 'monitoring',
     },
     keycloak: {
@@ -50,6 +54,7 @@ function(
   [ns('login'), ns('monitoring')] +
   loki(config) +
   promtail(config) +
+  kube_state_metrics(config) +
   keycloak(config) +
   grafana(config) +
   kiali(config)
