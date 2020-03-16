@@ -39,6 +39,8 @@ function(config)
     configmap.data({
       'grafana.ini': std.manifestIni((import 'grafana.ini.libsonnet')(config)),
       'datasources.yaml': importstr 'datasources.yaml',
+      'dashboards.yaml': importstr 'dashboards.yaml',
+      'pod-overview.json': importstr 'dashboards/pod-overview.json',
     }),
 
     statefulset.new() +
@@ -55,6 +57,8 @@ function(config)
       pod.volume_configmap('config', configmap=app, items={
         'grafana.ini': 'grafana.ini',
         'datasources.yaml': 'provisioning/datasources/datasources.yaml',
+        'dashboards.yaml': 'provisioning/dashboards/dashboards.yaml',
+        'pod-overview.json': 'dashboards/pod-overview.json',
       }) +
       pod.security_context({ runAsUser: 472 })
     ) +
