@@ -40,6 +40,7 @@ function(config)
       'grafana.ini': std.manifestIni((import 'grafana.ini.libsonnet')(config)),
       'datasources.yaml': importstr 'datasources.yaml',
       'dashboards.yaml': importstr 'dashboards.yaml',
+      'container-overview.json': importstr 'dashboards/container-overview.json',
       'pod-overview.json': importstr 'dashboards/pod-overview.json',
     }),
 
@@ -58,6 +59,7 @@ function(config)
         'grafana.ini': 'grafana.ini',
         'datasources.yaml': 'provisioning/datasources/datasources.yaml',
         'dashboards.yaml': 'provisioning/dashboards/dashboards.yaml',
+        'container-overview.json': 'dashboards/container-overview.json',
         'pod-overview.json': 'dashboards/pod-overview.json',
       }) +
       pod.security_context({ runAsUser: 472 })

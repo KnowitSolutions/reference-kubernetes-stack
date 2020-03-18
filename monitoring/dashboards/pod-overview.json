@@ -15,8 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 1,
-  "iteration": 1584359779133,
+  "iteration": 1584532897454,
   "links": [],
   "panels": [
     {
@@ -1090,18 +1089,18 @@
           "value": "login"
         },
         "datasource": "Prometheus",
-        "definition": "label_values(namespace)",
+        "definition": "label_values(kube_pod_info, exported_namespace)",
         "hide": 0,
         "includeAll": false,
         "label": "Namespace",
         "multi": false,
         "name": "namespace",
         "options": [],
-        "query": "label_values(namespace)",
+        "query": "label_values(kube_pod_info, exported_namespace)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 0,
+        "sort": 5,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -1126,7 +1125,7 @@
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 0,
+        "sort": 5,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -1156,5 +1155,5 @@
   "timezone": "",
   "title": "Pod overview",
   "uid": "zQNBuGuZk",
-  "version": 34
+  "version": 1
 }
