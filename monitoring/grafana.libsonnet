@@ -42,6 +42,7 @@ function(config)
       'dashboards.yaml': importstr 'dashboards.yaml',
       'container-overview.json': importstr 'dashboards/container-overview.json',
       'pod-overview.json': importstr 'dashboards/pod-overview.json',
+      'resource-overview.json': importstr 'dashboards/resource-overview.json',
     }),
 
     statefulset.new() +
@@ -61,6 +62,7 @@ function(config)
         'dashboards.yaml': 'provisioning/dashboards/dashboards.yaml',
         'container-overview.json': 'dashboards/container-overview.json',
         'pod-overview.json': 'dashboards/pod-overview.json',
+        'resource-overview.json': 'dashboards/resource-overview.json',
       }) +
       pod.security_context({ runAsUser: 472 })
     ) +
