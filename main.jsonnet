@@ -1,9 +1,9 @@
-local keycloak = import 'login/keycloak.libsonnet';
-local grafana = import 'monitoring/grafana.libsonnet';
-local kiali = import 'monitoring/kiali.libsonnet';
-local kube_state_metrics = import 'monitoring/kube-state-metrics.libsonnet';
-local loki = import 'monitoring/loki.libsonnet';
-local promtail = import 'monitoring/promtail.libsonnet';
+local grafana = import 'grafana/main.libsonnet';
+local keycloak = import 'keycloak/main.libsonnet';
+local kiali = import 'kiali/main.libsonnet';
+local kube_state_metrics = import 'kube-state-metrics/main.libsonnet';
+local loki = import 'loki/main.libsonnet';
+local promtail = import 'promtail/main.libsonnet';
 local metadata = import 'templates/metadata.libsonnet';
 local namespace = import 'templates/namespace.libsonnet';
 
