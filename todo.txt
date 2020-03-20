@@ -1,4 +1,0 @@
-Install Jaeger
-Configure Grafana dashboards
-Install Loki?
-Tune Prometheus storage

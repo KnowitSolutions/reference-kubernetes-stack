@@ -1,4 +1,5 @@
 local grafana = import 'grafana/main.libsonnet';
+local jaeger = import 'jaeger/main.libsonnet';
 local keycloak = import 'keycloak/main.libsonnet';
 local kiali = import 'kiali/main.libsonnet';
 local kube_state_metrics = import 'kube-state-metrics/main.libsonnet';
@@ -49,6 +50,9 @@ function(
         client_secret: kiali_client_secret,
       },
     },
+    jaeger: {
+      namespace: 'monitoring',
+    },
   };
 
   [ns('login'), ns('monitoring')] +
@@ -57,4 +61,5 @@ function(
   kube_state_metrics(config) +
   keycloak(config) +
   grafana(config) +
-  kiali(config)
+  kiali(config) +
+  jaeger(config)
