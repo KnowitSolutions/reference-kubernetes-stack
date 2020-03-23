@@ -34,3 +34,4 @@ kubectl --namespace db expose deployment cassandra --port 9042
 
 ## Istio 1.5.0 prometheus bug workaround
 [https://github.com/istio/istio/issues/21843](https://github.com/istio/istio/issues/21843)
+[https://github.com/istio/istio/issues/22391](https://github.com/istio/istio/issues/22391)
