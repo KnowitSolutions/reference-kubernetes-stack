@@ -57,7 +57,8 @@ function(config)
         container.volume('config', '/etc/promtail') +
         container.volume('logs', '/var/log') +
         container.resources('100m', '200m', '128Mi', '256Mi') +
-        container.http_probe('readiness', '/ready')
+        container.http_probe('readiness', '/ready', port='http-telemetry') +
+        container.http_probe('liveness', '/ready', port='http-telemetry')
       ) +
       pod.service_account(app) +
       pod.volume_configmap('config', configmap=app) +

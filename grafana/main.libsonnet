@@ -54,7 +54,9 @@ function(config)
         container.port('http', 3000) +
         container.volume('config', '/etc/grafana') +
         container.volume('data', '/var/lib/grafana') +
-        container.resources('100m', '500m', '100Mi', '2500Mi')
+        container.resources('100m', '500m', '100Mi', '2500Mi') +
+        container.http_probe('readiness', '/api/health') +
+        container.http_probe('liveness', '/api/health')
       ) +
       pod.volume_configmap('config', configmap=app, items={
         'grafana.ini': 'grafana.ini',

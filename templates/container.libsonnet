@@ -44,8 +44,9 @@
     },
   },
 
-  http_probe(type, path, port='http'):: {
+  http_probe(type, path, port='http', delay=null):: {
     [type + 'Probe']: {
+      [if delay != null then 'initialDelaySeconds']: delay,
       httpGet: {
         path: path,
         port: port,

@@ -70,10 +70,9 @@ function(config)
           PROXY_ADDRESS_FORWARDING: 'true',
           KEYCLOAK_STATISTICS: 'all',
         }) +
-        container.port('http', 8080),
-        // TODO: Fix probes
-        //container.http_probe('readiness', '/realms/master') +
-        //container.http_probe('liveness', '/')
+        container.port('http', 8080) +
+        container.http_probe('readiness', '/auth/realms/master') +
+        container.http_probe('liveness', '/', delay=90)
       ) +
       pod.service_account(app) +
       pod.security_context({ runAsNonRoot: true }),

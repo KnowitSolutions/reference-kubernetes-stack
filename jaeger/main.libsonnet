@@ -70,10 +70,9 @@ function(config)
         container.env({ SPAN_STORAGE_TYPE: 'cassandra' }) +
         container.port('http', 9411) +
         container.port('http-telemetry', 14269) +
-        container.volume('config', '/etc/jaeger')
-        // TODO: container.resources(cpu_request='10m') +
-        //container.http_probe('readiness', '/healthz') +
-        //container.http_probe('liveness', '/healthz')
+        container.volume('config', '/etc/jaeger') +
+        container.http_probe('readiness', '/', port='http-telemetry') +
+        container.http_probe('liveness', '/', port='http-telemetry')
       ) +
       pod.volume_configmap('config', configmap=app) +
       pod.security_context({ runAsUser: 1000 })
@@ -81,7 +80,8 @@ function(config)
 
     service.new(query_app) +
     metadata.new(query_app, ns=ns) +
-    service.port(16686),
+    service.port(16686) +
+    service.port(16687, name='http-telemetry'),
 
     deployment.new(replicas=2) +
     metadata.new(query_app, ns=ns) +
@@ -89,17 +89,17 @@ function(config)
       pod.new() +
       metadata.annotations({
         'prometheus.io/scrape': 'true',
-        'prometheus.io/port': '14269',
+        'prometheus.io/port': '16687',
       }) +
       pod.container(
         container.new(query_app, query_image) +
         container.args(['--config-file', '/etc/jaeger/query.yaml']) +
         container.env({ SPAN_STORAGE_TYPE: 'cassandra' }) +
         container.port('http', 16686) +
-        container.volume('config', '/etc/jaeger')
-        // TODO: container.resources(cpu_request='10m') +
-        //container.http_probe('readiness', '/healthz') +
-        //container.http_probe('liveness', '/healthz')
+        container.port('http-telemetry', 16687) +
+        container.volume('config', '/etc/jaeger') +
+        container.http_probe('readiness', '/') +
+        container.http_probe('liveness', '/', port='http-telemetry')
       ) +
       pod.volume_configmap('config', configmap=app) +
       pod.security_context({ runAsUser: 1000 })

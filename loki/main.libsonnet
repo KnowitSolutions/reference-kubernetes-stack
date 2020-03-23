@@ -36,7 +36,8 @@ function(config)
         container.port('http', 8080) +
         container.volume('config', '/etc/loki') +
         container.resources('100m', '200m', '128Mi', '256Mi') +
-        container.http_probe('readiness', '/ready')
+        container.http_probe('readiness', '/ready') +
+        container.http_probe('liveness', '/ready', delay=120)
       ) +
       pod.volume_configmap('config', configmap=app) +
       pod.security_context({ runAsUser: 1000 })
