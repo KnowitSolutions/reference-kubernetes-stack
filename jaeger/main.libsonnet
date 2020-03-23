@@ -36,8 +36,8 @@ function(config)
           KEYSPACE: 'jaeger',
           TRACE_TTL: '2592000',
         })
-      )
-      // TODO: pod.security_context({ runAsNonRoot: true }) +
+      ) +
+      pod.security_context({ runAsUser: 1000 })
     ),
 
     configmap.new() +
@@ -75,8 +75,8 @@ function(config)
         //container.http_probe('readiness', '/healthz') +
         //container.http_probe('liveness', '/healthz')
       ) +
-      pod.volume_configmap('config', configmap=app)
-      // TODO: pod.security_context({ runAsUser: 65534 })
+      pod.volume_configmap('config', configmap=app) +
+      pod.security_context({ runAsUser: 1000 })
     ),
 
     service.new(query_app) +
@@ -101,7 +101,7 @@ function(config)
         //container.http_probe('readiness', '/healthz') +
         //container.http_probe('liveness', '/healthz')
       ) +
-      pod.volume_configmap('config', configmap=app)
-      // TODO: pod.security_context({ runAsUser: 65534 })
+      pod.volume_configmap('config', configmap=app) +
+      pod.security_context({ runAsUser: 1000 })
     ),
   ]

@@ -1,5 +1,8 @@
 auth_enabled: false
 
+server:
+  http_listen_port: 8080
+
 # TODO: Fix high availability
 ingester:
   lifecycler:

@@ -28,17 +28,17 @@ function(config)
       pod.new() +
       metadata.annotations({
         'prometheus.io/scrape': 'true',
-        'prometheus.io/port': '80',
+        'prometheus.io/port': '8080',
       }) +
       pod.container(
         container.new(app, image) +
         container.args(['-config.file', '/etc/loki/loki.yaml']) +
-        container.port('http', 80) +
+        container.port('http', 8080) +
         container.volume('config', '/etc/loki') +
         container.resources('100m', '200m', '128Mi', '256Mi') +
         container.http_probe('readiness', '/ready')
       ) +
-      pod.volume_configmap('config', configmap=app)
-      // TODO: pod.security_context({ runAsUser: 472 })
+      pod.volume_configmap('config', configmap=app) +
+      pod.security_context({ runAsUser: 1000 })
     ),
   ]

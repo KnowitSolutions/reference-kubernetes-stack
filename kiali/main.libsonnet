@@ -115,7 +115,7 @@ function(config)
         container.http_probe('liveness', '/healthz')
       ) +
       pod.service_account(app) +
-      pod.volume_configmap('config', configmap=app)
-      // TODO: pod.security_context({ runAsUser: 65534 })
+      pod.volume_configmap('config', configmap=app) +
+      pod.security_context({ runAsUser: 1000 })
     ),
   ]

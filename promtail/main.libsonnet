@@ -47,13 +47,13 @@ function(config)
       pod.new() +
       metadata.annotations({
         'prometheus.io/scrape': 'true',
-        'prometheus.io/port': '80',
+        'prometheus.io/port': '8080',
       }) +
       pod.container(
         container.new(app, image) +
         container.args(['-config.file', '/etc/promtail/promtail.yaml']) +
         container.env({ HOSTNAME: { fieldRef: { fieldPath: 'spec.nodeName' } } }) +
-        container.port('http-telemetry', 80) +
+        container.port('http-telemetry', 8080) +
         container.volume('config', '/etc/promtail') +
         container.volume('logs', '/var/log') +
         container.resources('100m', '200m', '128Mi', '256Mi') +
@@ -61,7 +61,7 @@ function(config)
       ) +
       pod.service_account(app) +
       pod.volume_configmap('config', configmap=app) +
-      pod.volume_hostpath('logs', path='/var/log')
-      // TODO: pod.security_context({ runAsUser: 472 })
+      pod.volume_hostpath('logs', path='/var/log') +
+      pod.security_context({ runAsUser: 1000 })
     ),
   ]
