@@ -6,8 +6,6 @@ Operations deployment to Kubernetes
 
 ```
 istioctl manifest apply \
-  --set values.global.mtls.enabled=true \
-  --set values.global.controlPlaneSecurityEnabled=true \
   --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true \
   --set values.prometheus.replicaCount=2 \
   --set values.prometheus.retention=30d \
