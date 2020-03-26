@@ -4,6 +4,9 @@ server:
 clients:
   - url: http://loki/loki/api/v1/push
 
+positions:
+  filename: /var/lib/promtail/positions.yaml
+
 scrape_configs:
   - job_name: kubernetes
     kubernetes_sd_configs:

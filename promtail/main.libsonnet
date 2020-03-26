@@ -54,15 +54,17 @@ function(config)
         container.args(['-config.file', '/etc/promtail/promtail.yaml']) +
         container.env({ HOSTNAME: { fieldRef: { fieldPath: 'spec.nodeName' } } }) +
         container.port('http-telemetry', 8080) +
-        container.volume('config', '/etc/promtail') +
-        container.volume('logs', '/var/log') +
+        container.volume('config', '/etc/promtail', read_only=true) +
+        container.volume('lib', '/var/lib/promtail') +
+        container.volume('logs', '/var/log', read_only=true) +
         container.resources('100m', '200m', '128Mi', '256Mi') +
         container.http_probe('readiness', '/ready', port='http-telemetry') +
         container.http_probe('liveness', '/ready', port='http-telemetry')
       ) +
       pod.service_account(app) +
       pod.volume_configmap('config', configmap=app) +
+      pod.volume_hostpath('lib', path='/var/lib/promtail', type='DirectoryOrCreate') +
       pod.volume_hostpath('logs', path='/var/log') +
-      pod.security_context({ runAsUser: 1000 })
+      pod.security_context({ runAsUser: 0 })
     ),
   ]
