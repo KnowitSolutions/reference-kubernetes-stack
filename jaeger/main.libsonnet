@@ -63,6 +63,8 @@ function(config)
       metadata.annotations({
         'prometheus.io/scrape': 'true',
         'prometheus.io/port': '14269',
+        'json-logs': 'true',
+        'json-log-key': 'msg',
       }) +
       pod.container(
         container.new(collector_app, collector_image) +
@@ -90,6 +92,8 @@ function(config)
       metadata.annotations({
         'prometheus.io/scrape': 'true',
         'prometheus.io/port': '16687',
+        'json-logs': 'true',
+        'json-log-key': 'msg',
       }) +
       pod.container(
         container.new(query_app, query_image) +
