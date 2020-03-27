@@ -71,8 +71,9 @@ function(config)
           KEYCLOAK_STATISTICS: 'all',
         }) +
         container.port('http', 8080) +
+        container.resources('100m', '1500m', '512Mi', '512Mi') +
         container.http_probe('readiness', '/auth/realms/master') +
-        container.http_probe('liveness', '/', delay=90)
+        container.http_probe('liveness', '/', delay=120)
       ) +
       pod.service_account(app) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }),
@@ -92,7 +93,8 @@ function(config)
       pod.container(
         container.new(init, image) +
         container.command(['/initialize.sh']) +
-        container.volume('script', '/initialize.sh', sub_path='initialize.sh')
+        container.volume('script', '/initialize.sh', sub_path='initialize.sh') +
+        container.resources('1000m', '1000m', '256Mi', '256Mi')
       ) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
       pod.volume_configmap('script', init, default_mode=std.parseOctal('555'))

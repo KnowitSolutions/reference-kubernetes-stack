@@ -109,7 +109,7 @@ function(config)
         container.port('http', 20001) +
         container.port('http-telemetry', 9090) +
         container.volume('config', '/etc/kiali') +
-        container.resources(cpu_request='10m') +
+        container.resources('5m', '5m', '64Mi', '64Mi') +
         container.http_probe('readiness', '/healthz') +
         container.http_probe('liveness', '/healthz')
       ) +

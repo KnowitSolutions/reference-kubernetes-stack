@@ -35,7 +35,8 @@ function(config)
           CQLSH_HOST: 'cassandra.db',
           KEYSPACE: 'jaeger',
           TRACE_TTL: '2592000',
-        })
+        }) +
+        container.resources('100m', '100m', '64Mi', '64Mi')
       ) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })
     ),
@@ -73,6 +74,7 @@ function(config)
         container.port('http', 9411) +
         container.port('http-telemetry', 14269) +
         container.volume('config', '/etc/jaeger') +
+        container.resources('50m', '50m', '16Mi', '16Mi') +
         container.http_probe('readiness', '/', port='http-telemetry') +
         container.http_probe('liveness', '/', port='http-telemetry')
       ) +
@@ -102,6 +104,7 @@ function(config)
         container.port('http', 16686) +
         container.port('http-telemetry', 16687) +
         container.volume('config', '/etc/jaeger') +
+        container.resources('10m', '10m', '32Mi', '32Mi') +
         container.http_probe('readiness', '/') +
         container.http_probe('liveness', '/', port='http-telemetry')
       ) +
