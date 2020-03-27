@@ -102,7 +102,6 @@ function(config)
       metadata.annotations({
         'prometheus.io/scrape': 'true',
         'prometheus.io/port': '9090',
-        'kiali.io/runtimes': 'go,kiali',
       }) +
       pod.container(
         container.new(app, image) +
