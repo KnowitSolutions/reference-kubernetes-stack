@@ -49,7 +49,7 @@ function(config)
     metadata.new(app, ns=ns) +
     service.port(8080),
 
-    deployment.new(replicas=2) +
+    deployment.new(replicas=1) +
     metadata.new(app, ns=ns) +
     deployment.pod(
       pod.new() +
