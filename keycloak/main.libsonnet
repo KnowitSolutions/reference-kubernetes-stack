@@ -75,7 +75,7 @@ function(config)
         container.http_probe('liveness', '/', delay=90)
       ) +
       pod.service_account(app) +
-      pod.security_context({ runAsNonRoot: true }),
+      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }),
     ),
 
     configmap.new() +
@@ -94,7 +94,7 @@ function(config)
         container.command(['/initialize.sh']) +
         container.volume('script', '/initialize.sh', sub_path='initialize.sh')
       ) +
-      pod.security_context({ runAsNonRoot: true }) +
+      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
       pod.volume_configmap('script', init, default_mode=std.parseOctal('555'))
     ),
   ]

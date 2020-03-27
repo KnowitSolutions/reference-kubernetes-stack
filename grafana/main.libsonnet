@@ -66,7 +66,7 @@ function(config)
         'pod-overview.json': 'dashboards/pod-overview.json',
         'resource-overview.json': 'dashboards/resource-overview.json',
       }) +
-      pod.security_context({ runAsUser: 472 })
+      pod.security_context({ runAsUser: 472, runAsGroup: 472 })
     ) +
     statefulset.volume_claim('data', '10Gi'),
   ]

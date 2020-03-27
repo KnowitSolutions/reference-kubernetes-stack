@@ -116,6 +116,6 @@ function(config)
       ) +
       pod.service_account(app) +
       pod.volume_configmap('config', configmap=app) +
-      pod.security_context({ runAsUser: 1000 })
+      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })
     ),
   ]

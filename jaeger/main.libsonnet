@@ -37,7 +37,7 @@ function(config)
           TRACE_TTL: '2592000',
         })
       ) +
-      pod.security_context({ runAsUser: 1000 })
+      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })
     ),
 
     configmap.new() +
@@ -77,7 +77,7 @@ function(config)
         container.http_probe('liveness', '/', port='http-telemetry')
       ) +
       pod.volume_configmap('config', configmap=app) +
-      pod.security_context({ runAsUser: 1000 })
+      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })
     ),
 
     service.new(query_app) +
@@ -106,6 +106,6 @@ function(config)
         container.http_probe('liveness', '/', port='http-telemetry')
       ) +
       pod.volume_configmap('config', configmap=app) +
-      pod.security_context({ runAsUser: 1000 })
+      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })
     ),
   ]

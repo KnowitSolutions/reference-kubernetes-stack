@@ -65,6 +65,6 @@ function(config)
       pod.volume_configmap('config', configmap=app) +
       pod.volume_hostpath('lib', path='/var/lib/promtail', type='DirectoryOrCreate') +
       pod.volume_hostpath('logs', path='/var/log') +
-      pod.security_context({ runAsUser: 0 })
+      pod.security_context({ runAsUser: 0, runAsGroup: 1000 })
     ),
   ]

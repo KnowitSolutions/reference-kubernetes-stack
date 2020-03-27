@@ -157,6 +157,6 @@ function(config)
         container.http_probe('liveness', '/healthz')
       ) +
       pod.service_account(app) +
-      pod.security_context({ runAsUser: 65534 })
+      pod.security_context({ runAsUser: 65534, runAsGroup: 65534 })
     ),
   ]
