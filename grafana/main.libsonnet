@@ -49,6 +49,10 @@ function(config)
     metadata.new(app, ns=ns) +
     statefulset.pod(
       pod.new() +
+      metadata.annotations({
+        'prometheus.io/scrape': 'true',
+        'prometheus.io/port': '3000',
+      }) +
       pod.container(
         container.new(app, image) +
         container.port('http', 3000) +
