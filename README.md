@@ -8,6 +8,8 @@ Operations deployment to Kubernetes
 istioctl manifest apply \
   --set values.security.enabled=true \  # TODO: Probably not needed in 1.5.1
   --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true \  # TODO: Probably not needed in 1.5.1
+  --set values.pilot.enableProtocolSniffingForInbound=false \
+  --set values.pilot.enableProtocolSniffingForOutbound=false \
   --set values.prometheus.replicaCount=2 \
   --set values.prometheus.retention=30d \
   --set values.global.tracer.zipkin.address=jaeger-collector.monitoring:9411 \
