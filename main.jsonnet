@@ -7,6 +7,7 @@ local loki = import 'loki/main.libsonnet';
 local promtail = import 'promtail/main.libsonnet';
 local metadata = import 'templates/metadata.libsonnet';
 local namespace = import 'templates/namespace.libsonnet';
+local peerauthentication = import 'templates/peerauthentication.libsonnet';
 
 local ns(name) =
   namespace.new() +
@@ -55,7 +56,15 @@ function(
     },
   };
 
-  [ns('login'), ns('monitoring')] +
+  [
+    peerauthentication.new() +
+    metadata.new('default', ns='istio-system') +
+    peerauthentication.mtls(true),
+
+    ns('login'),
+    ns('monitoring'),
+  ] +
+
   loki(config) +
   promtail(config) +
   kube_state_metrics(config) +
