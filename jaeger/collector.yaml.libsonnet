@@ -1,8 +1,14 @@
 function(config) {
+  local cassandra = config.jaeger.cassandra,
+
   cassandra: {
-    servers: 'cassandra.db',
-    keyspace: 'jaeger',
+    servers: cassandra.address,
+    port: cassandra.port,
+    keyspace: cassandra.keyspace,
+    [if cassandra.username != null then 'username']: cassandra.username,
+    [if cassandra.password != null then 'password']: cassandra.password,
   },
+
   collector: {
     zipkin: {
       'http-port': 9411,

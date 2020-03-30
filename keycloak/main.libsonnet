@@ -18,6 +18,7 @@ local image = 'jboss/keycloak:9.0.0';
 function(config)
   local ns = config.keycloak.namespace;
   local keycloak = config.keycloak;
+  local postgres = keycloak.postgres;
 
   [
     serviceaccount.new() +
@@ -57,13 +58,14 @@ function(config)
       pod.container(
         container.new(app, image) +
         container.env({  // TODO: Check these settings
-          KEYCLOAK_USER: 'admin',
-          KEYCLOAK_PASSWORD: 'admin',
-          DB_VENDOR: 'postgres',  // TODO: Configurable as TLAs
-          DB_ADDR: 'postgres.db',
-          DB_DATABASE: 'postgres',
-          DB_USER: 'postgres',
-          DB_PASSWORD: 'postgres',
+          KEYCLOAK_USER: keycloak.admin.username,
+          KEYCLOAK_PASSWORD: keycloak.admin.password,
+          DB_VENDOR: 'postgres',
+          DB_ADDR: postgres.address,
+          DB_PORT: std.toString(postgres.port),
+          DB_DATABASE: postgres.database,
+          DB_USER: postgres.username,
+          DB_PASSWORD: postgres.password,
           JGROUPS_DISCOVERY_PROTOCOL: 'kubernetes.KUBE_PING',
           JGROUPS_DISCOVERY_PROPERTIES: 'namespace=' + ns,
           KEYCLOAK_FRONTEND_URL: 'http://%s/auth' % [keycloak.external_address],

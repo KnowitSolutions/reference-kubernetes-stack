@@ -14,26 +14,69 @@ local ns(name) =
   metadata.new(name);
 
 function(
+  cassandra_address='cassandra.db',
+  cassandra_port=9042,
+  cassandra_username=null,
+  cassandra_password=null,
+
+  postgres_address='postgres.db',
+  postgres_port=5432,
+  postgres_username='postgres',
+  postgres_password='postgres',
+
+  loki_keyspace='loki',
+  promtail_format='cri',  // Valid choices: cri, docker, raw
+
   keycloak_address='sso.localhost',
-  kiali_address='kiali.localhost',
-  kiali_client_secret='Regenerate me',
+  keycloak_database='keycloak',
+  keycloak_username='admin',
+  keycloak_password='admin',
+
   grafana_address='grafana.localhost',
   grafana_client_secret='Regenerate me',
+
+  kiali_address='kiali.localhost',
+  kiali_client_secret='Regenerate me',
+
+  jaeger_address='jaeger.localhost',
+  jaeger_keyspace='jaeger',
+  jaeger_client_secret='Regenerate me',
 )
+  local cassandra = {
+    address: cassandra_address,
+    port: cassandra_port,
+    username: cassandra_username,
+    password: cassandra_password,
+  };
+
+  local postgres = {
+    address: postgres_address,
+    port: postgres_port,
+    username: postgres_username,
+    password: postgres_password,
+  };
+
   local config = {
     loki: {
       namespace: 'monitoring',
+      cassandra: cassandra { keyspace: loki_keyspace },
     },
     promtail: {
       namespace: 'monitoring',
+      format: promtail_format,
     },
     kube_state_metrics: {
       namespace: 'monitoring',
     },
     keycloak: {
       namespace: 'login',
+      postgres: postgres { database: keycloak_database },
       external_address: keycloak_address,
       internal_address: 'keycloak.login',
+      admin: {
+        username: keycloak_username,
+        password: keycloak_password,
+      },
     },
     grafana: {
       namespace: 'monitoring',
@@ -53,6 +96,12 @@ function(
     },
     jaeger: {
       namespace: 'monitoring',
+      cassandra: cassandra { keyspace: jaeger_keyspace },
+      external_address: jaeger_address,
+      oidc: {
+        client_id: 'jaeger',
+        client_secret: jaeger_client_secret,
+      },
     },
   };
 

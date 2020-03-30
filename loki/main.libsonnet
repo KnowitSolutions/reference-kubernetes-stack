@@ -19,7 +19,7 @@ function(config)
     configmap.new() +
     metadata.new(app, ns=ns) +
     configmap.data({
-      'loki.yaml': importstr 'loki.yaml',
+      'loki.yaml': std.manifestYamlDoc((import 'loki.yaml.libsonnet')(config)),
     }),
 
     deployment.new() +

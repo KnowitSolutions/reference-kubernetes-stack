@@ -38,7 +38,7 @@ function(config)
     configmap.new() +
     metadata.new(app, ns=ns) +
     configmap.data({
-      'promtail.yaml': importstr 'promtail.yaml',
+      'promtail.yaml': std.manifestYamlDoc((import 'promtail.yaml.libsonnet')(config)),
     }),
 
     daemonset.new() +
