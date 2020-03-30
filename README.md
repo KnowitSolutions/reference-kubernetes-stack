@@ -17,11 +17,7 @@ istioctl manifest apply \
 Note: rewriteAppHTTPProbe seems to be unnecessary after Istio v1.6.
 Note: security.enabled is just a workaround for [this bug](https://github.com/istio/istio/issues/22391).
 
-```
-jsonnet --yaml-stream main.jsonnet | kubectl apply --filename -
-```
-
-## Local environment
+## Development
 ```
 kubectl create ns db
 kubectl label ns db istio-injection=enabled
@@ -33,4 +29,16 @@ kubectl --namespace db expose deployment postgres --port 5432
 kubectl --namespace db create deployment cassandra --image=cassandra
 kubectl --namespace db set env deployment cassandra CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
 kubectl --namespace db expose deployment cassandra --port 9042
+
+jsonnet \
+  --tla-str cassandra_address='cassandra.db' \
+  --tla-str postgres_address='postgres.db' \
+  --tla-str postgres_username='postgres' \
+  --tla-str postgres_password='postgres' \
+  --tla-str keycloak_address='keycloak.localhost' \
+  --tla-str grafana_address='grafana.localhost' \
+  --tla-str kiali_address='kiali.localhost' \
+  --tla-str jaeger_address='jaeger.localhost' \
+  --yaml-stream \
+  main.jsonnet | kubectl apply --filename -
 ```

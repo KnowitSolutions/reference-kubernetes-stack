@@ -14,31 +14,31 @@ local ns(name) =
   metadata.new(name);
 
 function(
-  cassandra_address='cassandra.db',
+  cassandra_address,
   cassandra_port=9042,
   cassandra_username=null,
   cassandra_password=null,
 
-  postgres_address='postgres.db',
+  postgres_address,
   postgres_port=5432,
-  postgres_username='postgres',
-  postgres_password='postgres',
+  postgres_username,
+  postgres_password,
 
   loki_keyspace='loki',
   promtail_format='cri',  // Valid choices: cri, docker, raw
 
-  keycloak_address='sso.localhost',
+  keycloak_address,
   keycloak_database='keycloak',
   keycloak_username='admin',
   keycloak_password='admin',
 
-  grafana_address='grafana.localhost',
+  grafana_address,
   grafana_client_secret='Regenerate me',
 
-  kiali_address='kiali.localhost',
+  kiali_address,
   kiali_client_secret='Regenerate me',
 
-  jaeger_address='jaeger.localhost',
+  jaeger_address,
   jaeger_keyspace='jaeger',
   jaeger_client_secret='Regenerate me',
 )
