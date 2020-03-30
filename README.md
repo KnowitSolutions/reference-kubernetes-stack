@@ -6,15 +6,16 @@ Operations deployment to Kubernetes
 
 ```
 istioctl manifest apply \
-  --set values.security.enabled=true \  # TODO: Probably not needed in 1.5.1
-  --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true \  # TODO: Probably not needed in 1.5.1
-  --set values.pilot.enableProtocolSniffingForInbound=false \
-  --set values.pilot.enableProtocolSniffingForOutbound=false \
+  --set values.security.enabled=true \
+  --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true \
   --set values.prometheus.replicaCount=2 \
   --set values.prometheus.retention=30d \
   --set values.global.tracer.zipkin.address=jaeger-collector.monitoring:9411 \
   --set values.pilot.traceSampling=100
 ```
+
+Note: rewriteAppHTTPProbe seems to be unnecessary after Istio v1.6.
+Note: security.enabled is just a workaround for [this bug](https://github.com/istio/istio/issues/22391).
 
 ```
 jsonnet --yaml-stream main.jsonnet | kubectl apply --filename -
@@ -33,7 +34,3 @@ kubectl --namespace db create deployment cassandra --image=cassandra
 kubectl --namespace db set env deployment cassandra CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
 kubectl --namespace db expose deployment cassandra --port 9042
 ```
-
-## Istio 1.5.0 prometheus bug workaround
-* [https://github.com/istio/istio/issues/21843](https://github.com/istio/istio/issues/21843)
-* [https://github.com/istio/istio/issues/22391](https://github.com/istio/istio/issues/22391)
