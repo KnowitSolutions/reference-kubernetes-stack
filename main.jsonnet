@@ -108,8 +108,7 @@ function(
   [
     peerauthentication.new() +
     metadata.new('default', ns='istio-system') +
-    { spec: { mtls: { mode: 'PERMISSIVE' } } },
-    // TODO: Strict mode: peerauthentication.mtls(true),
+    peerauthentication.mtls(true),
 
     ns('login'),
     ns('monitoring'),
