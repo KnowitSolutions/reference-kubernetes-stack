@@ -1,11 +1,13 @@
 local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
+local gateway = import '../templates/gateway.libsonnet';
 local job = import '../templates/job.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local peerauthentication = import '../templates/peerauthentication.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local service = import '../templates/service.libsonnet';
+local virtualservice = import '../templates/virtualservice.libsonnet';
 
 local app = 'jaeger';
 local app_schema = 'jaeger-schema';
@@ -17,6 +19,7 @@ local query_image = 'jaegertracing/jaeger-query:1.17.1';
 
 function(config)
   local ns = config.jaeger.namespace;
+  local jaeger = config.jaeger;
 
   [
     job.new() +
@@ -81,6 +84,15 @@ function(config)
       pod.volume_configmap('config', configmap=app) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })
     ),
+
+    gateway.new(jaeger.external_address) +
+    metadata.new(app, ns=ns),
+
+    virtualservice.new() +
+    metadata.new(app, ns=ns) +
+    virtualservice.host(jaeger.external_address) +
+    virtualservice.gateway(app) +
+    virtualservice.route(query_app, port=16686),
 
     service.new(query_app) +
     metadata.new(query_app, ns=ns) +

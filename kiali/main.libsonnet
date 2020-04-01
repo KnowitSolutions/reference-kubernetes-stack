@@ -2,18 +2,21 @@ local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
 local destinationrule = import '../templates/destinationrule.libsonnet';
+local gateway = import '../templates/gateway.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local role = import '../templates/role.libsonnet';
 local rolebinding = import '../templates/rolebinding.libsonnet';
 local service = import '../templates/service.libsonnet';
 local serviceaccount = import '../templates/serviceaccount.libsonnet';
+local virtualservice = import '../templates/virtualservice.libsonnet';
 
 local app = 'kiali';
 local image = 'quay.io/kiali/kiali:v1.14';
 
 function(config)
   local ns = config.kiali.namespace;
+  local kiali = config.kiali;
 
   [
     destinationrule.new('istio-pilot.istio-system.svc.cluster.local') +
@@ -83,6 +86,15 @@ function(config)
     metadata.new('%s-%s' % [app, ns]) +
     rolebinding.role('%s-%s' % [app, ns], cluster=true) +
     rolebinding.subject('ServiceAccount', app, ns=ns),
+
+    gateway.new(kiali.external_address) +
+    metadata.new(app, ns=ns),
+
+    virtualservice.new() +
+    metadata.new(app, ns=ns) +
+    virtualservice.host(kiali.external_address) +
+    virtualservice.gateway(app) +
+    virtualservice.route(app, port=20001),
 
     service.new(app) +
     metadata.new(app, ns=ns) +

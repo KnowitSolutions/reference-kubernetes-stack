@@ -20,7 +20,7 @@
     },
   },
 
-  route(destination):: {
+  route(destination, port=null):: {
     spec+: {
       http+: [
         {
@@ -28,6 +28,7 @@
             {
               destination: {
                 host: destination,
+                [if port != null then 'port']: { number: port },
               },
             },
           ],
