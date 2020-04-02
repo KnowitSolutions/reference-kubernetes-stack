@@ -25,5 +25,14 @@ function(config) {
       api_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/userinfo' % [keycloak.internal_address],
       role_attribute_path: 'contains(roles, "admin") && "Admin" || "Viewer"',
     },
+
+    security: {
+      disable_gravatar: true,
+    },
+
+    analytics: {
+      reporting_enabled: false,
+      check_for_updates: false,
+    },
   },
 }
