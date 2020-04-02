@@ -24,11 +24,11 @@ kubectl label ns db istio-injection=enabled
 
 kubectl --namespace db create deployment postgres --image=postgres
 kubectl --namespace db set env deployment postgres POSTGRES_DB=keycloak POSTGRES_PASSWORD=postgres
-kubectl --namespace db expose deployment postgres --port 5432
+kubectl --namespace db expose deployment postgres --cluster-ip=None --port 5432
 
 kubectl --namespace db create deployment cassandra --image=cassandra
 kubectl --namespace db set env deployment cassandra CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
-kubectl --namespace db expose deployment cassandra --port 9042
+kubectl --namespace db expose deployment cassandra --cluster-ip=None --port 9042
 
 jsonnet \
   --tla-str cassandra_address='cassandra.db' \
