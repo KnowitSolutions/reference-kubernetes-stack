@@ -13,10 +13,13 @@ local virtualservice = import '../templates/virtualservice.libsonnet';
 
 local app = 'kiali';
 local image = 'quay.io/kiali/kiali:v1.14';
+local auth_app = 'oauth2-proxy';
+local auth_image = 'quay.io/oauth2-proxy/oauth2-proxy:v5.1.0';
 
 function(config)
   local ns = config.kiali.namespace;
   local kiali = config.kiali;
+  local keycloak = config.keycloak;
 
   [
     destinationrule.new('istio-pilot.istio-system.svc.cluster.local') +
@@ -94,11 +97,11 @@ function(config)
     metadata.new(app, ns=ns) +
     virtualservice.host(kiali.external_address) +
     virtualservice.gateway(app) +
-    virtualservice.route(app, port=20001),
+    virtualservice.route(app, port=4180),
 
     service.new(app) +
     metadata.new(app, ns=ns) +
-    service.port(20001) +
+    service.port(4180) +
     service.port(9090, name='http-telemetry'),
 
     configmap.new() +
@@ -118,12 +121,35 @@ function(config)
       pod.container(
         container.new(app, image) +
         container.args(['-config', '/etc/kiali/config.yaml']) +
-        container.port('http', 20001) +
+        container.port('http-direct', 20001) +
         container.port('http-telemetry', 9090) +
         container.volume('config', '/etc/kiali') +
         container.resources('100m', '100m', '64Mi', '64Mi') +
-        container.http_probe('readiness', '/healthz') +
-        container.http_probe('liveness', '/healthz')
+        container.http_probe('readiness', '/healthz', port='http-direct') +
+        container.http_probe('liveness', '/healthz', port='http-direct')
+      ) +
+      pod.container(
+        container.new(auth_app, auth_image) +
+        container.args([
+          '--upstream=http://127.0.0.1:20001',
+          '--skip-provider-button',
+          '--provider=oidc',
+          '--skip-oidc-discovery=true',
+          '--oidc-issuer-url=http://%s/auth/realms/master' % keycloak.external_address,
+          '--login-url=http://%s/auth/realms/master/protocol/openid-connect/auth' % keycloak.external_address,
+          '--redeem-url=http://%s:8080/auth/realms/master/protocol/openid-connect/token' % keycloak.internal_address,
+          '--oidc-jwks-url=http://%s:8080/auth/realms/master/protocol/openid-connect/certs' % keycloak.internal_address,
+          '--client-id=%s' % kiali.oidc.client_id,
+          '--client-secret=%s' % kiali.oidc.client_secret,
+          '--redirect-url=http://%s/oauth2/callback' % kiali.external_address,
+          '--cookie-secret=secret',  // TODO: Change
+          '--cookie-secure=false',
+          '--email-domain=*',
+        ]) +
+        container.port('http', 4180) +
+        // TODO: resources
+        container.http_probe('readiness', '/ping') +
+        container.http_probe('liveness', '/ping')
       ) +
       pod.service_account(app) +
       pod.volume_configmap('config', configmap=app) +
