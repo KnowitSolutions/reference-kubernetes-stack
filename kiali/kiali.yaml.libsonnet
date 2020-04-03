@@ -2,6 +2,7 @@ function(config) {
   server: { port: 20001 },
   auth: { strategy: 'anonymous' },
   deployment: { accessible_namespaces: ['**'] },
+  kubernetes_config: { excluded_workloads: [] },
 
   external_services: {
     grafana: {
