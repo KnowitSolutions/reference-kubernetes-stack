@@ -1,5 +1,11 @@
 # Reference Kubernetes stack
 
+We love Kubernetes. We love deploying straight into prodction. We love containers and all the great tings they bring. But we spent a lot of time building the competence and experience to operate such an environment, and a lot more time discovering and adapting a number of quality-of-life features. 
+
+We are open sourcing this reference stack because we needed to create something like this in order to be comfortable operating on Kubernetes. Chances are, you are going to have the same experience and perhaps might want to not spend a lot of effort solving each problem yourself.  
+
+This stack was designed specifically in order to provide our cloud solutions with a solid framework for general services such as authentication, and a strong set of tools to make our Kubernetes environment robust and easy to operate and support.
+
 This project serves as the reference implementation for auxiliary services used in projects by Knowit Reaktor Solutions AS running on Kubernetes. It provides tools and utilities for better visibility into what is going on inside your cluster to help debugging and finding problems with your deployments, and can also easily be extended to track new metrics. The stack builds on top of Istio which provides service meshing. The following coponents are provided:
 
 * Service meshing with Istio
