@@ -17,6 +17,13 @@ This project serves as the reference implementation for auxiliary services used 
 
 ## Installation
 
+### Dependencies
+
+To run subsequent commands `istioctl` and `jsonnet` has to be installed. Both projects supply pre-built binaries for Linux, and are available through Homebrew for macOS. Windows users are encouraged to use Windows Subsystem for Linux and proceed as if on Linux. Instructions for installing can be found in the links below.
+
+* [Istio](https://istio.io/docs/setup/getting-started/)
+* [Jsonnet](https://github.com/google/jsonnet/releases)
+
 ### Istio
 
 The stack is build and tested against version 1.5.1 of Istio. Newer versions might work, but the stack is incompatible with older versions.
