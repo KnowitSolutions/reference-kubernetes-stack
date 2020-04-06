@@ -36,4 +36,25 @@
       ],
     },
   },
+
+  redirect(exact=null, prefix=null, regex=null, path):: {
+    spec+: {
+      http+: [
+        {
+          match: [
+            {
+              uri: {
+                [if exact != null then 'exact']: exact,
+                [if prefix != null then 'prefix']: prefix,
+                [if regex != null then 'regex']: regex,
+              },
+            },
+          ],
+          redirect: {
+            uri: path,
+          },
+        },
+      ],
+    },
+  },
 }

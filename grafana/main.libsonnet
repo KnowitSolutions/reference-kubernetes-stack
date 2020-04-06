@@ -28,6 +28,7 @@ function(config)
     metadata.new(app, ns=ns) +
     virtualservice.host(grafana.external_address) +
     virtualservice.gateway(app) +
+    virtualservice.redirect(exact='/metrics', path='/') +
     virtualservice.route(app),
 
     service.new(app) +
