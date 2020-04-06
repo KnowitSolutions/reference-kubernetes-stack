@@ -1,5 +1,5 @@
 {
-  new(app):: {
+  new(app, headless=false):: {
     apiVersion: 'v1',
     kind: 'Service',
     spec: {
@@ -7,6 +7,7 @@
         app: app,
       },
       type: 'ClusterIP',
+      [if headless then 'clusterIP']: 'None',
     },
   },
 

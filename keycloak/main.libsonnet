@@ -1,9 +1,11 @@
 local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
+local destinationrule = import '../templates/destinationrule.libsonnet';
 local gateway = import '../templates/gateway.libsonnet';
 local job = import '../templates/job.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
+//local peerauthentication = import '../templates/peerauthentication.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local role = import '../templates/role.libsonnet';
 local rolebinding = import '../templates/rolebinding.libsonnet';
@@ -50,14 +52,31 @@ function(config)
     metadata.new(app, ns=ns) +
     service.port(8080),
 
-    deployment.new(replicas=1) +
+    destinationrule.new(app + '-gossip') +
+    metadata.new(app + '-gossip', ns=ns) +
+    destinationrule.mtls(false),
+
+    service.new(app, headless=true) +
+    metadata.new(app + '-gossip', ns=ns) +
+    service.port(7600, name='tcp-gossip'),
+
+    // TODO: Why doesn't it work when adding this and removing the excludeInboundPorts?
+    //peerauthentication.new({ app: app }) +
+    //metadata.new(app, ns=ns) +
+    //peerauthentication.mtls(true) +
+    //peerauthentication.mtls(false, 7600),
+
+    deployment.new(replicas=2) +
     metadata.new(app, ns=ns) +
     deployment.pod(
       pod.new() +
       metadata.new(app) +
+      metadata.annotations({
+        'traffic.sidecar.istio.io/excludeInboundPorts': '7600',
+      }) +
       pod.container(
         container.new(app, image) +
-        container.env({  // TODO: Check these settings
+        container.env({
           KEYCLOAK_USER: keycloak.admin.username,
           KEYCLOAK_PASSWORD: keycloak.admin.password,
           DB_VENDOR: 'postgres',
@@ -70,12 +89,13 @@ function(config)
             if postgres.tls.hostname_validation then 'verify-full' else 'require'
           ),
           JGROUPS_DISCOVERY_PROTOCOL: 'kubernetes.KUBE_PING',
-          JGROUPS_DISCOVERY_PROPERTIES: 'namespace=' + ns,
+          JGROUPS_DISCOVERY_PROPERTIES_DIRECT: '{namespace=>%s,labels=>app=%s,port_range=>0}' % [ns, app],
           KEYCLOAK_FRONTEND_URL: 'http://%s/auth' % [keycloak.external_address],
           PROXY_ADDRESS_FORWARDING: 'true',
           KEYCLOAK_STATISTICS: 'all',
         }) +
         container.port('http', 8080) +
+        container.port('tcp-gossip', 7600) +
         container.resources('100m', '1500m', '512Mi', '512Mi') +
         container.http_probe('readiness', '/auth/realms/master') +
         container.http_probe('liveness', '/', delay=120)
