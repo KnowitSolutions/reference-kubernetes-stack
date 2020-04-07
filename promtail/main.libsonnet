@@ -13,6 +13,7 @@ local image = 'grafana/promtail:latest';
 
 function(config)
   local ns = config.promtail.namespace;
+  local promtail = config.promtail;
 
   [
     serviceaccount.new() +
@@ -56,7 +57,10 @@ function(config)
         container.port('http-telemetry', 8080) +
         container.volume('config', '/etc/promtail', read_only=true) +
         container.volume('lib', '/var/lib/promtail') +
-        container.volume('logs', '/var/log', read_only=true) +
+        container.volume('pod-logs', '/var/log/pods', read_only=true) +
+        (if promtail.log_type == 'docker'
+         then container.volume('docker-logs', '/var/lib/docker/containers', read_only=true)
+         else {}) +
         container.resources('100m', '200m', '128Mi', '256Mi') +
         container.http_probe('readiness', '/ready', port='http-telemetry') +
         container.http_probe('liveness', '/ready', port='http-telemetry')
@@ -64,7 +68,10 @@ function(config)
       pod.service_account(app) +
       pod.volume_configmap('config', configmap=app) +
       pod.volume_hostpath('lib', path='/var/lib/promtail', type='DirectoryOrCreate') +
-      pod.volume_hostpath('logs', path='/var/log') +
+      pod.volume_hostpath('pod-logs', path='/var/log/pods') +
+      (if promtail.log_type == 'docker'
+       then pod.volume_hostpath('docker-logs', path='/var/lib/docker/containers')
+       else {}) +
       pod.security_context({ runAsUser: 0, runAsGroup: 1000 })
     ),
   ]

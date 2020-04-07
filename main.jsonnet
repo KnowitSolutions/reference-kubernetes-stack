@@ -28,7 +28,7 @@ function(
   postgres_password,
 
   loki_keyspace='loki',
-  promtail_format='cri',  // Valid choices: cri, docker, raw
+  promtail_log_type='cri',  // Valid choices: cri, docker, raw
 
   keycloak_address,
   keycloak_database='keycloak',
@@ -71,7 +71,7 @@ function(
     },
     promtail: {
       namespace: 'monitoring',
-      format: promtail_format,
+      log_type: promtail_log_type,
     },
     kube_state_metrics: {
       namespace: 'monitoring',
