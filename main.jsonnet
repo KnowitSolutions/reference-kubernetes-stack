@@ -18,6 +18,9 @@ function(
   cassandra_port=9042,
   cassandra_username=null,
   cassandra_password=null,
+  cassandra_tls=false,
+  cassandra_tls_hostname_validation=true,
+  cassandra_timeout='1s',
 
   postgres_address,
   postgres_port=5432,
@@ -47,6 +50,11 @@ function(
     port: cassandra_port,
     username: cassandra_username,
     password: cassandra_password,
+    tls: {
+      enabled: cassandra_tls,
+      hostname_validation: cassandra_tls_hostname_validation,
+    },
+    timeout: cassandra_timeout,
   };
 
   local postgres = {

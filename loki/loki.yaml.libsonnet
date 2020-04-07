@@ -45,6 +45,10 @@ function(config) {
       auth: cassandra.username != null && cassandra.password != null,
       [if cassandra.username != null then 'username']: cassandra.username,
       [if cassandra.password != null then 'password']: cassandra.password,
+      SSL: cassandra.tls.enabled,
+      host_verification: cassandra.tls.hostname_validation,
+      connect_timeout: cassandra.timeout,
+      timeout: cassandra.timeout,
     },
   },
 

@@ -22,6 +22,7 @@ local auth_image = 'quay.io/oauth2-proxy/oauth2-proxy:v5.1.0';
 function(config)
   local ns = config.jaeger.namespace;
   local jaeger = config.jaeger;
+  local cassandra = config.jaeger.cassandra;
   local keycloak = config.keycloak;
 
   [
@@ -38,7 +39,12 @@ function(config)
         |||]) +
         container.env({
           MODE: 'prod',
-          CQLSH_HOST: 'cassandra.db',
+          CQLSH_HOST: '%s %s' % [cassandra.address, cassandra.port],
+          [if cassandra.username != null then 'CASSANDRA_USERNAME']: cassandra.username,
+          [if cassandra.password != null then 'CASSANDRA_PASSWORD']: cassandra.password,
+          [if cassandra.tls.enabled then 'CQLSH_SSL']: '--ssl',
+          [if cassandra.tls.enabled then 'SSL_VERSION']: 'TLSv1_2',
+          [if cassandra.tls.enabled then 'SSL_VALIDATE']: std.toString(cassandra.tls.hostname_validation),
           KEYSPACE: 'jaeger',
           TRACE_TTL: '2592000',
         }) +
