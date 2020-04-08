@@ -18,7 +18,7 @@ function(config) |||
   )
 
   kcadm.sh update "users/$admin_id" \
-    --set email=%(keycloak_username)s@localhost \
+    --set email=admin@localhost \
     --set emailVerified=true
 
   client_id=$(
