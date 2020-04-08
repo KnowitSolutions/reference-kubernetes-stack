@@ -1,4 +1,7 @@
 function(config) {
+  local grafana = config.grafana,
+  local jaeger = config.jaeger,
+
   server: { port: 20001 },
   auth: { strategy: 'anonymous' },
   deployment: { accessible_namespaces: ['**'] },
@@ -6,7 +9,7 @@ function(config) {
 
   external_services: {
     grafana: {
-      url: 'http://grafana.localhost',
+      url: 'http://%s' % grafana.external_address,
     },
     istio: {
       url_service_version: 'http://istio-pilot.istio-system:8080/version',
@@ -16,7 +19,7 @@ function(config) {
     },
     tracing: {
       in_cluster_url: 'http://jaeger-query.monitoring:16686',
-      url: 'http://jaeger.localhost',
+      url: 'http://%s' % jaeger.external_address,
     },
   },
 }
