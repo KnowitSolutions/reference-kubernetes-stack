@@ -26,6 +26,8 @@ function(
   postgres_port=5432,
   postgres_username,
   postgres_password,
+  postgres_tls=false,
+  postgres_tls_hostname_validation=true,
 
   loki_keyspace='loki',
   promtail_log_type='cri',  // Valid choices: cri, docker, raw
@@ -62,6 +64,10 @@ function(
     port: postgres_port,
     username: postgres_username,
     password: postgres_password,
+    tls: {
+      enabled: postgres_tls,
+      hostname_validation: postgres_tls_hostname_validation,
+    },
   };
 
   local config = {

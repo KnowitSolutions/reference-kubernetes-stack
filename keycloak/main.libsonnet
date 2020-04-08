@@ -66,6 +66,9 @@ function(config)
           DB_DATABASE: postgres.database,
           DB_USER: postgres.username,
           DB_PASSWORD: postgres.password,
+          [if postgres.tls.enabled then 'JDBC_PARAMS']: 'sslmode=%s' % (
+            if postgres.tls.hostname_validation then 'verify-full' else 'require'
+          ),
           JGROUPS_DISCOVERY_PROTOCOL: 'kubernetes.KUBE_PING',
           JGROUPS_DISCOVERY_PROPERTIES: 'namespace=' + ns,
           KEYCLOAK_FRONTEND_URL: 'http://%s/auth' % [keycloak.external_address],

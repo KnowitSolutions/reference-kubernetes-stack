@@ -6,19 +6,19 @@ function(config) |||
   kcadm.sh config credentials \
     --server http://keycloak:8080/auth \
     --realm master \
-    --user admin \
-    --password admin
+    --user %(keycloak_username)s \
+    --password %(keycloak_password)s
 
   admin_id=$(
     kcadm.sh get users \
       --fields id \
-      --query username=admin \
+      --query username=%(keycloak_username)s \
       --format csv | \
     tr -d '"'
   )
 
   kcadm.sh update "users/$admin_id" \
-    --set email=admin@localhost \
+    --set email=%(keycloak_username)s@localhost \
     --set emailVerified=true
 
   client_id=$(
@@ -59,6 +59,8 @@ function(config) |||
 
   curl --request POST --silent --fail http://localhost:15020/quitquitquit
 ||| % {
+  keycloak_username: config.keycloak.admin.username,
+  keycloak_password: config.keycloak.admin.password,
   grafana_client_id: config.grafana.oidc.client_id,
   grafana_client_secret: config.grafana.oidc.client_secret,
   grafana_address: config.grafana.external_address,
