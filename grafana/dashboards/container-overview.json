@@ -15,8 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 2,
-  "iteration": 1584532868302,
+  "iteration": 1586865683625,
   "links": [],
   "panels": [
     {
@@ -591,40 +590,9 @@
         "label": "Namespaces",
         "multi": true,
         "name": "namespaces",
-        "options": [
-          {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
-          },
-          {
-            "selected": false,
-            "text": "db",
-            "value": "db"
-          },
-          {
-            "selected": false,
-            "text": "istio-system",
-            "value": "istio-system"
-          },
-          {
-            "selected": false,
-            "text": "kube-system",
-            "value": "kube-system"
-          },
-          {
-            "selected": false,
-            "text": "login",
-            "value": "login"
-          },
-          {
-            "selected": false,
-            "text": "monitoring",
-            "value": "monitoring"
-          }
-        ],
+        "options": [],
         "query": "label_values(kube_pod_container_info, exported_namespace)",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 5,
@@ -657,5 +625,5 @@
   "timezone": "",
   "title": "Container overview",
   "uid": "XKGhoBXWz",
-  "version": 22
+  "version": 1
 }

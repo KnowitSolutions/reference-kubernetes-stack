@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1584541411059,
+  "iteration": 1586865841605,
   "links": [],
   "panels": [
     {
@@ -368,32 +368,32 @@
       ],
       "targets": [
         {
-          "expr": "kube_pod_info{node=\"$nodes\", exported_namespace=~\"$namespaces\"}",
+          "expr": "kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"}",
           "format": "table",
           "hide": false,
           "instant": true,
           "refId": "A"
         },
         {
-          "expr": "kube_pod_info{node=\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_requests_cpu_cores) by (exported_namespace, pod)",
+          "expr": "kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_requests_cpu_cores) by (exported_namespace, pod)",
           "format": "table",
           "instant": true,
           "refId": "B"
         },
         {
-          "expr": "kube_pod_info{node=\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_limits_cpu_cores) by (exported_namespace, pod)",
+          "expr": "kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_limits_cpu_cores) by (exported_namespace, pod)",
           "format": "table",
           "instant": true,
           "refId": "C"
         },
         {
-          "expr": "kube_pod_info{node=\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_requests_memory_bytes) by (exported_namespace, pod)",
+          "expr": "kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_requests_memory_bytes) by (exported_namespace, pod)",
           "format": "table",
           "instant": true,
           "refId": "D"
         },
         {
-          "expr": "kube_pod_info{node=\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_limits_memory_bytes) by (exported_namespace, pod)",
+          "expr": "kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_limits_memory_bytes) by (exported_namespace, pod)",
           "format": "table",
           "instant": true,
           "refId": "E"
@@ -426,20 +426,9 @@
         "label": "Nodes",
         "multi": true,
         "name": "nodes",
-        "options": [
-          {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
-          },
-          {
-            "selected": false,
-            "text": "microk8s",
-            "value": "microk8s"
-          }
-        ],
+        "options": [],
         "query": "label_values(kube_node_info, node)",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 5,
@@ -464,40 +453,9 @@
         "label": "Namespaces",
         "multi": true,
         "name": "namespaces",
-        "options": [
-          {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
-          },
-          {
-            "selected": false,
-            "text": "db",
-            "value": "db"
-          },
-          {
-            "selected": false,
-            "text": "istio-system",
-            "value": "istio-system"
-          },
-          {
-            "selected": false,
-            "text": "kube-system",
-            "value": "kube-system"
-          },
-          {
-            "selected": false,
-            "text": "login",
-            "value": "login"
-          },
-          {
-            "selected": false,
-            "text": "monitoring",
-            "value": "monitoring"
-          }
-        ],
+        "options": [],
         "query": "label_values(kube_pod_info, exported_namespace)",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 5,

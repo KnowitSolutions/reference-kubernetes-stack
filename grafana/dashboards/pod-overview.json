@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1584532897454,
+  "iteration": 1586865940564,
   "links": [],
   "panels": [
     {
@@ -1084,10 +1084,7 @@
     "list": [
       {
         "allValue": null,
-        "current": {
-          "text": "login",
-          "value": "login"
-        },
+        "current": {},
         "datasource": "Prometheus",
         "definition": "label_values(kube_pod_info, exported_namespace)",
         "hide": 0,
@@ -1097,7 +1094,7 @@
         "name": "namespace",
         "options": [],
         "query": "label_values(kube_pod_info, exported_namespace)",
-        "refresh": 2,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 5,
@@ -1109,10 +1106,7 @@
       },
       {
         "allValue": null,
-        "current": {
-          "text": "keycloak-56f7767ddc-k7fqg",
-          "value": "keycloak-56f7767ddc-k7fqg"
-        },
+        "current": {},
         "datasource": "Prometheus",
         "definition": "label_values(kube_pod_info{exported_namespace=\"$namespace\"}, pod)",
         "hide": 0,
@@ -1122,7 +1116,7 @@
         "name": "pod",
         "options": [],
         "query": "label_values(kube_pod_info{exported_namespace=\"$namespace\"}, pod)",
-        "refresh": 2,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 5,
