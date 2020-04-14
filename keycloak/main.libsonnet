@@ -72,6 +72,8 @@ function(config)
       pod.new() +
       metadata.new(app) +
       metadata.annotations({
+        'prometheus.io/scrape': 'true',
+        'prometheus.io/port': '9990',
         'traffic.sidecar.istio.io/excludeInboundPorts': '7600',
       }) +
       pod.container(
