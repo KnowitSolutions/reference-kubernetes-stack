@@ -45,7 +45,7 @@ Note: security.enabled is just a workaround for [this bug](https://github.com/is
 
 ### Local development databases
 
-For local development the required Postgres and Cassandra databases can run as Kubernetes deployments. This will however not provide any persistence, and as such all data in the database is lost every time the associated pods are restarted. The following commands will setup a namespace `db` in which the databases are set up.
+For local development the required Postgres database can run as a Kubernetes deployment. This will however not provide any persistence, and as such all data in the database is lost every time the associated pod is restarted. The following commands will setup a namespace `db` and create the database inside it.
 
 ```
 kubectl create ns db
@@ -54,10 +54,6 @@ kubectl label ns db istio-injection=enabled
 kubectl --namespace db create deployment postgres --image=postgres
 kubectl --namespace db set env deployment postgres POSTGRES_DB=keycloak POSTGRES_PASSWORD=postgres
 kubectl --namespace db expose deployment postgres --cluster-ip=None --port 5432
-
-kubectl --namespace db create deployment cassandra --image=cassandra
-kubectl --namespace db set env deployment cassandra CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
-kubectl --namespace db expose deployment cassandra --cluster-ip=None --port 9042
 ```
 
 ### Reference stack
@@ -72,7 +68,7 @@ For local development installations the following command should be a good start
 
 ```
 jsonnet \
-  --tla-str cassandra_address='cassandra.db' \
+  --tla-code cassandra_replicas=1 \
   --tla-str postgres_address='postgres.db' \
   --tla-str postgres_username='postgres' \
   --tla-str postgres_password='postgres' \

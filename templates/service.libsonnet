@@ -1,5 +1,5 @@
 {
-  new(app, headless=false):: {
+  new(app, headless=false, only_ready=true):: {
     apiVersion: 'v1',
     kind: 'Service',
     spec: {
@@ -8,6 +8,7 @@
       },
       type: 'ClusterIP',
       [if headless then 'clusterIP']: 'None',
+      publishNotReadyAddresses: !only_ready,
     },
   },
 

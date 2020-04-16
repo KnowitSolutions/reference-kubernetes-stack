@@ -44,12 +44,34 @@
     },
   },
 
-  http_probe(type, path, port='http', delay=null):: {
+  exec_probe(type, command, delay=null, timeout=null):: {
     [type + 'Probe']: {
       [if delay != null then 'initialDelaySeconds']: delay,
+      [if timeout != null then 'timeoutSeconds']: timeout,
+      exec: {
+        command: command,
+      },
+    },
+  },
+
+  http_probe(type, path, port='http', delay=null, timeout=null):: {
+    [type + 'Probe']: {
+      [if delay != null then 'initialDelaySeconds']: delay,
+      [if timeout != null then 'timeoutSeconds']: timeout,
       httpGet: {
         path: path,
         port: port,
+      },
+    },
+  },
+
+  exec_handler(type, command):: {
+    lifecycle+: {
+      [if type == 'start' then 'postStart'
+      else if type == 'stop' then 'preStop']: {
+        exec: {
+          command: command,
+        },
       },
     },
   },

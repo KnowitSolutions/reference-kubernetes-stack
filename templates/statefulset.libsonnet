@@ -1,7 +1,7 @@
 local metadata = import 'metadata.libsonnet';
 
 {
-  new(replicas=1, parallel=false):: {
+  new(replicas=1, parallel=false, service=null):: {
     local statefulset = self,
     apiVersion: 'apps/v1',
     kind: 'StatefulSet',
@@ -10,7 +10,7 @@ local metadata = import 'metadata.libsonnet';
       metadata.label('version', 'master')
     ).metadata,
     spec: {
-      serviceName: statefulset.metadata.name,
+      serviceName: if service == null then statefulset.metadata.name else service,
       replicas: replicas,
       podManagementPolicy: if parallel then 'Parallel' else 'OrderedReady',
       selector: { matchLabels: statefulset.metadata.labels },

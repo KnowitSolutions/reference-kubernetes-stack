@@ -1,3 +1,4 @@
+local cassandra = import 'cassandra/main.libsonnet';
 local grafana = import 'grafana/main.libsonnet';
 local jaeger = import 'jaeger/main.libsonnet';
 local keycloak = import 'keycloak/main.libsonnet';
@@ -14,13 +15,15 @@ local ns(name) =
   metadata.new(name);
 
 function(
-  cassandra_address,
+  cassandra_use_bundled=true,
+  cassandra_replicas=3,
+  cassandra_address=null,
   cassandra_port=9042,
   cassandra_username=null,
   cassandra_password=null,
   cassandra_tls=false,
   cassandra_tls_hostname_validation=true,
-  cassandra_timeout='1s',
+  cassandra_timeout='10s',  // TODO: Why is this so high? 1s ought to be enough
 
   postgres_address,
   postgres_port=5432,
@@ -47,8 +50,26 @@ function(
   jaeger_keyspace='jaeger',
   jaeger_client_secret='Regenerate me',
 )
-  local cassandra = {
-    address: cassandra_address,
+  local database_namespace = cassandra_use_bundled;
+
+  local cassandra_connection = {
+    assert if cassandra_use_bundled then
+      cassandra_address == null &&
+      cassandra_port == 9042 &&
+      cassandra_username == null &&
+      cassandra_password == null &&
+      cassandra_tls == false
+    else true : 'Cannot override Cassandra connection details when using bundled instance',
+
+    assert if !cassandra_use_bundled then
+      cassandra_replicas != 3
+    else true : 'Cannot override Cassandra settings when using external instance',
+
+    assert if !cassandra_use_bundled then
+      cassandra_address != null
+    else true : 'Missing Cassandra address',
+
+    address: if cassandra_use_bundled then 'cassandra.db' else cassandra_address,
     port: cassandra_port,
     username: cassandra_username,
     password: cassandra_password,
@@ -59,7 +80,7 @@ function(
     timeout: cassandra_timeout,
   };
 
-  local postgres = {
+  local postgres_connection = {
     address: postgres_address,
     port: postgres_port,
     username: postgres_username,
@@ -71,9 +92,13 @@ function(
   };
 
   local config = {
+    cassandra: {
+      namespace: 'db',
+      replicas: cassandra_replicas,
+    },
     loki: {
       namespace: 'monitoring',
-      cassandra: cassandra { keyspace: loki_keyspace },
+      cassandra: cassandra_connection { keyspace: loki_keyspace },
     },
     promtail: {
       namespace: 'monitoring',
@@ -84,7 +109,7 @@ function(
     },
     keycloak: {
       namespace: 'login',
-      postgres: postgres { database: keycloak_database },
+      postgres: postgres_connection { database: keycloak_database },
       external_address: keycloak_address,
       internal_address: 'keycloak.login',
       admin: {
@@ -110,7 +135,7 @@ function(
     },
     jaeger: {
       namespace: 'monitoring',
-      cassandra: cassandra { keyspace: jaeger_keyspace },
+      cassandra: cassandra_connection { keyspace: jaeger_keyspace },
       external_address: jaeger_address,
       oidc: {
         client_id: 'jaeger',
@@ -127,7 +152,9 @@ function(
     ns('login'),
     ns('monitoring'),
   ] +
+  (if database_namespace then [ns('db')] else []) +
 
+  (if cassandra_use_bundled then cassandra(config) else []) +
   loki(config) +
   promtail(config) +
   kube_state_metrics(config) +
