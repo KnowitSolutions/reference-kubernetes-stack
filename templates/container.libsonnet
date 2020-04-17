@@ -22,6 +22,15 @@
     ],
   },
 
+  env_from(configmap=null, secret=null):: {
+    envFrom+: [
+      {
+        [if configmap != null then 'configMapRef']: { name: configmap },
+        [if secret != null then 'secretRef']: { name: secret },
+      },
+    ],
+  },
+
   port(protocol, port):: {
     ports+: [
       {

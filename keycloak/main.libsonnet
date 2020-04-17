@@ -66,6 +66,10 @@ function(config)
     //peerauthentication.mtls(true) +
     //peerauthentication.mtls(false, 7600),
 
+    configmap.new() +
+    metadata.new(app, ns=ns) +
+    configmap.data((import 'keycloak.env.libsonnet')(app, config)),
+
     deployment.new(replicas=keycloak.replicas) +
     metadata.new(app, ns=ns) +
     deployment.pod(
@@ -78,24 +82,7 @@ function(config)
       }) +
       pod.container(
         container.new(app, image) +
-        container.env({
-          KEYCLOAK_USER: keycloak.admin.username,
-          KEYCLOAK_PASSWORD: keycloak.admin.password,
-          DB_VENDOR: 'postgres',
-          DB_ADDR: postgres.address,
-          DB_PORT: std.toString(postgres.port),
-          DB_DATABASE: postgres.database,
-          DB_USER: postgres.username,
-          DB_PASSWORD: postgres.password,
-          [if postgres.tls.enabled then 'JDBC_PARAMS']: 'sslmode=%s' % (
-            if postgres.tls.hostname_validation then 'verify-full' else 'require'
-          ),
-          JGROUPS_DISCOVERY_PROTOCOL: 'kubernetes.KUBE_PING',
-          JGROUPS_DISCOVERY_PROPERTIES_DIRECT: '{namespace=>%s,labels=>app=%s,port_range=>0}' % [ns, app],
-          KEYCLOAK_FRONTEND_URL: 'http://%s/auth' % [keycloak.external_address],
-          PROXY_ADDRESS_FORWARDING: 'true',
-          KEYCLOAK_STATISTICS: 'all',
-        }) +
+        container.env_from(configmap=app) +
         container.port('http', 8080) +
         container.port('tcp-gossip', 7600) +
         container.resources('100m', '1500m', '512Mi', '512Mi') +

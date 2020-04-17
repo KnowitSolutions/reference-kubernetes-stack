@@ -1,3 +1,4 @@
+local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
@@ -20,6 +21,10 @@ function(config)
     metadata.new('%s-gossip' % app, ns=ns) +
     service.port(7000, name='tcp-gossip'),
 
+    configmap.new() +
+    metadata.new(app, ns=ns) +
+    configmap.data((import 'cassandra.env.libsonnet')(app)),
+
     statefulset.new(replicas=cassandra.replicas, parallel=true, service='%s-gossip' % app) +
     metadata.new(app, ns=ns) +
     statefulset.pod(
@@ -28,14 +33,9 @@ function(config)
       pod.container(
         container.new(app, image) +
         container.env({
-          CASSANDRA_CLUSTER_NAME: 'Kubernetes',
-          CASSANDRA_LISTEN_ADDRESS: '127.0.0.1',
           CASSANDRA_BROADCAST_ADDRESS: { fieldRef: { fieldPath: 'status.podIP' } },
-          CASSANDRA_SEEDS: '%(app)s-0.%(app)s-gossip' % { app: app },
-          CASSANDRA_ENDPOINT_SNITCH: 'GossipingPropertyFileSnitch',
-          MAX_HEAP_SIZE: '4G',
-          HEAP_NEWSIZE: '500M',
         }) +
+        container.env_from(configmap=app) +
         container.volume('data', '/var/lib/cassandra') +
         container.port('tcp-cql', 9042) +
         container.port('tcp-gossip', 7000) +
