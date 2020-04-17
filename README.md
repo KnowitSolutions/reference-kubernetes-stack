@@ -72,9 +72,12 @@ jsonnet \
   --tla-str postgres_address='postgres.db' \
   --tla-str postgres_username='postgres' \
   --tla-str postgres_password='postgres' \
+  --tla-code keycloak_replicas=1 \
   --tla-str keycloak_address='keycloak.localhost' \
   --tla-str grafana_address='grafana.localhost' \
+  --tla-code kiali_replicas=1 \
   --tla-str kiali_address='kiali.localhost' \
+  --tla-code jaeger_replicas=1 \
   --tla-str jaeger_address='jaeger.localhost' \
   --yaml-stream \
   main.jsonnet | kubectl apply --filename -

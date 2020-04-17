@@ -110,7 +110,7 @@ function(config)
       'config.yaml': std.manifestYamlDoc((import 'kiali.yaml.libsonnet')(config)),
     }),
 
-    deployment.new(replicas=2) +
+    deployment.new(replicas=kiali.replicas) +
     metadata.new(app, ns=ns) +
     deployment.pod(
       pod.new() +

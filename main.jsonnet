@@ -34,20 +34,25 @@ function(
   postgres_tls=false,
   postgres_tls_hostname_validation=true,
 
+  // TODO: loki_replicas=2,
   loki_keyspace='loki',
   promtail_log_type='cri',  // Valid choices: cri, docker, raw
 
+  keycloak_replicas=2,
   keycloak_address,
   keycloak_database='keycloak',
   keycloak_username='admin',
   keycloak_password='admin',
 
+  // TODO: grafana_replicas=2,
   grafana_address,
   grafana_client_secret='Regenerate me',
 
+  kiali_replicas=2,
   kiali_address,
   kiali_client_secret='Regenerate me',
 
+  jaeger_replicas=2,
   jaeger_address,
   jaeger_keyspace='jaeger',
   jaeger_client_secret='Regenerate me',
@@ -109,6 +114,7 @@ function(
     },
     keycloak: {
       namespace: namespace,
+      replicas: keycloak_replicas,
       postgres: postgres_connection { database: keycloak_database },
       external_address: keycloak_address,
       internal_address: 'keycloak.%s' % namespace,
@@ -127,6 +133,7 @@ function(
     },
     kiali: {
       namespace: namespace,
+      replicas: kiali_replicas,
       external_address: kiali_address,
       oidc: {
         client_id: 'kiali',
@@ -135,6 +142,7 @@ function(
     },
     jaeger: {
       namespace: namespace,
+      replicas: jaeger_replicas,
       cassandra: cassandra_connection { keyspace: jaeger_keyspace },
       external_address: jaeger_address,
       oidc: {

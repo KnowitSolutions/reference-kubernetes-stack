@@ -66,7 +66,7 @@ function(config)
     //peerauthentication.mtls(true) +
     //peerauthentication.mtls(false, 7600),
 
-    deployment.new(replicas=2) +
+    deployment.new(replicas=keycloak.replicas) +
     metadata.new(app, ns=ns) +
     deployment.pod(
       pod.new() +

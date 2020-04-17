@@ -69,7 +69,7 @@ function(config)
     metadata.new(collector_app, ns=ns) +
     peerauthentication.mtls(false, 9411),
 
-    deployment.new(replicas=2) +
+    deployment.new(replicas=jaeger.replicas) +
     metadata.new(collector_app, ns=ns) +
     deployment.pod(
       pod.new() +
@@ -109,7 +109,7 @@ function(config)
     service.port(16686, name='http-direct') +
     service.port(16687, name='http-telemetry'),
 
-    deployment.new(replicas=2) +
+    deployment.new(replicas=jaeger.replicas) +
     metadata.new(query_app, ns=ns) +
     deployment.pod(
       pod.new() +
