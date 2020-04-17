@@ -15,6 +15,8 @@ local ns(name) =
   metadata.new(name);
 
 function(
+  namespace='base',
+
   cassandra_use_bundled=true,
   cassandra_replicas=3,
   cassandra_address=null,
@@ -50,8 +52,6 @@ function(
   jaeger_keyspace='jaeger',
   jaeger_client_secret='Regenerate me',
 )
-  local database_namespace = cassandra_use_bundled;
-
   local cassandra_connection = {
     assert if cassandra_use_bundled then
       cassandra_address == null &&
@@ -69,7 +69,7 @@ function(
       cassandra_address != null
     else true : 'Missing Cassandra address',
 
-    address: if cassandra_use_bundled then 'cassandra.db' else cassandra_address,
+    address: if cassandra_use_bundled then 'cassandra.%s' % namespace else cassandra_address,
     port: cassandra_port,
     username: cassandra_username,
     password: cassandra_password,
@@ -93,32 +93,32 @@ function(
 
   local config = {
     cassandra: {
-      namespace: 'db',
+      namespace: namespace,
       replicas: cassandra_replicas,
     },
     loki: {
-      namespace: 'monitoring',
+      namespace: namespace,
       cassandra: cassandra_connection { keyspace: loki_keyspace },
     },
     promtail: {
-      namespace: 'monitoring',
+      namespace: namespace,
       log_type: promtail_log_type,
     },
     kube_state_metrics: {
-      namespace: 'monitoring',
+      namespace: namespace,
     },
     keycloak: {
-      namespace: 'login',
+      namespace: namespace,
       postgres: postgres_connection { database: keycloak_database },
       external_address: keycloak_address,
-      internal_address: 'keycloak.login',
+      internal_address: 'keycloak.%s' % namespace,
       admin: {
         username: keycloak_username,
         password: keycloak_password,
       },
     },
     grafana: {
-      namespace: 'monitoring',
+      namespace: namespace,
       external_address: grafana_address,
       oidc: {
         client_id: 'grafana',
@@ -126,7 +126,7 @@ function(
       },
     },
     kiali: {
-      namespace: 'monitoring',
+      namespace: namespace,
       external_address: kiali_address,
       oidc: {
         client_id: 'kiali',
@@ -134,7 +134,7 @@ function(
       },
     },
     jaeger: {
-      namespace: 'monitoring',
+      namespace: namespace,
       cassandra: cassandra_connection { keyspace: jaeger_keyspace },
       external_address: jaeger_address,
       oidc: {
@@ -149,10 +149,8 @@ function(
     metadata.new('default', ns='istio-system') +
     peerauthentication.mtls(true),
 
-    ns('login'),
-    ns('monitoring'),
+    ns(namespace),
   ] +
-  (if database_namespace then [ns('db')] else []) +
 
   (if cassandra_use_bundled then cassandra(config) else []) +
   loki(config) +
