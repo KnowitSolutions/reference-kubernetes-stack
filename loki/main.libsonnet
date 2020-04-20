@@ -35,7 +35,7 @@ function(config)
         container.args(['-config.file', '/etc/loki/loki.yaml']) +
         container.port('http', 8080) +
         container.volume('config', '/etc/loki') +
-        container.resources('100m', '200m', '128Mi', '256Mi') +
+        container.resources('100m', '100m', '128Mi', '128Mi') +
         container.http_probe('readiness', '/ready') +
         container.http_probe('liveness', '/ready', delay=120)
       ) +

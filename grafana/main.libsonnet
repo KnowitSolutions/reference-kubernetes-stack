@@ -59,7 +59,7 @@ function(config)
         container.port('http', 3000) +
         container.volume('config', '/etc/grafana') +
         container.volume('data', '/var/lib/grafana') +
-        container.resources('100m', '500m', '100Mi', '2500Mi') +
+        container.resources('50m', '50m', '64Mi', '64Mi') +
         container.http_probe('readiness', '/api/health') +
         container.http_probe('liveness', '/api/health')
       ) +

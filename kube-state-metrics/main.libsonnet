@@ -152,7 +152,7 @@ function(config)
         container.new(app, image) +
         container.port('http', 8080) +
         container.port('http-telemetry', 8081) +
-        container.resources('100m', '100m', '200Mi', '200Mi') +
+        container.resources('10m', '10m', '128Mi', '128Mi') +
         container.http_probe('readiness', '/', port='http-telemetry') +
         container.http_probe('liveness', '/healthz')
       ) +

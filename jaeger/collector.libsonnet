@@ -40,7 +40,7 @@ function(config)
         container.port('http', 9411) +
         container.port('http-telemetry', 14269) +
         container.volume('config', '/etc/jaeger') +
-        container.resources('50m', '50m', '16Mi', '16Mi') +
+        container.resources('50m', '50m', '32Mi', '32Mi') +
         container.http_probe('readiness', '/', port='http-telemetry') +
         container.http_probe('liveness', '/', port='http-telemetry')
       ) +

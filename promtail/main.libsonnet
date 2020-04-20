@@ -61,7 +61,7 @@ function(config)
         (if promtail.log_type == 'docker'
          then container.volume('docker-logs', '/var/lib/docker/containers', read_only=true)
          else {}) +
-        container.resources('100m', '200m', '128Mi', '256Mi') +
+        container.resources('100m', '100m', '64Mi', '64Mi') +
         container.http_probe('readiness', '/ready', port='http-telemetry') +
         container.http_probe('liveness', '/ready', port='http-telemetry')
       ) +
