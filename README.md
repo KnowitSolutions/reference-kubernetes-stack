@@ -35,7 +35,7 @@ istioctl manifest apply \
   --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true \
   --set values.prometheus.replicaCount=2 \
   --set values.prometheus.retention=30d \
-  --set values.global.tracer.zipkin.address=jaeger-collector.monitoring:9411 \
+  --set values.global.tracer.zipkin.address=jaeger-collector.base:9411 \
   --set values.pilot.traceSampling=100
 ```
 
