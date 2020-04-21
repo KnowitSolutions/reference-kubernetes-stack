@@ -47,8 +47,8 @@ function(config)
         container.new(query_app, query_image) +
         container.args(['--config-file', '/etc/jaeger/query.yaml']) +
         container.env({
-          SPAN_STORAGE_TYPE: 'cassandra'
-          JAEGER_DISABLED: 'true'
+          SPAN_STORAGE_TYPE: 'cassandra',
+          JAEGER_DISABLED: 'true',
         }) +
         container.port('http-direct', 16686) +
         container.port('http-telemetry', 16687) +
