@@ -33,6 +33,10 @@ The command given below installs Istio if it is not already installed, or resets
 istioctl manifest apply \
   --set values.security.enabled=true \
   --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true \
+  --set values.global.proxy.resources.requests.cpu="50m" \
+  --set values.global.proxy.resources.requests.memory="64Mi" \
+  --set values.global.proxy.resources.limits.cpu="50m" \
+  --set values.global.proxy.resources.limits.memory="64Mi" \
   --set values.prometheus.replicaCount=2 \
   --set values.prometheus.retention=30d \
   --set values.global.tracer.zipkin.address=jaeger-collector.base:9411 \
