@@ -27,12 +27,19 @@ function(
   cassandra_tls_hostname_validation=true,
   cassandra_timeout='10s',  // TODO: Why is this so high? 1s ought to be enough
 
-  postgres_address,
+  postgres_address=null,
   postgres_port=5432,
-  postgres_username,
-  postgres_password,
+  postgres_username=null,
+  postgres_password=null,
   postgres_tls=false,
   postgres_tls_hostname_validation=true,
+
+  mssql_address=null,
+  mssql_port=1433,
+  mssql_username=null,
+  mssql_password=null,
+  mssql_tls=false,
+  mssql_tls_hostname_validation=true,
 
   // TODO: loki_replicas=2,
   loki_keyspace='loki',
@@ -86,6 +93,11 @@ function(
   };
 
   local postgres_connection = {
+    assert if postgres_address != null then
+      postgres_username != null &&
+      postgres_password != null
+    else true : 'Missing Postgres credentials',
+
     address: postgres_address,
     port: postgres_port,
     username: postgres_username,
@@ -93,6 +105,22 @@ function(
     tls: {
       enabled: postgres_tls,
       hostname_validation: postgres_tls_hostname_validation,
+    },
+  };
+
+  local mssql_connection = {
+    assert if mssql_address != null then
+      mssql_username != null &&
+      mssql_password != null
+    else true : 'Missing SQL Server credentials',
+
+    address: mssql_address,
+    port: mssql_port,
+    username: mssql_username,
+    password: mssql_password,
+    tls: {
+      enabled: mssql_tls,
+      hostname_validation: mssql_tls_hostname_validation,
     },
   };
 
@@ -115,7 +143,12 @@ function(
     keycloak: {
       namespace: namespace,
       replicas: keycloak_replicas,
+      storage:
+        if self.postgres.address != null then 'postgres'
+        else if self.mssql.address != null then 'mssql'
+        else error 'Missing Postgres/SQL Server connection details',
       postgres: postgres_connection { database: keycloak_database },
+      mssql: mssql_connection { database: keycloak_database },
       external_address: keycloak_address,
       internal_address: 'keycloak.%s' % namespace,
       admin: {
