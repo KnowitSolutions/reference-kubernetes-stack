@@ -18,7 +18,7 @@ function(config) {
       url: 'http://prometheus.istio-system:9090',
     },
     tracing: {
-      in_cluster_url: 'http://jaeger-query.monitoring:16686',
+      in_cluster_url: 'http://jaeger-query.%s:16686' % jaeger.namespace,
       url: 'http://%s' % jaeger.external_address,
     },
   },
