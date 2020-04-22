@@ -9,7 +9,7 @@ local service = import '../templates/service.libsonnet';
 local serviceaccount = import '../templates/serviceaccount.libsonnet';
 
 local app = 'promtail';
-local image = 'grafana/promtail:latest';
+local image = 'grafana/promtail:1.4.1';
 
 function(config)
   local ns = config.promtail.namespace;
