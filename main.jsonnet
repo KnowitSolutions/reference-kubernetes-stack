@@ -19,7 +19,6 @@ local ns(name) =
 function(
   namespace='base',
 
-  cassandra_use_bundled=true,
   cassandra_replicas=3,
   cassandra_vip='10.0.10.1',
   cassandra_address=null,
@@ -70,7 +69,7 @@ function(
   jaeger_client_secret='Regenerate me',
 )
   local cassandra_connection = {
-    assert if cassandra_use_bundled then
+    assert if cassandra_address == null then
       cassandra_address == null &&
       cassandra_port == 9042 &&
       cassandra_username == null &&
@@ -78,15 +77,11 @@ function(
       cassandra_tls == false
     else true : 'Cannot override Cassandra connection details when using bundled instance',
 
-    assert if !cassandra_use_bundled then
+    assert if cassandra_address != null then
       cassandra_replicas == 3
     else true : 'Cannot override Cassandra settings when using external instance',
 
-    assert if !cassandra_use_bundled then
-      cassandra_address != null
-    else true : 'Missing Cassandra address',
-
-    address: if cassandra_use_bundled then 'cassandra.%s' % namespace else cassandra_vip,
+    address: if cassandra_address == null then 'cassandra.%s' % namespace else cassandra_vip,
     port: cassandra_port,
     username: cassandra_username,
     password: cassandra_password,
@@ -131,7 +126,7 @@ function(
 
   local config = {
     cassandra: {
-      bundled: cassandra_use_bundled,
+      bundled: cassandra_address == null,
       namespace: namespace,
       replicas: cassandra_replicas,
       vip: {
