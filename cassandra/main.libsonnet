@@ -3,6 +3,7 @@ local container = import '../templates/container.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local service = import '../templates/service.libsonnet';
+local serviceentry = import '../templates/serviceentry.libsonnet';
 local statefulset = import '../templates/statefulset.libsonnet';
 
 local app = 'cassandra';
@@ -11,8 +12,10 @@ local image = 'cassandra:3.11.6';
 function(config)
   local ns = config.cassandra.namespace;
   local cassandra = config.cassandra;
+  local vip = cassandra.vip;
 
-  [
+  if cassandra.bundled
+  then [
     service.new(app, headless=true) +
     metadata.new(app, ns=ns) +
     service.port(9042, name='tcp-cql'),
@@ -47,4 +50,12 @@ function(config)
       pod.security_context({ runAsUser: 999, runAsGroup: 999 }),
     ) +
     statefulset.volume_claim('data', '10Gi'),
+  ]
+  else [
+    serviceentry.new() +
+    metadata.new(app, ns=ns) +
+    serviceentry.host(app) +
+    serviceentry.vip(vip.internal_address) +
+    serviceentry.endpoint(vip.external_address) +
+    serviceentry.port(app, vip.port),
   ]

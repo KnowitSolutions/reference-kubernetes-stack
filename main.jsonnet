@@ -5,6 +5,8 @@ local keycloak = import 'keycloak/main.libsonnet';
 local kiali = import 'kiali/main.libsonnet';
 local kube_state_metrics = import 'kube-state-metrics/main.libsonnet';
 local loki = import 'loki/main.libsonnet';
+local mssql = import 'mssql/main.libsonnet';
+local postgres = import 'postgres/main.libsonnet';
 local promtail = import 'promtail/main.libsonnet';
 local metadata = import 'templates/metadata.libsonnet';
 local namespace = import 'templates/namespace.libsonnet';
@@ -19,6 +21,7 @@ function(
 
   cassandra_use_bundled=true,
   cassandra_replicas=3,
+  cassandra_vip='10.0.10.1',
   cassandra_address=null,
   cassandra_port=9042,
   cassandra_username=null,
@@ -27,6 +30,7 @@ function(
   cassandra_tls_hostname_validation=true,
   cassandra_timeout='10s',  // TODO: Why is this so high? 1s ought to be enough
 
+  postgres_vip='10.0.10.2',
   postgres_address=null,
   postgres_port=5432,
   postgres_username=null,
@@ -34,6 +38,7 @@ function(
   postgres_tls=false,
   postgres_tls_hostname_validation=true,
 
+  mssql_vip='10.0.10.3',
   mssql_address=null,
   mssql_port=1433,
   mssql_username=null,
@@ -74,14 +79,14 @@ function(
     else true : 'Cannot override Cassandra connection details when using bundled instance',
 
     assert if !cassandra_use_bundled then
-      cassandra_replicas != 3
+      cassandra_replicas == 3
     else true : 'Cannot override Cassandra settings when using external instance',
 
     assert if !cassandra_use_bundled then
       cassandra_address != null
     else true : 'Missing Cassandra address',
 
-    address: if cassandra_use_bundled then 'cassandra.%s' % namespace else cassandra_address,
+    address: if cassandra_use_bundled then 'cassandra.%s' % namespace else cassandra_vip,
     port: cassandra_port,
     username: cassandra_username,
     password: cassandra_password,
@@ -98,7 +103,7 @@ function(
       postgres_password != null
     else true : 'Missing Postgres credentials',
 
-    address: postgres_address,
+    address: postgres_vip,
     port: postgres_port,
     username: postgres_username,
     password: postgres_password,
@@ -114,7 +119,7 @@ function(
       mssql_password != null
     else true : 'Missing SQL Server credentials',
 
-    address: mssql_address,
+    address: mssql_vip,
     port: mssql_port,
     username: mssql_username,
     password: mssql_password,
@@ -126,8 +131,33 @@ function(
 
   local config = {
     cassandra: {
+      bundled: cassandra_use_bundled,
       namespace: namespace,
       replicas: cassandra_replicas,
+      vip: {
+        enabled: cassandra_address != null,
+        internal_address: cassandra_vip,
+        external_address: cassandra_address,
+        port: cassandra_port,
+      },
+    },
+    postgres: {
+      namespace: namespace,
+      vip: {
+        enabled: postgres_address != null,
+        internal_address: postgres_vip,
+        external_address: postgres_address,
+        port: postgres_port,
+      },
+    },
+    mssql: {
+      namespace: namespace,
+      vip: {
+        enabled: mssql_address != null,
+        internal_address: mssql_vip,
+        external_address: mssql_address,
+        port: mssql_port,
+      },
     },
     loki: {
       namespace: namespace,
@@ -144,8 +174,8 @@ function(
       namespace: namespace,
       replicas: keycloak_replicas,
       storage:
-        if self.postgres.address != null then 'postgres'
-        else if self.mssql.address != null then 'mssql'
+        if postgres_address != null then 'postgres'
+        else if mssql_address != null then 'mssql'
         else error 'Missing Postgres/SQL Server connection details',
       postgres: postgres_connection { database: keycloak_database },
       mssql: mssql_connection { database: keycloak_database },
@@ -193,7 +223,9 @@ function(
     ns(namespace),
   ] +
 
-  (if cassandra_use_bundled then cassandra(config) else []) +
+  cassandra(config) +
+  postgres(config) +
+  mssql(config) +
   loki(config) +
   promtail(config) +
   kube_state_metrics(config) +
