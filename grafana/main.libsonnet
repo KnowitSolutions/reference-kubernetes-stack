@@ -52,8 +52,8 @@ function(config)
     secret.new() +
     metadata.new(app, ns=ns) +
     secret.data({
-      GF_DATABASE_USER: postgres.username,
-      GF_DATABASE_PASSWORD: postgres.password,
+      [if postgres.enabled then 'GF_DATABASE_USER']: postgres.username,
+      [if postgres.enabled then 'GF_DATABASE_PASSWORD']: postgres.password,
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID: grafana.oidc.client_id,
       GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: grafana.oidc.client_secret,
     }),
