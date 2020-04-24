@@ -1,5 +1,6 @@
 local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
+local deployment = import '../templates/deployment.libsonnet';
 local destinationrule = import '../templates/destinationrule.libsonnet';
 local gateway = import '../templates/gateway.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
@@ -16,6 +17,7 @@ function(config)
   local ns = config.grafana.namespace;
   local grafana = config.grafana;
   local keycloak = config.keycloak;
+  local postgres = grafana.postgres;
 
   [
     destinationrule.new('prometheus.istio-system.svc.cluster.local') +
@@ -50,13 +52,15 @@ function(config)
     secret.new() +
     metadata.new(app, ns=ns) +
     secret.data({
+      GF_DATABASE_USER: postgres.username,
+      GF_DATABASE_PASSWORD: postgres.password,
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID: grafana.oidc.client_id,
       GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: grafana.oidc.client_secret,
     }),
 
-    statefulset.new() +
+    (if postgres.enabled then deployment else statefulset).new(replicas=grafana.replicas) +
     metadata.new(app, ns=ns) +
-    statefulset.pod(
+    (if postgres.enabled then deployment else statefulset).pod(
       pod.new() +
       metadata.annotations({
         'prometheus.io/scrape': 'true',
@@ -67,7 +71,7 @@ function(config)
         container.port('http', 3000) +
         container.env_from(secret=app) +
         container.volume('config', '/etc/grafana') +
-        container.volume('data', '/var/lib/grafana') +
+        (if !postgres.enabled then container.volume('data', '/var/lib/grafana') else {}) +
         container.resources('50m', '50m', '64Mi', '64Mi') +
         container.http_probe('readiness', '/api/health') +
         container.http_probe('liveness', '/api/health')
@@ -82,5 +86,5 @@ function(config)
       }) +
       pod.security_context({ runAsUser: 472, runAsGroup: 472 })
     ) +
-    statefulset.volume_claim('data', '10Gi'),
+    (if !postgres.enabled then statefulset.volume_claim('data', '10Gi') else {}),
   ]

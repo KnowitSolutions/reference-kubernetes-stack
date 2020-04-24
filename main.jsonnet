@@ -55,8 +55,9 @@ function(
   keycloak_username='admin',
   keycloak_password='admin',
 
-  // TODO: grafana_replicas=2,
+  grafana_replicas=2,
   grafana_address,
+  grafana_database='grafana',
   grafana_client_secret='Regenerate me',
 
   kiali_replicas=2,
@@ -98,6 +99,7 @@ function(
       postgres_password != null
     else true : 'Missing Postgres credentials',
 
+    enabled: postgres_address != null,
     address: postgres_vip,
     port: postgres_port,
     username: postgres_username,
@@ -114,6 +116,7 @@ function(
       mssql_password != null
     else true : 'Missing SQL Server credentials',
 
+    enabled: mssql_address != null,
     address: mssql_vip,
     port: mssql_port,
     username: mssql_username,
@@ -182,8 +185,13 @@ function(
       },
     },
     grafana: {
+      assert grafana_replicas == 1 || self.postgres.enabled
+             : 'Grafana high availability in unavailable without Postgres',
+
       namespace: namespace,
+      replicas: grafana_replicas,
       external_address: grafana_address,
+      postgres: postgres_connection { database: grafana_database },
       oidc: {
         client_id: 'grafana',
         client_secret: grafana_client_secret,

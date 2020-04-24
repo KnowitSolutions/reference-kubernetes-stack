@@ -1,11 +1,24 @@
 function(config) {
   local grafana = config.grafana,
   local keycloak = config.keycloak,
+  local postgres = grafana.postgres,
 
   sections: {
     server: {
       domain: grafana.external_address,
       root_url: 'http://%s' % [grafana.external_address],
+    },
+
+    database: if postgres.enabled then {
+      type: 'postgres',
+      host: postgres.address,
+      name: postgres.database,
+      ssl_mode:
+        if !postgres.tls.enabled then 'disable'
+        else if !postgres.tls.hostname_validation then 'require'
+        else 'verify-full',
+    } else {
+      type: 'sqlite3',
     },
 
     auth: {
