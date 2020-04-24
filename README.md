@@ -52,12 +52,9 @@ Note: security.enabled is just a workaround for [this bug](https://github.com/is
 For local development the required Postgres database can run as a Kubernetes deployment. This will however not provide any persistence, and as such all data in the database is lost every time the associated pod is restarted. The following commands will setup a namespace `db` and create the database inside it.
 
 ```
-kubectl create ns db
-kubectl label ns db istio-injection=enabled
-
-kubectl --namespace db create deployment postgres --image=postgres
-kubectl --namespace db set env deployment postgres POSTGRES_DB=keycloak POSTGRES_PASSWORD=postgres
-kubectl --namespace db expose deployment postgres --cluster-ip=None --port 5432
+kubectl --namespace=default create deployment postgres --image=postgres
+kubectl --namespace=default set env deployment postgres POSTGRES_DB=keycloak POSTGRES_PASSWORD=postgres
+kubectl --namespace=default expose deployment postgres --cluster-ip=None --port 5432
 ```
 
 ### Reference stack
@@ -73,7 +70,7 @@ For local development installations the following command should be a good start
 ```
 jsonnet \
   --tla-code cassandra_replicas=1 \
-  --tla-str postgres_address='postgres.db' \
+  --tla-str postgres_address='postgres.default' \
   --tla-str postgres_username='postgres' \
   --tla-str postgres_password='postgres' \
   --tla-code keycloak_replicas=1 \
