@@ -22,11 +22,12 @@
     ],
   },
 
-  env_from(configmap=null, secret=null):: {
+  env_from(configmap=null, secret=null, prefix=null):: {
     envFrom+: [
       {
         [if configmap != null then 'configMapRef']: { name: configmap },
         [if secret != null then 'secretRef']: { name: secret },
+        [if prefix != null then 'prefix']: prefix,
       },
     ],
   },

@@ -25,6 +25,8 @@ function(config)
     secret.data({
       [if cassandra.username != null then 'CASSANDRA_USERNAME']: cassandra.username,
       [if cassandra.password != null then 'CASSANDRA_PASSWORD']: cassandra.password,
+      OIDC_CLIENT_ID: jaeger.oidc.client_id,
+      OIDC_CLIENT_SECRET: jaeger.oidc.client_secret,
     }),
   ] +
 

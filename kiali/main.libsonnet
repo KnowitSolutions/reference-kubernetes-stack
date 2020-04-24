@@ -7,6 +7,7 @@ local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local role = import '../templates/role.libsonnet';
 local rolebinding = import '../templates/rolebinding.libsonnet';
+local secret = import '../templates/secret.libsonnet';
 local service = import '../templates/service.libsonnet';
 local serviceaccount = import '../templates/serviceaccount.libsonnet';
 local virtualservice = import '../templates/virtualservice.libsonnet';
@@ -108,6 +109,13 @@ function(config)
     metadata.new(app, ns=ns) +
     configmap.data({
       'config.yaml': std.manifestYamlDoc((import 'kiali.yaml.libsonnet')(config)),
+    }),
+
+    secret.new() +
+    metadata.new(app, ns=ns) +
+    secret.data({
+      OIDC_CLIENT_ID: kiali.oidc.client_id,
+      OIDC_CLIENT_SECRET: kiali.oidc.client_secret,
     }),
 
     deployment.new(replicas=kiali.replicas) +
