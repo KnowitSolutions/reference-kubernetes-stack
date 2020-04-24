@@ -36,6 +36,7 @@ function(config)
       pod.container(
         container.new(collector_app, image) +
         container.args(['--config-file', '/etc/jaeger/collector.yaml']) +
+        container.env_from(secret=app) +
         container.env({ SPAN_STORAGE_TYPE: 'cassandra' }) +
         container.port('http', 9411) +
         container.port('http-telemetry', 14269) +

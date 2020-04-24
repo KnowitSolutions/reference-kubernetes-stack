@@ -4,6 +4,7 @@ local deployment = import '../templates/deployment.libsonnet';
 local destinationrule = import '../templates/destinationrule.libsonnet';
 local gateway = import '../templates/gateway.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
+local secret = import '../templates/secret.libsonnet';
 //local peerauthentication = import '../templates/peerauthentication.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local role = import '../templates/role.libsonnet';
@@ -65,7 +66,11 @@ function(config)
 
     configmap.new() +
     metadata.new(app, ns=ns) +
-    configmap.data((import 'keycloak.env.libsonnet')(app, config)),
+    configmap.data((import 'keycloak.env.libsonnet')(app, config).configmap),
+
+    secret.new() +
+    metadata.new(app, ns=ns) +
+    secret.data((import 'keycloak.env.libsonnet')(app, config).secret),
 
     deployment.new(replicas=keycloak.replicas) +
     metadata.new(app, ns=ns) +
@@ -80,6 +85,7 @@ function(config)
       pod.container(
         container.new(app, image) +
         container.env_from(configmap=app) +
+        container.env_from(secret=app) +
         container.port('http', 8080) +
         container.port('tcp-gossip', 7600) +
         container.resources('100m', '1500m', '512Mi', '512Mi') +

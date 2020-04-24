@@ -5,8 +5,6 @@ function(config) {
     servers: cassandra.address,
     port: cassandra.port,
     keyspace: cassandra.keyspace,
-    [if cassandra.username != null then 'username']: cassandra.username,
-    [if cassandra.password != null then 'password']: cassandra.password,
     tls: {
       enabled: cassandra.tls.enabled,
       'verify-host': cassandra.tls.hostname_validation,

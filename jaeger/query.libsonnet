@@ -46,6 +46,7 @@ function(config)
       pod.container(
         container.new(query_app, query_image) +
         container.args(['--config-file', '/etc/jaeger/query.yaml']) +
+        container.env_from(secret=app) +
         container.env({
           SPAN_STORAGE_TYPE: 'cassandra',
           JAEGER_DISABLED: 'true',

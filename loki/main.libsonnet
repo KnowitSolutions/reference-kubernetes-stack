@@ -3,6 +3,7 @@ local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
+local secret = import '../templates/secret.libsonnet';
 local service = import '../templates/service.libsonnet';
 
 local app = 'loki';
@@ -10,6 +11,8 @@ local image = 'grafana/loki:v1.3.0';
 
 function(config)
   local ns = config.loki.namespace;
+  local loki = config.loki;
+  local cassandra = loki.cassandra;
 
   [
     service.new(app) +
@@ -22,6 +25,13 @@ function(config)
       'loki.yaml': std.manifestYamlDoc((import 'loki.yaml.libsonnet')(config)),
     }),
 
+    secret.new() +
+    metadata.new(app, ns=ns) +
+    secret.data({
+      [if cassandra.username != null then 'CASSANDRA_USERNAME']: cassandra.username,
+      [if cassandra.password != null then 'CASSANDRA_PASSWORD']: cassandra.password,
+    }),
+
     deployment.new() +
     metadata.new(app, ns=ns) +
     deployment.pod(
@@ -32,7 +42,15 @@ function(config)
       }) +
       pod.container(
         container.new(app, image) +
-        container.args(['-config.file', '/etc/loki/loki.yaml']) +
+        container.args([
+          '-config.file',
+          '/etc/loki/loki.yaml',
+          '-cassandra.username',
+          '$(CASSANDRA_USERNAME)',
+          '-cassandra.password',
+          '$(CASSANDRA_PASSWORD)',
+        ]) +
+        container.env_from(secret=app) +
         container.port('http', 8080) +
         container.volume('config', '/etc/loki') +
         container.resources('100m', '100m', '128Mi', '128Mi') +

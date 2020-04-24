@@ -4,6 +4,7 @@ local destinationrule = import '../templates/destinationrule.libsonnet';
 local gateway = import '../templates/gateway.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
+local secret = import '../templates/secret.libsonnet';
 local service = import '../templates/service.libsonnet';
 local statefulset = import '../templates/statefulset.libsonnet';
 local virtualservice = import '../templates/virtualservice.libsonnet';
@@ -46,6 +47,13 @@ function(config)
       'resource-overview.json': importstr 'dashboards/resource-overview.json',
     }),
 
+    secret.new() +
+    metadata.new(app, ns=ns) +
+    secret.data({
+      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: grafana.oidc.client_id,
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: grafana.oidc.client_secret,
+    }),
+
     statefulset.new() +
     metadata.new(app, ns=ns) +
     statefulset.pod(
@@ -57,6 +65,7 @@ function(config)
       pod.container(
         container.new(app, image) +
         container.port('http', 3000) +
+        container.env_from(secret=app) +
         container.volume('config', '/etc/grafana') +
         container.volume('data', '/var/lib/grafana') +
         container.resources('50m', '50m', '64Mi', '64Mi') +

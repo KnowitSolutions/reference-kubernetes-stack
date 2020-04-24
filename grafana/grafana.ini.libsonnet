@@ -18,8 +18,6 @@ function(config) {
 
     'auth.generic_oauth': {
       enabled: true,
-      client_id: grafana.oidc.client_id,
-      client_secret: grafana.oidc.client_secret,
       auth_url: 'http://%s/auth/realms/master/protocol/openid-connect/auth' % [keycloak.external_address],
       token_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/token' % [keycloak.internal_address],
       api_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/userinfo' % [keycloak.internal_address],
