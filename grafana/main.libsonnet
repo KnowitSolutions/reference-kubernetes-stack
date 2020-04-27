@@ -1,3 +1,4 @@
+local certificate = import '../templates/certificate.libsonnet';
 local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
@@ -23,8 +24,10 @@ function(config)
     destinationrule.new('prometheus.istio-system.svc.cluster.local') +
     metadata.new('prometheus-istio-system', ns=ns) +
     destinationrule.mtls(false),
-
-    gateway.new(grafana.external_address) +
+  ] +
+  (if grafana.tls.acme then [certificate.new(grafana.external_address)] else []) +
+  [
+    gateway.new(grafana.external_address, tls=grafana.tls.enabled) +
     metadata.new(app, ns=ns),
 
     virtualservice.new() +

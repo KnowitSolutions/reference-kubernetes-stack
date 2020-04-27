@@ -33,6 +33,8 @@ The command given below installs Istio if it is not already installed, or resets
 istioctl manifest apply \
   --set values.security.enabled=true \
   --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true \
+  --set values.gateways.istio-ingressgateway.sds.enabled=true \
+  --set values.global.k8sIngress.enabled=true \
   --set values.global.proxy.resources.requests.cpu="50m" \
   --set values.global.proxy.resources.requests.memory="64Mi" \
   --set values.global.proxy.resources.limits.cpu="50m" \
@@ -46,6 +48,9 @@ istioctl manifest apply \
 Note: rewriteAppHTTPProbe seems to be unnecessary after Istio v1.6.
 
 Note: security.enabled is just a workaround for [this bug](https://github.com/istio/istio/issues/22391).
+### Cert manager
+
+Support for provisioning TLS certificates for use with HTTPS is provided through Cert manager. To use this functionality Cert manager must first be installed as described [here](https://cert-manager.io/docs/installation/kubernetes/).
 
 ### Local development databases
 

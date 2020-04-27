@@ -1,3 +1,4 @@
+local certificate = import '../templates/certificate.libsonnet';
 local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
@@ -36,8 +37,10 @@ function(config)
     metadata.new('%s-%s' % [app, ns]) +
     rolebinding.role('%s-%s' % [app, ns], cluster=true) +
     rolebinding.subject('ServiceAccount', app, ns=ns),
-
-    gateway.new(keycloak.external_address) +
+  ] +
+  (if keycloak.tls.acme then [certificate.new(keycloak.external_address)] else []) +
+  [
+    gateway.new(keycloak.external_address, tls=keycloak.tls.enabled) +
     metadata.new(app, ns=ns),
 
     virtualservice.new() +

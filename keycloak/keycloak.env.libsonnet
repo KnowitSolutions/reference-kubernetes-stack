@@ -16,7 +16,7 @@ function(app, config)
       ),
       JGROUPS_DISCOVERY_PROTOCOL: 'kubernetes.KUBE_PING',
       JGROUPS_DISCOVERY_PROPERTIES_DIRECT: '{namespace=>%s,labels=>app=%s,port_range=>0}' % [ns, app],
-      KEYCLOAK_FRONTEND_URL: 'http://%s/auth' % [keycloak.external_address],
+      KEYCLOAK_FRONTEND_URL: '%s://%s/auth' % [keycloak.external_protocol, keycloak.external_address],
       PROXY_ADDRESS_FORWARDING: 'true',
       KEYCLOAK_STATISTICS: 'all',
     },

@@ -1,3 +1,4 @@
+local certificate = import '../templates/certificate.libsonnet';
 local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
@@ -90,8 +91,10 @@ function(config)
     metadata.new('%s-%s' % [app, ns]) +
     rolebinding.role('%s-%s' % [app, ns], cluster=true) +
     rolebinding.subject('ServiceAccount', app, ns=ns),
-
-    gateway.new(kiali.external_address) +
+  ] +
+  (if kiali.tls.acme then [certificate.new(kiali.external_address)] else []) +
+  [
+    gateway.new(kiali.external_address, tls=kiali.tls.enabled) +
     metadata.new(app, ns=ns),
 
     virtualservice.new() +
@@ -143,13 +146,13 @@ function(config)
           '--skip-provider-button',
           '--provider=oidc',
           '--skip-oidc-discovery=true',
-          '--oidc-issuer-url=http://%s/auth/realms/master' % keycloak.external_address,
-          '--login-url=http://%s/auth/realms/master/protocol/openid-connect/auth' % keycloak.external_address,
+          '--oidc-issuer-url=%s://%s/auth/realms/master' % [keycloak.external_protocol, keycloak.external_address],
+          '--login-url=%s://%s/auth/realms/master/protocol/openid-connect/auth' % [keycloak.external_protocol, keycloak.external_address],
           '--redeem-url=http://%s:8080/auth/realms/master/protocol/openid-connect/token' % keycloak.internal_address,
           '--oidc-jwks-url=http://%s:8080/auth/realms/master/protocol/openid-connect/certs' % keycloak.internal_address,
           '--client-id=%s' % kiali.oidc.client_id,
           '--client-secret=%s' % kiali.oidc.client_secret,
-          '--redirect-url=http://%s/oauth2/callback' % kiali.external_address,
+          '--redirect-url=%s://%s/oauth2/callback' % [kiali.external_protocol, kiali.external_address],
           '--cookie-secret=secret',  // TODO: Change
           '--cookie-secure=false',
           '--email-domain=*',

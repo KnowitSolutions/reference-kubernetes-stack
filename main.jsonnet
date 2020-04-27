@@ -8,6 +8,7 @@ local loki = import 'loki/main.libsonnet';
 local mssql = import 'mssql/main.libsonnet';
 local postgres = import 'postgres/main.libsonnet';
 local promtail = import 'promtail/main.libsonnet';
+local issuer = import 'templates/issuer.libsonnet';
 local metadata = import 'templates/metadata.libsonnet';
 local namespace = import 'templates/namespace.libsonnet';
 local peerauthentication = import 'templates/peerauthentication.libsonnet';
@@ -18,6 +19,9 @@ local ns(name) =
 
 function(
   namespace='base',
+
+  ingress_tls=false,
+  lets_encrypt_email=null,
 
   cassandra_replicas=3,
   cassandra_vip='10.0.10.1',
@@ -127,6 +131,11 @@ function(
     },
   };
 
+  local tls_config = {
+    enabled: ingress_tls,
+    acme: lets_encrypt_email != null,
+  };
+
   local config = {
     cassandra: {
       bundled: cassandra_address == null,
@@ -177,8 +186,10 @@ function(
         else error 'Missing Postgres/SQL Server connection details',
       postgres: postgres_connection { database: keycloak_database },
       mssql: mssql_connection { database: keycloak_database },
+      external_protocol: if self.tls.enabled then 'https' else 'http',
       external_address: keycloak_address,
       internal_address: 'keycloak.%s' % namespace,
+      tls: tls_config,
       admin: {
         username: keycloak_username,
         password: keycloak_password,
@@ -190,7 +201,9 @@ function(
 
       namespace: namespace,
       replicas: grafana_replicas,
+      external_protocol: if self.tls.enabled then 'https' else 'http',
       external_address: grafana_address,
+      tls: tls_config,
       postgres: postgres_connection { database: grafana_database },
       oidc: {
         client_id: 'grafana',
@@ -200,7 +213,9 @@ function(
     kiali: {
       namespace: namespace,
       replicas: kiali_replicas,
+      external_protocol: if self.tls.enabled then 'https' else 'http',
       external_address: kiali_address,
+      tls: tls_config,
       oidc: {
         client_id: 'kiali',
         client_secret: kiali_client_secret,
@@ -210,7 +225,9 @@ function(
       namespace: namespace,
       replicas: jaeger_replicas,
       cassandra: cassandra_connection { keyspace: jaeger_keyspace },
+      external_protocol: if self.tls.enabled then 'https' else 'http',
       external_address: jaeger_address,
+      tls: tls_config,
       oidc: {
         client_id: 'jaeger',
         client_secret: jaeger_client_secret,
@@ -225,6 +242,11 @@ function(
 
     ns(namespace),
   ] +
+
+  (if lets_encrypt_email != null then [
+     issuer.new(email=lets_encrypt_email) +
+     issuer.http_solver(),
+   ] else []) +
 
   cassandra(config) +
   postgres(config) +

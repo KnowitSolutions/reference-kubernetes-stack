@@ -1,5 +1,5 @@
 {
-  new(host):: {
+  new(host, tls=false):: {
     apiVersion: 'networking.istio.io/v1alpha3',
     kind: 'Gateway',
     spec: {
@@ -17,7 +17,22 @@
             number: 80,
           },
         },
-      ],
+      ] + (if tls then [
+             {
+               hosts: [
+                 host,
+               ],
+               port: {
+                 name: 'https',
+                 protocol: 'HTTPS',
+                 number: 443,
+               },
+               tls: {
+                 mode: 'SIMPLE',
+                 credentialName: host,
+               },
+             },
+           ] else []),
     },
   },
 }

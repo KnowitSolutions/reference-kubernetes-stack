@@ -6,7 +6,7 @@ function(config) {
   sections: {
     server: {
       domain: grafana.external_address,
-      root_url: 'http://%s' % [grafana.external_address],
+      root_url: '%s://%s' % [grafana.external_protocol, grafana.external_address],
     },
 
     database: if postgres.enabled then {
@@ -23,15 +23,17 @@ function(config) {
 
     auth: {
       oauth_auto_login: true,
-      signout_redirect_url: 'http://%(keycloak)s/auth/realms/master/protocol/openid-connect/logout?redirect_uri=http%%3A%%2F%%2F%(grafana)s' % {
-        grafana: grafana.external_address,
-        keycloak: keycloak.external_address,
-      },
+      signout_redirect_url: '%s://%s/auth/realms/master/protocol/openid-connect/logout?redirect_uri=%s%%3A%%2F%%2F%s' % [
+        keycloak.external_protocol,
+        keycloak.external_address,
+        grafana.external_protocol,
+        grafana.external_address,
+      ],
     },
 
     'auth.generic_oauth': {
       enabled: true,
-      auth_url: 'http://%s/auth/realms/master/protocol/openid-connect/auth' % [keycloak.external_address],
+      auth_url: '%s://%s/auth/realms/master/protocol/openid-connect/auth' % [keycloak.external_protocol, keycloak.external_address],
       token_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/token' % [keycloak.internal_address],
       api_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/userinfo' % [keycloak.internal_address],
       role_attribute_path: 'contains(roles, "admin") && "Admin" || "Viewer"',
