@@ -63,7 +63,8 @@ function(config)
          else {}) +
         container.resources('100m', '100m', '128Mi', '128Mi') +
         container.http_probe('readiness', '/ready', port='http-telemetry') +
-        container.http_probe('liveness', '/ready', port='http-telemetry')
+        container.http_probe('liveness', '/ready', port='http-telemetry') +
+        container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.service_account(app) +
       pod.volume_configmap('config', configmap=app) +

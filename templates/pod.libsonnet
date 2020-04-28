@@ -7,9 +7,22 @@ local metadata = import 'metadata.libsonnet';
     },
   },
 
-  container(container):: {
+  container(container, init=false):: {
     spec+: {
-      containers+: [container],
+      [if init then 'initContainers' else 'containers']+: [container],
+    },
+  },
+
+  volume_emptydir(name, size):: {
+    spec+: {
+      volumes+: [
+        {
+          name: name,
+          emptyDir: {
+            sizeLimit: size,
+          },
+        },
+      ],
     },
   },
 

@@ -55,7 +55,8 @@ function(config)
         container.volume('config', '/etc/loki') +
         container.resources('100m', '100m', '128Mi', '128Mi') +
         container.http_probe('readiness', '/ready') +
-        container.http_probe('liveness', '/ready', delay=120)
+        container.http_probe('liveness', '/ready', delay=120) +
+        container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.volume_configmap('config', configmap=app) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })

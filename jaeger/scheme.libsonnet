@@ -33,8 +33,11 @@ function(config)
           KEYSPACE: cassandra.keyspace,
           TRACE_TTL: '2592000',
         }) +
-        container.resources('100m', '100m', '64Mi', '64Mi')
+        container.resources('100m', '100m', '64Mi', '64Mi') +
+        container.volume('tmp', '/tmp') +
+        container.security_context({ readOnlyRootFilesystem: true })
       ) +
+      pod.volume_emptydir('tmp', '1Mi') +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })
     ),
   ]

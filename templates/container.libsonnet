@@ -96,4 +96,8 @@
       },
     ],
   },
+
+  security_context(security_context):: {
+    securityContext: security_context,
+  },
 }

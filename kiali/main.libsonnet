@@ -137,7 +137,8 @@ function(config)
         container.volume('config', '/etc/kiali') +
         container.resources('100m', '100m', '64Mi', '64Mi') +
         container.http_probe('readiness', '/healthz', port='http-direct') +
-        container.http_probe('liveness', '/healthz', port='http-direct')
+        container.http_probe('liveness', '/healthz', port='http-direct') +
+        container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.container(
         container.new(auth_app, auth_image) +

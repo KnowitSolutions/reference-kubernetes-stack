@@ -43,7 +43,8 @@ function(config)
         container.volume('config', '/etc/jaeger') +
         container.resources('50m', '50m', '32Mi', '32Mi') +
         container.http_probe('readiness', '/', port='http-telemetry') +
-        container.http_probe('liveness', '/', port='http-telemetry')
+        container.http_probe('liveness', '/', port='http-telemetry') +
+        container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.volume_configmap('config', configmap=app) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })

@@ -154,7 +154,8 @@ function(config)
         container.port('http-telemetry', 8081) +
         container.resources('10m', '10m', '128Mi', '128Mi') +
         container.http_probe('readiness', '/', port='http-telemetry') +
-        container.http_probe('liveness', '/healthz')
+        container.http_probe('liveness', '/healthz') +
+        container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.service_account(app) +
       pod.security_context({ runAsUser: 65534, runAsGroup: 65534 })

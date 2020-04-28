@@ -58,7 +58,8 @@ function(config)
         container.volume('config', '/etc/jaeger') +
         container.resources('100m', '100m', '128Mi', '128Mi') +
         container.http_probe('readiness', '/', port='http-direct') +
-        container.http_probe('liveness', '/', port='http-telemetry')
+        container.http_probe('liveness', '/', port='http-telemetry') +
+        container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.container(
         container.new(auth_app, auth_image) +

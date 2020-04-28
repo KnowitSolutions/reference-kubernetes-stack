@@ -35,6 +35,7 @@ function(config)
         container.env_from(secret=app_jaeger, prefix='JAEGER_') +
         container.volume('script', '/initialize.sh', sub_path='initialize.sh') +
         container.resources('1000m', '1000m', '256Mi', '256Mi')
+        // TODO: container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
       pod.volume_configmap('script', app_init, default_mode=std.parseOctal('555'))

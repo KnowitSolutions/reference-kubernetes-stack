@@ -94,6 +94,7 @@ function(config)
         container.resources('100m', '1500m', '512Mi', '512Mi') +
         container.http_probe('readiness', '/auth/realms/master') +
         container.http_probe('liveness', '/', delay=120)
+        // TODO: container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.service_account(app) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }),

@@ -74,10 +74,11 @@ function(config)
         container.port('http', 3000) +
         container.env_from(secret=app) +
         container.volume('config', '/etc/grafana') +
-        (if !postgres.enabled then container.volume('data', '/var/lib/grafana') else {}) +
+        container.volume('data', '/var/lib/grafana') +
         container.resources('50m', '50m', '64Mi', '64Mi') +
         container.http_probe('readiness', '/api/health') +
-        container.http_probe('liveness', '/api/health')
+        container.http_probe('liveness', '/api/health') +
+        container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.volume_configmap('config', configmap=app, items={
         'grafana.ini': 'grafana.ini',
@@ -87,6 +88,7 @@ function(config)
         'pod-overview.json': 'dashboards/pod-overview.json',
         'resource-overview.json': 'dashboards/resource-overview.json',
       }) +
+      (if postgres.enabled then pod.volume_emptydir('data', '1Mi') else {}) +
       pod.security_context({ runAsUser: 472, runAsGroup: 472 })
     ) +
     (if !postgres.enabled then statefulset.volume_claim('data', '10Gi') else {}),

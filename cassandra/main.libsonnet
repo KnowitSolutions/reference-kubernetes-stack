@@ -34,19 +34,31 @@ function(config)
       pod.new() +
       metadata.new(app) +
       pod.container(
+        container.new('copy-config', image) +
+        container.command(['/bin/sh', '-c', 'cp -r /etc/cassandra/* /var/lib/cassandra']) +
+        container.volume('config', '/var/lib/cassandra') +
+        container.resources('10m', '10m', '16Mi', '16Mi'),
+        init=true
+      ) +
+      pod.container(
         container.new(app, image) +
         container.env({
           CASSANDRA_BROADCAST_ADDRESS: { fieldRef: { fieldPath: 'status.podIP' } },
         }) +
         container.env_from(configmap=app) +
+        container.volume('config', '/etc/cassandra') +
         container.volume('data', '/var/lib/cassandra') +
+        container.volume('tmp', '/tmp') +
         container.port('tcp-cql', 9042) +
         container.port('tcp-gossip', 7000) +
         container.resources('500m', '500m', '3Gi', '3Gi') +
         container.exec_probe('readiness', ['/bin/sh', '-c', @'nodetool status | grep -E "^UN\s+$CASSANDRA_BROADCAST_ADDRESS"'], timeout=30) +
         container.exec_probe('liveness', ['/bin/sh', '-c', 'nodetool status'], delay=120, timeout=30) +
-        container.exec_handler('stop', ['/bin/sh', '-c', 'nodetool drain'])
+        container.exec_handler('stop', ['/bin/sh', '-c', 'nodetool drain']) +
+        container.security_context({ readOnlyRootFilesystem: true })
       ) +
+      pod.volume_emptydir('config', '1Mi') +
+      pod.volume_emptydir('tmp', '1Mi') +
       pod.security_context({ runAsUser: 999, runAsGroup: 999 }),
     ) +
     statefulset.volume_claim('data', '10Gi'),
