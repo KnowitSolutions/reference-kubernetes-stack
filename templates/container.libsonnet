@@ -54,20 +54,20 @@
     },
   },
 
-  exec_probe(type, command, delay=null, timeout=null):: {
+  exec_probe(type, command, delay=null, timeout=10):: {
     [type + 'Probe']: {
       [if delay != null then 'initialDelaySeconds']: delay,
-      [if timeout != null then 'timeoutSeconds']: timeout,
+      timeoutSeconds: timeout,
       exec: {
         command: command,
       },
     },
   },
 
-  http_probe(type, path, port='http', delay=null, timeout=null):: {
+  http_probe(type, path, port='http', delay=null, timeout=10):: {
     [type + 'Probe']: {
       [if delay != null then 'initialDelaySeconds']: delay,
-      [if timeout != null then 'timeoutSeconds']: timeout,
+      timeoutSeconds: timeout,
       httpGet: {
         path: path,
         port: port,

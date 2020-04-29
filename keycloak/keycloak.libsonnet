@@ -91,7 +91,7 @@ function(config)
         container.env_from(secret=app) +
         container.port('http', 8080) +
         container.port('tcp-gossip', 7600) +
-        container.resources('100m', '1500m', '512Mi', '512Mi') +
+        container.resources('100m', '1500m', '768Mi', '768Mi') +
         container.http_probe('readiness', '/auth/realms/master') +
         container.http_probe('liveness', '/', delay=120)
         // TODO: container.security_context({ readOnlyRootFilesystem: true })

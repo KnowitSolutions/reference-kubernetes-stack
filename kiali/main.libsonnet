@@ -135,7 +135,7 @@ function(config)
         container.port('http-direct', 20001) +
         container.port('http-telemetry', 9090) +
         container.volume('config', '/etc/kiali') +
-        container.resources('100m', '100m', '64Mi', '64Mi') +
+        container.resources('200m', '200m', '64Mi', '64Mi') +
         container.http_probe('readiness', '/healthz', port='http-direct') +
         container.http_probe('liveness', '/healthz', port='http-direct') +
         container.security_context({ readOnlyRootFilesystem: true })
