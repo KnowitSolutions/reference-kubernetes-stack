@@ -6,7 +6,7 @@ function(config) {
   },
 
   clients: [
-    { url: 'http://loki/loki/api/v1/push' },
+    { url: 'http://loki:8080/loki/api/v1/push' },
   ],
 
   positions: {

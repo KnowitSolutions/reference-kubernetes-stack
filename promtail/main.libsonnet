@@ -34,7 +34,7 @@ function(config)
 
     service.new(app) +
     metadata.new(app, ns=ns) +
-    service.port(80, name='http-telemetry'),
+    service.port(8080, name='http-telemetry'),
 
     configmap.new() +
     metadata.new(app, ns=ns) +

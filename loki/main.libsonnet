@@ -22,7 +22,7 @@ function(config)
 
     service.new(app) +
     metadata.new(app, ns=ns) +
-    service.port(80),
+    service.port(8080),
 
     configmap.new() +
     metadata.new(app, ns=ns) +
