@@ -1,6 +1,7 @@
 local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
+local destinationrule = import '../templates/destinationrule.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local secret = import '../templates/secret.libsonnet';
@@ -15,6 +16,10 @@ function(config)
   local cassandra = loki.cassandra;
 
   [
+    destinationrule.new(app) +
+    metadata.new(app, ns=ns) +
+    destinationrule.circuit_breaker(),
+
     service.new(app) +
     metadata.new(app, ns=ns) +
     service.port(80),

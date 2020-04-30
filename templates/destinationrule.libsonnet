@@ -12,17 +12,20 @@
 
   mtls(mtls):: {
     spec+: {
-      trafficPolicy: {
+      trafficPolicy+: {
         tls: { mode: if mtls then 'ISTIO_MUTUAL' else 'DISABLE' },
       },
     },
   },
 
-  sticky():: {
+  circuit_breaker():: {
     spec+: {
       trafficPolicy+: {
-        loadBalancer: {
-          consistentHash: { useSourceIp: true },
+        outlierDetection: {
+          consecutiveGatewayErrors: 5,
+          interval: '1m',
+          baseEjectionTime: '5m',
+          maxEjectionPercent: 100,
         },
       },
     },

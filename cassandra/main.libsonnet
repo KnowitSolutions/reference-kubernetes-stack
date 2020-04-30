@@ -1,5 +1,6 @@
 local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
+local destinationrule = import '../templates/destinationrule.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local service = import '../templates/service.libsonnet';
@@ -16,9 +17,17 @@ function(config)
 
   if cassandra.bundled
   then [
+    destinationrule.new(app) +
+    metadata.new(app, ns=ns) +
+    destinationrule.circuit_breaker(),
+
     service.new(app, headless=true) +
     metadata.new(app, ns=ns) +
     service.port(9042, name='tcp-cql'),
+
+    destinationrule.new('%s-gossip' % app) +
+    metadata.new('%s-gossip' % app, ns=ns) +
+    destinationrule.circuit_breaker(),
 
     service.new(app, headless=true, only_ready=false) +
     metadata.new('%s-gossip' % app, ns=ns) +

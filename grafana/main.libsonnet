@@ -22,7 +22,7 @@ function(config)
 
   [
     destinationrule.new('prometheus.istio-system.svc.cluster.local') +
-    metadata.new('prometheus-istio-system', ns=ns) +
+    metadata.new('prometheus.istio-system', ns=ns) +
     destinationrule.mtls(false),
   ] +
   (if grafana.tls.acme then [certificate.new(grafana.external_address)] else []) +
@@ -36,6 +36,10 @@ function(config)
     virtualservice.gateway(app) +
     virtualservice.redirect(exact='/metrics', path='/') +
     virtualservice.route(app),
+
+    destinationrule.new(app) +
+    metadata.new(app, ns=ns) +
+    destinationrule.circuit_breaker(),
 
     service.new(app) +
     metadata.new(app, ns=ns) +

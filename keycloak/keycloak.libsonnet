@@ -49,13 +49,18 @@ function(config)
     virtualservice.gateway(app) +
     virtualservice.route(app),
 
+    destinationrule.new(app) +
+    metadata.new(app, ns=ns) +
+    destinationrule.circuit_breaker(),
+
     service.new(app) +
     metadata.new(app, ns=ns) +
     service.port(8080),
 
     destinationrule.new(app + '-gossip') +
     metadata.new(app + '-gossip', ns=ns) +
-    destinationrule.mtls(false),
+    destinationrule.mtls(false) +
+    destinationrule.circuit_breaker(),
 
     service.new(app, headless=true) +
     metadata.new(app + '-gossip', ns=ns) +

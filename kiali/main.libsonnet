@@ -25,11 +25,11 @@ function(config)
 
   [
     destinationrule.new('istio-pilot.istio-system.svc.cluster.local') +
-    metadata.new('istio-pilot-istio-system', ns=ns) +
+    metadata.new('istio-pilot.istio-system', ns=ns) +
     destinationrule.mtls(false),
 
     destinationrule.new('prometheus.istio-system.svc.cluster.local') +
-    metadata.new('prometheus-istio-system', ns=ns) +
+    metadata.new('prometheus.istio-system', ns=ns) +
     destinationrule.mtls(false),
 
     serviceaccount.new() +
@@ -102,6 +102,10 @@ function(config)
     virtualservice.host(kiali.external_address) +
     virtualservice.gateway(app) +
     virtualservice.route(app, port=4180),
+
+    destinationrule.new(app) +
+    metadata.new(app, ns=ns) +
+    destinationrule.circuit_breaker(),
 
     service.new(app) +
     metadata.new(app, ns=ns) +

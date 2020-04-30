@@ -1,5 +1,6 @@
 local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
+local destinationrule = import '../templates/destinationrule.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local role = import '../templates/role.libsonnet';
@@ -135,6 +136,10 @@ function(config)
     metadata.new('%s-%s' % [app, ns]) +
     rolebinding.role('%s-%s' % [app, ns], cluster=true) +
     rolebinding.subject('ServiceAccount', app, ns=ns),
+
+    destinationrule.new(app) +
+    metadata.new(app, ns=ns) +
+    destinationrule.circuit_breaker(),
 
     service.new(app) +
     metadata.new(app, ns=ns) +

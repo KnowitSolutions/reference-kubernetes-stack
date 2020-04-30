@@ -1,6 +1,7 @@
 local certificate = import '../templates/certificate.libsonnet';
 local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
+local destinationrule = import '../templates/destinationrule.libsonnet';
 local gateway = import '../templates/gateway.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local pod = import '../templates/pod.libsonnet';
@@ -28,6 +29,10 @@ function(config)
     virtualservice.host(jaeger.external_address) +
     virtualservice.gateway(app) +
     virtualservice.route(query_app, port=4180),
+
+    destinationrule.new(query_app) +
+    metadata.new(query_app, ns=ns) +
+    destinationrule.circuit_breaker(),
 
     service.new(query_app) +
     metadata.new(query_app, ns=ns) +

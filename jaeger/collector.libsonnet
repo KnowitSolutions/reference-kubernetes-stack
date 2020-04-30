@@ -1,5 +1,6 @@
 local container = import '../templates/container.libsonnet';
 local deployment = import '../templates/deployment.libsonnet';
+local destinationrule = import '../templates/destinationrule.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local peerauthentication = import '../templates/peerauthentication.libsonnet';
 local pod = import '../templates/pod.libsonnet';
@@ -14,6 +15,10 @@ function(config)
   local jaeger = config.jaeger;
 
   [
+    destinationrule.new(collector_app) +
+    metadata.new(collector_app, ns=ns) +
+    destinationrule.circuit_breaker(),
+
     service.new(collector_app) +
     metadata.new(collector_app, ns=ns) +
     service.port(9411) +
