@@ -95,5 +95,5 @@ function(config)
       (if postgres.enabled then pod.volume_emptydir('data', '1Mi') else {}) +
       pod.security_context({ runAsUser: 472, runAsGroup: 472 })
     ) +
-    (if !postgres.enabled then statefulset.volume_claim('data', '10Gi') else {}),
+    (if !postgres.enabled then statefulset.volume_claim('data', '50Mi') else {}),
   ]

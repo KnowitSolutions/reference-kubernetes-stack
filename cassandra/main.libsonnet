@@ -70,7 +70,7 @@ function(config)
       pod.volume_emptydir('tmp', '1Mi') +
       pod.security_context({ runAsUser: 999, runAsGroup: 999 }),
     ) +
-    statefulset.volume_claim('data', '10Gi'),
+    statefulset.volume_claim('data', '50Gi'),
   ]
   else [
     serviceentry.new() +
