@@ -26,15 +26,11 @@ To run subsequent commands `istioctl` and `jsonnet` has to be installed. Both pr
 
 ### Istio
 
-The stack is build and tested against version 1.5.1 of Istio. Newer versions might work, but the stack is incompatible with older versions.
+The stack is build and tested against version 1.6.0 of Istio. Newer versions might work, but the stack is incompatible with older versions.
 The command given below installs Istio if it is not already installed, or resets Istio's configuration to the provided values. These configurations are neccecary for the stack to function properly.
 
 ```
-istioctl manifest apply \
-  --set values.security.enabled=true \
-  --set values.sidecarInjectorWebhook.rewriteAppHTTPProbe=true \
-  --set values.gateways.istio-ingressgateway.sds.enabled=true \
-  --set values.global.k8sIngress.enabled=true \
+istioctl install \
   --set values.global.proxy.resources.requests.cpu="50m" \
   --set values.global.proxy.resources.requests.memory="64Mi" \
   --set values.global.proxy.resources.limits.cpu="50m" \
@@ -44,11 +40,6 @@ istioctl manifest apply \
   --set values.global.tracer.zipkin.address=jaeger-collector.base:9411 \
   --set values.pilot.traceSampling=100
 ```
-
-Note: rewriteAppHTTPProbe seems to be unnecessary after Istio v1.6.
-
-Note: security.enabled is just a workaround for [this bug](https://github.com/istio/istio/issues/22391).
-### Cert manager
 
 Support for provisioning TLS certificates for use with HTTPS is provided through Cert manager. To use this functionality Cert manager must first be installed as described [here](https://cert-manager.io/docs/installation/kubernetes/).
 

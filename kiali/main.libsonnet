@@ -14,7 +14,7 @@ local serviceaccount = import '../templates/serviceaccount.libsonnet';
 local virtualservice = import '../templates/virtualservice.libsonnet';
 
 local app = 'kiali';
-local image = 'quay.io/kiali/kiali:v1.14';
+local image = 'quay.io/kiali/kiali:v1.18.1';
 local auth_app = 'oauth2-proxy';
 local auth_image = 'quay.io/oauth2-proxy/oauth2-proxy:v5.1.0';
 
