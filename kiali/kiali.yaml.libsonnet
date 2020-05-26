@@ -12,7 +12,7 @@ function(config) {
       url: '%s://%s' % [grafana.external_protocol, grafana.external_address],
     },
     istio: {
-      url_service_version: 'http://istio-pilot.istio-system:8080/version',
+      url_service_version: 'http://istiod.istio-system:8080/version',
     },
     prometheus: {
       url: 'http://prometheus.istio-system:9090',
