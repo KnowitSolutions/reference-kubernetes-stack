@@ -1,3 +1,4 @@
+local authorizationpolicy = import '../templates/authorizationpolicy.libsonnet';
 local certificate = import '../templates/certificate.libsonnet';
 local configmap = import '../templates/configmap.libsonnet';
 local container = import '../templates/container.libsonnet';
@@ -34,8 +35,15 @@ function(config)
     metadata.new(app, ns=ns) +
     virtualservice.host(grafana.external_address) +
     virtualservice.gateway(app) +
-    virtualservice.redirect(exact='/metrics', path='/') +
     virtualservice.route(app),
+
+    authorizationpolicy.new({ app: app }) +
+    metadata.new(app, ns=ns) +
+    authorizationpolicy.rule(
+      authorizationpolicy.from({ principals: ['*/ns/istio-system/sa/istio-ingressgateway-service-account'] }) +
+      authorizationpolicy.to({ paths: ['/metrics'] })
+    ) +
+    authorizationpolicy.allow(false),
 
     destinationrule.new(app) +
     metadata.new(app, ns=ns) +
