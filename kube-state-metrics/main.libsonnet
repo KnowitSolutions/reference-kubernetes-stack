@@ -13,6 +13,7 @@ local image = 'quay.io/coreos/kube-state-metrics:v1.9.5';
 
 function(config)
   local ns = config.kube_state_metrics.namespace;
+  local kube_state_metrics = config.kube_state_metrics;
 
   [
     serviceaccount.new() +
@@ -163,6 +164,8 @@ function(config)
         container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.service_account(app) +
-      pod.security_context({ runAsUser: 65534, runAsGroup: 65534 })
+      pod.security_context({ runAsUser: 65534, runAsGroup: 65534 }) +
+      pod.node_selector(kube_state_metrics.node_selector) +
+      pod.tolerations(kube_state_metrics.node_tolerations)
     ),
   ]

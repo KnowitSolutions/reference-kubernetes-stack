@@ -19,6 +19,8 @@ local ns(name) =
 
 function(
   namespace='base',
+  node_selector=null,
+  node_tolerations=null,
 
   ingress_tls=false,
   lets_encrypt_email=null,
@@ -73,6 +75,11 @@ function(
   jaeger_keyspace='jaeger',
   jaeger_client_secret='Regenerate me',
 )
+  local affinity = {
+    node_selector: if node_selector != null then node_selector else [],
+    node_tolerations: if node_tolerations != null then node_tolerations else [],
+  };
+
   local cassandra_connection = {
     assert if cassandra_address == null then
       cassandra_address == null &&
@@ -147,7 +154,7 @@ function(
         external_address: cassandra_address,
         port: cassandra_port,
       },
-    },
+    } + affinity,
     postgres: {
       namespace: namespace,
       vip: {
@@ -169,14 +176,14 @@ function(
     loki: {
       namespace: namespace,
       cassandra: cassandra_connection { keyspace: loki_keyspace },
-    },
+    } + affinity,
     promtail: {
       namespace: namespace,
       log_type: promtail_log_type,
-    },
+    } + affinity,
     kube_state_metrics: {
       namespace: namespace,
-    },
+    } + affinity,
     keycloak: {
       namespace: namespace,
       replicas: keycloak_replicas,
@@ -194,7 +201,7 @@ function(
         username: keycloak_username,
         password: keycloak_password,
       },
-    },
+    } + affinity,
     grafana: {
       assert grafana_replicas == 1 || self.postgres.enabled
              : 'Grafana high availability in unavailable without Postgres',
@@ -209,7 +216,7 @@ function(
         client_id: 'grafana',
         client_secret: grafana_client_secret,
       },
-    },
+    } + affinity,
     kiali: {
       namespace: namespace,
       replicas: kiali_replicas,
@@ -220,7 +227,7 @@ function(
         client_id: 'kiali',
         client_secret: kiali_client_secret,
       },
-    },
+    } + affinity,
     jaeger: {
       namespace: namespace,
       replicas: jaeger_replicas,
@@ -232,7 +239,7 @@ function(
         client_id: 'jaeger',
         client_secret: jaeger_client_secret,
       },
-    },
+    } + affinity,
   };
 
   [

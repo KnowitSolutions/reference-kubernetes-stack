@@ -52,6 +52,8 @@ function(config)
         container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.volume_configmap('config', configmap=app) +
-      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })
+      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
+      pod.node_selector(jaeger.node_selector) +
+      pod.tolerations(jaeger.node_tolerations)
     ),
   ]

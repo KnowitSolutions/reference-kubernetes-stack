@@ -68,7 +68,9 @@ function(config)
       ) +
       pod.volume_emptydir('config', '1Mi') +
       pod.volume_emptydir('tmp', '1Mi') +
-      pod.security_context({ runAsUser: 999, runAsGroup: 999 }),
+      pod.security_context({ runAsUser: 999, runAsGroup: 999 }) +
+      pod.node_selector(cassandra.node_selector) +
+      pod.tolerations(cassandra.node_tolerations)
     ) +
     statefulset.volume_claim('data', '50Gi'),
   ]

@@ -102,6 +102,8 @@ function(config)
         // TODO: container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.service_account(app) +
-      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }),
+      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
+      pod.node_selector(keycloak.node_selector) +
+      pod.tolerations(keycloak.node_tolerations)
     ),
   ]

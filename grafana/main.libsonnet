@@ -101,7 +101,9 @@ function(config)
         'resource-overview.json': 'dashboards/resource-overview.json',
       }) +
       (if postgres.enabled then pod.volume_emptydir('data', '1Mi') else {}) +
-      pod.security_context({ runAsUser: 472, runAsGroup: 472 })
+      pod.security_context({ runAsUser: 472, runAsGroup: 472 }) +
+      pod.node_selector(grafana.node_selector) +
+      pod.tolerations(grafana.node_tolerations)
     ) +
     (if !postgres.enabled then statefulset.volume_claim('data', '50Mi') else {}),
   ]

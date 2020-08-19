@@ -169,6 +169,8 @@ function(config)
       ) +
       pod.service_account(app) +
       pod.volume_configmap('config', configmap=app) +
-      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })
+      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
+      pod.node_selector(kiali.node_selector) +
+      pod.tolerations(kiali.node_tolerations)
     ),
   ]

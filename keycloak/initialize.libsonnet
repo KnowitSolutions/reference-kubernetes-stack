@@ -13,6 +13,7 @@ local image = 'jboss/keycloak:9.0.0';
 
 function(config)
   local ns = config.keycloak.namespace;
+  local keycloak = config.keycloak;
 
   [
     configmap.new() +
@@ -38,6 +39,8 @@ function(config)
         // TODO: container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
-      pod.volume_configmap('script', app_init, default_mode=std.parseOctal('555'))
+      pod.volume_configmap('script', app_init, default_mode=std.parseOctal('555')) +
+      pod.node_selector(keycloak.node_selector) +
+      pod.tolerations(keycloak.node_tolerations)
     ),
   ]
