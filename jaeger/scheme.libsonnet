@@ -9,7 +9,8 @@ local image = 'jaegertracing/jaeger-cassandra-schema:1.17.1';
 
 function(config)
   local ns = config.jaeger.namespace;
-  local cassandra = config.jaeger.cassandra;
+  local jaeger = config.jaeger;
+  local cassandra = jaeger.cassandra;
 
   [
     job.new() +
@@ -38,6 +39,8 @@ function(config)
         container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.volume_emptydir('tmp', '1Mi') +
-      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 })
+      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
+      pod.node_selector(jaeger.node_selector) +
+      pod.tolerations(jaeger.node_tolerations)
     ),
   ]
