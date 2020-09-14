@@ -58,7 +58,7 @@ function(config)
         container.env_from(secret=app) +
         container.port('http', 8080) +
         container.volume('config', '/etc/loki') +
-        container.resources('100m', '100m', '256Mi', '256Mi') +
+        container.resources('100m', '100m', '512Mi', '512Mi') +
         container.http_probe('readiness', '/ready') +
         container.http_probe('liveness', '/ready', delay=120) +
         container.security_context({ readOnlyRootFilesystem: true })
