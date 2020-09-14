@@ -52,6 +52,7 @@ function(config) {
 
   limits_config: {
     enforce_metric_name: false,
+    max_streams_per_user: 0,
   },
 
   table_manager: {
