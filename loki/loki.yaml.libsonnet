@@ -22,17 +22,11 @@ function(config) {
   schema_config: {
     configs: [
       {
-        chunks: {
-          period: '168h',
-          prefix: 'chunk_',
-        },
         from: '2020-01-01',
-        index: {
-          period: '168h',
-          prefix: 'index_',
-        },
-        schema: 'v11',
         store: 'cassandra',
+        schema: 'v11',
+        index: { prefix: 'index_' },
+        chunks: { prefix: 'chunk_' },
       },
     ],
   },
@@ -61,6 +55,6 @@ function(config) {
   },
 
   chunk_store_config: {
-    max_look_back_period: '672h',
+    max_look_back_period: '672h',  // TODO: This is probably wrong, as default is documented as 30s. Might cause slowdowns?
   },
 }

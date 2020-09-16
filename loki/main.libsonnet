@@ -8,7 +8,7 @@ local secret = import '../templates/secret.libsonnet';
 local service = import '../templates/service.libsonnet';
 
 local app = 'loki';
-local image = 'grafana/loki:v1.3.0';
+local image = 'grafana/loki:1.6.1';
 
 function(config)
   local ns = config.loki.namespace;
