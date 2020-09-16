@@ -8,3 +8,7 @@ datasources:
     type: loki
     access: proxy
     url: http://loki:8080
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger-query:16686
