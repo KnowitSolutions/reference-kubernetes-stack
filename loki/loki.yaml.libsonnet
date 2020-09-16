@@ -25,8 +25,14 @@ function(config) {
         from: '2020-01-01',
         store: 'cassandra',
         schema: 'v11',
-        index: { prefix: 'index_' },
-        chunks: { prefix: 'chunk_' },
+        index: {
+          prefix: 'index_',
+          period: '168h',
+        },
+        chunks: {
+          prefix: 'chunk_',
+          period: '168h',
+        },
       },
     ],
   },
