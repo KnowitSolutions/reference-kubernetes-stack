@@ -10,7 +10,7 @@ local virtualservice = import '../templates/virtualservice.libsonnet';
 
 local app = 'jaeger';
 local query_app = 'jaeger-query';
-local query_image = 'jaegertracing/jaeger-query:1.17.1';
+local query_image = 'jaegertracing/jaeger-query:1.19.2';
 local auth_app = 'oauth2-proxy';
 local auth_image = 'quay.io/oauth2-proxy/oauth2-proxy:v5.1.0';
 

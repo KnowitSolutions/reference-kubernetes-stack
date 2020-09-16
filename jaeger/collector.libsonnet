@@ -8,7 +8,7 @@ local service = import '../templates/service.libsonnet';
 
 local app = 'jaeger';
 local collector_app = 'jaeger-collector';
-local image = 'jaegertracing/jaeger-collector:1.17.1';
+local image = 'jaegertracing/jaeger-collector:1.19.2';
 
 function(config)
   local ns = config.jaeger.namespace;

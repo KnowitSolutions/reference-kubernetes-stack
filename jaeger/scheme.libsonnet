@@ -5,7 +5,7 @@ local pod = import '../templates/pod.libsonnet';
 
 local app = 'jaeger';
 local app_schema = 'jaeger-schema';
-local image = 'jaegertracing/jaeger-cassandra-schema:1.17.1';
+local image = 'jaegertracing/jaeger-cassandra-schema:1.19.2';
 
 function(config)
   local ns = config.jaeger.namespace;
