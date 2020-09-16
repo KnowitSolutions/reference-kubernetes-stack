@@ -13,7 +13,7 @@ local statefulset = import '../templates/statefulset.libsonnet';
 local virtualservice = import '../templates/virtualservice.libsonnet';
 
 local app = 'grafana';
-local image = 'grafana/grafana:6.6.1';
+local image = 'grafana/grafana:7.1.5';
 
 function(config)
   local ns = config.grafana.namespace;
