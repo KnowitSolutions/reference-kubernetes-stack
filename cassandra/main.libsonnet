@@ -8,7 +8,7 @@ local serviceentry = import '../templates/serviceentry.libsonnet';
 local statefulset = import '../templates/statefulset.libsonnet';
 
 local app = 'cassandra';
-local image = 'cassandra:3.11.6';
+local image = 'cassandra:4.0';
 
 function(config)
   local ns = config.cassandra.namespace;
@@ -57,6 +57,7 @@ function(config)
         container.env_from(configmap=app) +
         container.volume('config', '/etc/cassandra') +
         container.volume('data', '/var/lib/cassandra') +
+        container.volume('gc-log', '/opt/cassandra/logs') +
         container.volume('tmp', '/tmp') +
         container.port('tcp-cql', 9042) +
         container.port('tcp-gossip', 7000) +
@@ -67,6 +68,7 @@ function(config)
         container.security_context({ readOnlyRootFilesystem: true })
       ) +
       pod.volume_emptydir('config', '1Mi') +
+      pod.volume_emptydir('gc-log', '101Mi') +
       pod.volume_emptydir('tmp', '1Mi') +
       pod.security_context({ runAsUser: 999, runAsGroup: 999 }) +
       pod.node_selector(cassandra.node_selector) +
