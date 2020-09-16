@@ -36,7 +36,7 @@ function(config) {
       auth_url: '%s://%s/auth/realms/master/protocol/openid-connect/auth' % [keycloak.external_protocol, keycloak.external_address],
       token_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/token' % [keycloak.internal_address],
       api_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/userinfo' % [keycloak.internal_address],
-      role_attribute_path: 'contains(roles, "admin") && "Admin" || "Viewer"',
+      role_attribute_path: 'contains(roles, "admin") && "Admin" || "Editor"',
     },
 
     security: {
