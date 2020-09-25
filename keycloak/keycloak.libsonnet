@@ -103,7 +103,7 @@ function(config)
       ) +
       pod.service_account(app) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
-      pod.node_selector(keycloak.node_selector) +
-      pod.tolerations(keycloak.node_tolerations)
+      pod.affinity(keycloak.affinity) +
+      pod.tolerations(keycloak.tolerations)
     ),
   ]

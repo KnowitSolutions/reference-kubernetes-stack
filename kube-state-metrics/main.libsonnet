@@ -165,7 +165,7 @@ function(config)
       ) +
       pod.service_account(app) +
       pod.security_context({ runAsUser: 65534, runAsGroup: 65534 }) +
-      pod.node_selector(kube_state_metrics.node_selector) +
-      pod.tolerations(kube_state_metrics.node_tolerations)
+      pod.affinity(kube_state_metrics.affinity) +
+      pod.tolerations(kube_state_metrics.tolerations)
     ),
   ]

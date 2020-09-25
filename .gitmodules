@@ -1,0 +1,3 @@
+[submodule "istio-oidc"]
+	path = istio-oidc
+	url = https://github.com/KnowitSolutions/istio-oidc.git

@@ -65,7 +65,7 @@ function(config)
       ) +
       pod.volume_configmap('config', configmap=app) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
-      pod.node_selector(loki.node_selector) +
-      pod.tolerations(loki.node_tolerations)
+      pod.affinity(loki.affinity) +
+      pod.tolerations(loki.tolerations)
     ),
   ]

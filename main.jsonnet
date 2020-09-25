@@ -1,5 +1,6 @@
 local cassandra = import 'cassandra/main.libsonnet';
 local grafana = import 'grafana/main.libsonnet';
+local istio_oidc = import 'istio-oidc/deployment/main.jsonnet';
 local jaeger = import 'jaeger/main.libsonnet';
 local keycloak = import 'keycloak/main.libsonnet';
 local kiali = import 'kiali/main.libsonnet';
@@ -12,6 +13,7 @@ local issuer = import 'templates/issuer.libsonnet';
 local metadata = import 'templates/metadata.libsonnet';
 local namespace = import 'templates/namespace.libsonnet';
 local peerauthentication = import 'templates/peerauthentication.libsonnet';
+local pod = import 'templates/pod.libsonnet';
 
 local ns(name) =
   namespace.new() +
@@ -61,6 +63,8 @@ function(
   keycloak_username='admin',
   keycloak_password='admin',
 
+  istio_oidc_replicas=2,
+
   grafana_replicas=2,
   grafana_address,
   grafana_database='grafana',
@@ -75,10 +79,8 @@ function(
   jaeger_keyspace='jaeger',
   jaeger_client_secret='Regenerate me',
 )
-  local affinity = {
-    node_selector: if node_selector != null then node_selector else [],
-    node_tolerations: if node_tolerations != null then node_tolerations else [],
-  };
+  local affinity = if node_selector != null then pod.new_affinity(node_selector) else {};
+  local tolerations = if node_tolerations != null then pod.new_tolerations(node_tolerations) else [];
 
   local cassandra_connection = {
     assert if cassandra_address == null then
@@ -154,7 +156,9 @@ function(
         external_address: cassandra_address,
         port: cassandra_port,
       },
-    } + affinity,
+      affinity: affinity,
+      tolerations: tolerations,
+    },
     postgres: {
       namespace: namespace,
       vip: {
@@ -176,14 +180,20 @@ function(
     loki: {
       namespace: namespace,
       cassandra: cassandra_connection { keyspace: loki_keyspace },
-    } + affinity,
+      affinity: affinity,
+      tolerations: tolerations,
+    },
     promtail: {
       namespace: namespace,
       log_type: promtail_log_type,
-    } + affinity,
+      affinity: affinity,
+      tolerations: tolerations,
+    },
     kube_state_metrics: {
       namespace: namespace,
-    } + affinity,
+      affinity: affinity,
+      tolerations: tolerations,
+    },
     keycloak: {
       namespace: namespace,
       replicas: keycloak_replicas,
@@ -201,7 +211,9 @@ function(
         username: keycloak_username,
         password: keycloak_password,
       },
-    } + affinity,
+      affinity: affinity,
+      tolerations: tolerations,
+    },
     grafana: {
       assert grafana_replicas == 1 || self.postgres.enabled
              : 'Grafana high availability in unavailable without Postgres',
@@ -216,7 +228,9 @@ function(
         client_id: 'grafana',
         client_secret: grafana_client_secret,
       },
-    } + affinity,
+      affinity: affinity,
+      tolerations: tolerations,
+    },
     kiali: {
       namespace: namespace,
       replicas: kiali_replicas,
@@ -227,7 +241,9 @@ function(
         client_id: 'kiali',
         client_secret: kiali_client_secret,
       },
-    } + affinity,
+      affinity: affinity,
+      tolerations: tolerations,
+    },
     jaeger: {
       namespace: namespace,
       replicas: jaeger_replicas,
@@ -239,7 +255,9 @@ function(
         client_id: 'jaeger',
         client_secret: jaeger_client_secret,
       },
-    } + affinity,
+      affinity: affinity,
+      tolerations: tolerations,
+    },
   };
 
   [
@@ -262,6 +280,14 @@ function(
   promtail(config) +
   kube_state_metrics(config) +
   keycloak(config) +
+  istio_oidc(
+    NAMESPACE=namespace,
+    VERSION='master',
+    REPLICAS=istio_oidc_replicas,
+    AFFINITY=affinity,
+    TOLERATIONS=tolerations,
+    KEYCLOAK_URL='http://keycloak:8080'
+  ) +
   grafana(config) +
   kiali(config) +
   jaeger(config)

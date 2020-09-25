@@ -15,6 +15,7 @@ local virtualservice = import '../templates/virtualservice.libsonnet';
 local app = 'grafana';
 local image = 'grafana/grafana:7.1.5';
 
+// TODO: Switch to Istio OIDC
 function(config)
   local ns = config.grafana.namespace;
   local grafana = config.grafana;
@@ -102,8 +103,8 @@ function(config)
       }) +
       (if postgres.enabled then pod.volume_emptydir('data', '1Mi') else {}) +
       pod.security_context({ runAsUser: 472, runAsGroup: 472 }) +
-      pod.node_selector(grafana.node_selector) +
-      pod.tolerations(grafana.node_tolerations)
+      pod.affinity(grafana.affinity) +
+      pod.tolerations(grafana.tolerations)
     ) +
     (if !postgres.enabled then statefulset.volume_claim('data', '50Mi') else {}),
   ]

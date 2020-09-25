@@ -40,7 +40,7 @@ function(config)
       ) +
       pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
       pod.volume_configmap('script', app_init, default_mode=std.parseOctal('555')) +
-      pod.node_selector(keycloak.node_selector) +
-      pod.tolerations(keycloak.node_tolerations)
+      pod.affinity(keycloak.affinity) +
+      pod.tolerations(keycloak.tolerations)
     ),
   ]

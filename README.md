@@ -73,6 +73,7 @@ jsonnet \
   --tla-str postgres_password='postgres' \
   --tla-code keycloak_replicas=1 \
   --tla-str keycloak_address='keycloak.localhost' \
+  --tla-code istio_oidc_replicas=1 \
   --tla-code grafana_replicas=1 \
   --tla-str grafana_address='grafana.localhost' \
   --tla-code kiali_replicas=1 \
