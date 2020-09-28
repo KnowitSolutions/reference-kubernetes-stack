@@ -34,13 +34,6 @@ function(config)
     metadata.new(app, ns=ns) +
     accesspolicy.credentials(app),
 
-    secret.new() +
-    metadata.new(app, ns=ns) +
-    secret.data({
-      clientID: jaeger.oidc.client_id,
-      clientSecret: jaeger.oidc.client_secret,
-    }),
-
     destinationrule.new(query_app) +
     metadata.new(query_app, ns=ns) +
     destinationrule.circuit_breaker(),

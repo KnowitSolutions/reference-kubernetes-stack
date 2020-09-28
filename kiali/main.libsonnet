@@ -128,13 +128,6 @@ function(config)
       'config.yaml': std.manifestYamlDoc((import 'kiali.yaml.libsonnet')(config)),
     }),
 
-    secret.new() +
-    metadata.new(app, ns=ns) +
-    secret.data({
-      OIDC_CLIENT_ID: kiali.oidc.client_id,
-      OIDC_CLIENT_SECRET: kiali.oidc.client_secret,
-    }),
-
     deployment.new(replicas=kiali.replicas) +
     metadata.new(app, ns=ns) +
     deployment.pod(
