@@ -73,7 +73,7 @@ local metadata = import 'metadata.libsonnet';
   new_affinity(labels):: {
     nodeAffinity: {
       requiredDuringSchedulingIgnoredDuringExecution: {
-        nodeSelectorTerms: {
+        nodeSelectorTerms: [{
           matchExpressions: [
             {
               local split = std.splitLimit(label, '=', 1),
@@ -84,7 +84,7 @@ local metadata = import 'metadata.libsonnet';
             }
             for label in labels
           ],
-        },
+        }],
       },
     },
   },
