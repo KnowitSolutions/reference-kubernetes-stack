@@ -279,7 +279,6 @@ function(
   loki(config) +
   promtail(config) +
   kube_state_metrics(config) +
-  keycloak(config) +
   istio_oidc(
     NAMESPACE=namespace,
     VERSION='master',
@@ -287,6 +286,7 @@ function(
     AFFINITY=affinity,
     TOLERATIONS=tolerations,
   ) +
+  keycloak(config) +
   grafana(config) +
   kiali(config) +
   jaeger(config)
