@@ -30,7 +30,7 @@ function(config)
     virtualservice.gateway(app) +
     virtualservice.route(query_app, port=16686),
 
-    accesspolicy.new(app) +
+    accesspolicy.new(app, 'keycloak') +
     metadata.new(app, ns=ns) +
     accesspolicy.credentials(app),
 

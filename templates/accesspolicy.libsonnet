@@ -1,10 +1,10 @@
 {
-  new(gateway):: {
+  new(gateway, provider):: {
     apiVersion: 'krsdev.app/v1',
     kind: 'AccessPolicy',
     spec: {
       gateway: gateway,
-      realm: 'master',
+      oidc: { provider: provider },
     },
   },
 

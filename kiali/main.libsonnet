@@ -102,7 +102,7 @@ function(config)
     virtualservice.gateway(app) +
     virtualservice.route(app, port=20001),
 
-    accesspolicy.new(app) +
+    accesspolicy.new(app, 'keycloak') +
     metadata.new(app, ns=ns) +
     accesspolicy.credentials(app),
 

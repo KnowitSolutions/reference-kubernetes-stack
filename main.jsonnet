@@ -286,7 +286,6 @@ function(
     REPLICAS=istio_oidc_replicas,
     AFFINITY=affinity,
     TOLERATIONS=tolerations,
-    KEYCLOAK_URL='http://keycloak:8080'
   ) +
   grafana(config) +
   kiali(config) +

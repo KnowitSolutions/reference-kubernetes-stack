@@ -7,6 +7,7 @@ local gateway = import '../templates/gateway.libsonnet';
 local metadata = import '../templates/metadata.libsonnet';
 local secret = import '../templates/secret.libsonnet';
 //local peerauthentication = import '../templates/peerauthentication.libsonnet';
+local openidprovider = import '../templates/openidprovider.libsonnet';
 local pod = import '../templates/pod.libsonnet';
 local role = import '../templates/role.libsonnet';
 local rolebinding = import '../templates/rolebinding.libsonnet';
@@ -106,4 +107,8 @@ function(config)
       pod.affinity(keycloak.affinity) +
       pod.tolerations(keycloak.tolerations)
     ),
+
+    openidprovider.new('http://keycloak:8080/auth/realms/master') +
+    metadata.new(app, ns=ns) +
+    openidprovider.role_mapping('realm_access.roles'),
   ]
