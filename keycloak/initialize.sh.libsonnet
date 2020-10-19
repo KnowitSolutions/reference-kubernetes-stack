@@ -42,8 +42,8 @@ function(config) |||
   client_id=$(
     kcadm.sh create clients \
       --id \
-      --set clientId="$KIALI_OIDC_CLIENT_ID" \
-      --set secret="$KIALI_OIDC_CLIENT_SECRET" \
+      --set clientId="$KIALI_clientID" \
+      --set secret="$KIALI_clientSecret" \
       --set redirectUris='["%(kiali_url)s/*"]'
   )
   echo "Created new client with id '$client_id'"
@@ -51,8 +51,8 @@ function(config) |||
   client_id=$(
     kcadm.sh create clients \
       --id \
-      --set clientId="$JAEGER_OIDC_CLIENT_ID" \
-      --set secret="$JAEGER_OIDC_CLIENT_SECRET" \
+      --set clientId="$JAEGER_clientID" \
+      --set secret="$JAEGER_clientSecret" \
       --set redirectUris='["%(jaeger_url)s/*"]'
   )
   echo "Created new client with id '$client_id'"
