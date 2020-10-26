@@ -1,8 +1,8 @@
-local configmap = import '../templates/configmap.libsonnet';
-local container = import '../templates/container.libsonnet';
-local job = import '../templates/job.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local pod = import '../templates/pod.libsonnet';
+local configmap = import '../templates/configmap.jsonnet';
+local container = import '../templates/container.jsonnet';
+local job = import '../templates/job.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local pod = import '../templates/pod.jsonnet';
 
 local app = 'keycloak';
 local app_init = 'keycloak-initialize';
@@ -19,7 +19,7 @@ function(config)
     configmap.new() +
     metadata.new(app_init, ns=ns) +
     configmap.data({
-      'initialize.sh': (import 'initialize.sh.libsonnet')(config),
+      'initialize.sh': (import 'initialize.sh.jsonnet')(config),
     }),
 
     job.new() +

@@ -1,7 +1,7 @@
-local container = import '../templates/container.libsonnet';
-local job = import '../templates/job.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local pod = import '../templates/pod.libsonnet';
+local container = import '../templates/container.jsonnet';
+local job = import '../templates/job.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local pod = import '../templates/pod.jsonnet';
 
 local app = 'jaeger';
 local app_schema = 'jaeger-schema';

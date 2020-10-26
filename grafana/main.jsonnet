@@ -1,16 +1,16 @@
-local authorizationpolicy = import '../templates/authorizationpolicy.libsonnet';
-local certificate = import '../templates/certificate.libsonnet';
-local configmap = import '../templates/configmap.libsonnet';
-local container = import '../templates/container.libsonnet';
-local deployment = import '../templates/deployment.libsonnet';
-local destinationrule = import '../templates/destinationrule.libsonnet';
-local gateway = import '../templates/gateway.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local pod = import '../templates/pod.libsonnet';
-local secret = import '../templates/secret.libsonnet';
-local service = import '../templates/service.libsonnet';
-local statefulset = import '../templates/statefulset.libsonnet';
-local virtualservice = import '../templates/virtualservice.libsonnet';
+local authorizationpolicy = import '../templates/authorizationpolicy.jsonnet';
+local certificate = import '../templates/certificate.jsonnet';
+local configmap = import '../templates/configmap.jsonnet';
+local container = import '../templates/container.jsonnet';
+local deployment = import '../templates/deployment.jsonnet';
+local destinationrule = import '../templates/destinationrule.jsonnet';
+local gateway = import '../templates/gateway.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local pod = import '../templates/pod.jsonnet';
+local secret = import '../templates/secret.jsonnet';
+local service = import '../templates/service.jsonnet';
+local statefulset = import '../templates/statefulset.jsonnet';
+local virtualservice = import '../templates/virtualservice.jsonnet';
 
 local app = 'grafana';
 local image = 'grafana/grafana:7.1.5';
@@ -57,7 +57,7 @@ function(config)
     configmap.new() +
     metadata.new(app, ns=ns) +
     configmap.data({
-      'grafana.ini': std.manifestIni((import 'grafana.ini.libsonnet')(config)),
+      'grafana.ini': std.manifestIni((import 'grafana.ini.jsonnet')(config)),
       'datasources.yaml': importstr 'datasources.yaml',
       'dashboards.yaml': importstr 'dashboards.yaml',
       'container-overview.json': importstr 'dashboards/container-overview.json',

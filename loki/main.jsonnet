@@ -1,11 +1,11 @@
-local configmap = import '../templates/configmap.libsonnet';
-local container = import '../templates/container.libsonnet';
-local deployment = import '../templates/deployment.libsonnet';
-local destinationrule = import '../templates/destinationrule.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local pod = import '../templates/pod.libsonnet';
-local secret = import '../templates/secret.libsonnet';
-local service = import '../templates/service.libsonnet';
+local configmap = import '../templates/configmap.jsonnet';
+local container = import '../templates/container.jsonnet';
+local deployment = import '../templates/deployment.jsonnet';
+local destinationrule = import '../templates/destinationrule.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local pod = import '../templates/pod.jsonnet';
+local secret = import '../templates/secret.jsonnet';
+local service = import '../templates/service.jsonnet';
 
 local app = 'loki';
 local image = 'grafana/loki:1.6.1';
@@ -27,7 +27,7 @@ function(config)
     configmap.new() +
     metadata.new(app, ns=ns) +
     configmap.data({
-      'loki.yaml': std.manifestYamlDoc((import 'loki.yaml.libsonnet')(config)),
+      'loki.yaml': std.manifestYamlDoc((import 'loki.yaml.jsonnet')(config)),
     }),
 
     secret.new() +

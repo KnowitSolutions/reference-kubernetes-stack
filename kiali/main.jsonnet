@@ -1,18 +1,18 @@
-local accesspolicy = import '../templates/accesspolicy.libsonnet';
-local certificate = import '../templates/certificate.libsonnet';
-local configmap = import '../templates/configmap.libsonnet';
-local container = import '../templates/container.libsonnet';
-local deployment = import '../templates/deployment.libsonnet';
-local destinationrule = import '../templates/destinationrule.libsonnet';
-local gateway = import '../templates/gateway.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local pod = import '../templates/pod.libsonnet';
-local role = import '../templates/role.libsonnet';
-local rolebinding = import '../templates/rolebinding.libsonnet';
-local secret = import '../templates/secret.libsonnet';
-local service = import '../templates/service.libsonnet';
-local serviceaccount = import '../templates/serviceaccount.libsonnet';
-local virtualservice = import '../templates/virtualservice.libsonnet';
+local accesspolicy = import '../templates/accesspolicy.jsonnet';
+local certificate = import '../templates/certificate.jsonnet';
+local configmap = import '../templates/configmap.jsonnet';
+local container = import '../templates/container.jsonnet';
+local deployment = import '../templates/deployment.jsonnet';
+local destinationrule = import '../templates/destinationrule.jsonnet';
+local gateway = import '../templates/gateway.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local pod = import '../templates/pod.jsonnet';
+local role = import '../templates/role.jsonnet';
+local rolebinding = import '../templates/rolebinding.jsonnet';
+local secret = import '../templates/secret.jsonnet';
+local service = import '../templates/service.jsonnet';
+local serviceaccount = import '../templates/serviceaccount.jsonnet';
+local virtualservice = import '../templates/virtualservice.jsonnet';
 
 local app = 'kiali';
 local image = 'quay.io/kiali/kiali:v1.18.1';
@@ -125,7 +125,7 @@ function(config)
     configmap.new() +
     metadata.new(app, ns=ns) +
     configmap.data({
-      'config.yaml': std.manifestYamlDoc((import 'kiali.yaml.libsonnet')(config)),
+      'config.yaml': std.manifestYamlDoc((import 'kiali.yaml.jsonnet')(config)),
     }),
 
     deployment.new(replicas=kiali.replicas) +

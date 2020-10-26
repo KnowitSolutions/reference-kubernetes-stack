@@ -1,12 +1,12 @@
-local metadata = import '../templates/metadata.libsonnet';
-local serviceentry = import '../templates/serviceentry.libsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local serviceentry = import '../templates/serviceentry.jsonnet';
 
-local app = 'mssql';
+local app = 'postgres';
 
 function(config)
-  local ns = config.mssql.namespace;
-  local mssql = config.mssql;
-  local vip = mssql.vip;
+  local ns = config.postgres.namespace;
+  local postgres = config.postgres;
+  local vip = postgres.vip;
 
   if vip.enabled then [
     serviceentry.new() +

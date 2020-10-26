@@ -1,12 +1,12 @@
-local container = import '../templates/container.libsonnet';
-local deployment = import '../templates/deployment.libsonnet';
-local destinationrule = import '../templates/destinationrule.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local pod = import '../templates/pod.libsonnet';
-local role = import '../templates/role.libsonnet';
-local rolebinding = import '../templates/rolebinding.libsonnet';
-local service = import '../templates/service.libsonnet';
-local serviceaccount = import '../templates/serviceaccount.libsonnet';
+local container = import '../templates/container.jsonnet';
+local deployment = import '../templates/deployment.jsonnet';
+local destinationrule = import '../templates/destinationrule.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local pod = import '../templates/pod.jsonnet';
+local role = import '../templates/role.jsonnet';
+local rolebinding = import '../templates/rolebinding.jsonnet';
+local service = import '../templates/service.jsonnet';
+local serviceaccount = import '../templates/serviceaccount.jsonnet';
 
 local app = 'kube-state-metrics';
 local image = 'quay.io/coreos/kube-state-metrics:v1.9.5';

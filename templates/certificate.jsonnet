@@ -1,4 +1,4 @@
-local metadata = import 'metadata.libsonnet';
+local metadata = import 'metadata.jsonnet';
 
 {
   new(common_name, issuer='lets-encrypt'):: {

@@ -1,9 +1,9 @@
-local configmap = import '../templates/configmap.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local secret = import '../templates/secret.libsonnet';
-local collector = import 'collector.libsonnet';
-local query = import 'query.libsonnet';
-local scheme = import 'scheme.libsonnet';
+local configmap = import '../templates/configmap.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local secret = import '../templates/secret.jsonnet';
+local collector = import 'collector.jsonnet';
+local query = import 'query.jsonnet';
+local scheme = import 'scheme.jsonnet';
 
 local app = 'jaeger';
 
@@ -16,8 +16,8 @@ function(config)
     configmap.new() +
     metadata.new(app, ns=ns) +
     configmap.data({
-      'collector.yaml': std.manifestYamlDoc((import 'collector.yaml.libsonnet')(config)),
-      'query.yaml': std.manifestYamlDoc((import 'query.yaml.libsonnet')(config)),
+      'collector.yaml': std.manifestYamlDoc((import 'collector.yaml.jsonnet')(config)),
+      'query.yaml': std.manifestYamlDoc((import 'query.yaml.jsonnet')(config)),
     }),
 
     secret.new() +

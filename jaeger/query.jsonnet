@@ -1,14 +1,14 @@
-local accesspolicy = import '../templates/accesspolicy.libsonnet';
-local certificate = import '../templates/certificate.libsonnet';
-local container = import '../templates/container.libsonnet';
-local deployment = import '../templates/deployment.libsonnet';
-local destinationrule = import '../templates/destinationrule.libsonnet';
-local gateway = import '../templates/gateway.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local pod = import '../templates/pod.libsonnet';
-local secret = import '../templates/secret.libsonnet';
-local service = import '../templates/service.libsonnet';
-local virtualservice = import '../templates/virtualservice.libsonnet';
+local accesspolicy = import '../templates/accesspolicy.jsonnet';
+local certificate = import '../templates/certificate.jsonnet';
+local container = import '../templates/container.jsonnet';
+local deployment = import '../templates/deployment.jsonnet';
+local destinationrule = import '../templates/destinationrule.jsonnet';
+local gateway = import '../templates/gateway.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local pod = import '../templates/pod.jsonnet';
+local secret = import '../templates/secret.jsonnet';
+local service = import '../templates/service.jsonnet';
+local virtualservice = import '../templates/virtualservice.jsonnet';
 
 local app = 'jaeger';
 local query_app = 'jaeger-query';

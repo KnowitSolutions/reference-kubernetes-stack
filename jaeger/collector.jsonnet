@@ -1,10 +1,10 @@
-local container = import '../templates/container.libsonnet';
-local deployment = import '../templates/deployment.libsonnet';
-local destinationrule = import '../templates/destinationrule.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local peerauthentication = import '../templates/peerauthentication.libsonnet';
-local pod = import '../templates/pod.libsonnet';
-local service = import '../templates/service.libsonnet';
+local container = import '../templates/container.jsonnet';
+local deployment = import '../templates/deployment.jsonnet';
+local destinationrule = import '../templates/destinationrule.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local peerauthentication = import '../templates/peerauthentication.jsonnet';
+local pod = import '../templates/pod.jsonnet';
+local service = import '../templates/service.jsonnet';
 
 local app = 'jaeger';
 local collector_app = 'jaeger-collector';

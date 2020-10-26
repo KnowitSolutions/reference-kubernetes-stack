@@ -1,11 +1,11 @@
-local configmap = import '../templates/configmap.libsonnet';
-local container = import '../templates/container.libsonnet';
-local destinationrule = import '../templates/destinationrule.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local pod = import '../templates/pod.libsonnet';
-local service = import '../templates/service.libsonnet';
-local serviceentry = import '../templates/serviceentry.libsonnet';
-local statefulset = import '../templates/statefulset.libsonnet';
+local configmap = import '../templates/configmap.jsonnet';
+local container = import '../templates/container.jsonnet';
+local destinationrule = import '../templates/destinationrule.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local pod = import '../templates/pod.jsonnet';
+local service = import '../templates/service.jsonnet';
+local serviceentry = import '../templates/serviceentry.jsonnet';
+local statefulset = import '../templates/statefulset.jsonnet';
 
 local app = 'cassandra';
 local image = 'cassandra:3.11.6';
@@ -35,7 +35,7 @@ function(config)
 
     configmap.new() +
     metadata.new(app, ns=ns) +
-    configmap.data((import 'cassandra.env.libsonnet')(app)),
+    configmap.data((import 'cassandra.env.jsonnet')(app)),
 
     statefulset.new(replicas=cassandra.replicas, parallel=true, service='%s-gossip' % app) +
     metadata.new(app, ns=ns) +

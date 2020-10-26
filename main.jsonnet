@@ -1,19 +1,19 @@
-local cassandra = import 'cassandra/main.libsonnet';
-local grafana = import 'grafana/main.libsonnet';
+local cassandra = import 'cassandra/main.jsonnet';
+local grafana = import 'grafana/main.jsonnet';
 local istio_oidc = import 'istio-oidc/deployment/main.jsonnet';
-local jaeger = import 'jaeger/main.libsonnet';
-local keycloak = import 'keycloak/main.libsonnet';
-local kiali = import 'kiali/main.libsonnet';
-local kube_state_metrics = import 'kube-state-metrics/main.libsonnet';
-local loki = import 'loki/main.libsonnet';
-local mssql = import 'mssql/main.libsonnet';
-local postgres = import 'postgres/main.libsonnet';
-local promtail = import 'promtail/main.libsonnet';
-local issuer = import 'templates/issuer.libsonnet';
-local metadata = import 'templates/metadata.libsonnet';
-local namespace = import 'templates/namespace.libsonnet';
-local peerauthentication = import 'templates/peerauthentication.libsonnet';
-local pod = import 'templates/pod.libsonnet';
+local jaeger = import 'jaeger/main.jsonnet';
+local keycloak = import 'keycloak/main.jsonnet';
+local kiali = import 'kiali/main.jsonnet';
+local kube_state_metrics = import 'kube-state-metrics/main.jsonnet';
+local loki = import 'loki/main.jsonnet';
+local mssql = import 'mssql/main.jsonnet';
+local postgres = import 'postgres/main.jsonnet';
+local promtail = import 'promtail/main.jsonnet';
+local issuer = import 'templates/issuer.jsonnet';
+local metadata = import 'templates/metadata.jsonnet';
+local namespace = import 'templates/namespace.jsonnet';
+local peerauthentication = import 'templates/peerauthentication.jsonnet';
+local pod = import 'templates/pod.jsonnet';
 
 local ns(name) =
   namespace.new() +

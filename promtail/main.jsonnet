@@ -1,12 +1,12 @@
-local configmap = import '../templates/configmap.libsonnet';
-local container = import '../templates/container.libsonnet';
-local daemonset = import '../templates/daemonset.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local pod = import '../templates/pod.libsonnet';
-local role = import '../templates/role.libsonnet';
-local rolebinding = import '../templates/rolebinding.libsonnet';
-local service = import '../templates/service.libsonnet';
-local serviceaccount = import '../templates/serviceaccount.libsonnet';
+local configmap = import '../templates/configmap.jsonnet';
+local container = import '../templates/container.jsonnet';
+local daemonset = import '../templates/daemonset.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local pod = import '../templates/pod.jsonnet';
+local role = import '../templates/role.jsonnet';
+local rolebinding = import '../templates/rolebinding.jsonnet';
+local service = import '../templates/service.jsonnet';
+local serviceaccount = import '../templates/serviceaccount.jsonnet';
 
 local app = 'promtail';
 local image = 'grafana/promtail:1.6.1';
@@ -39,7 +39,7 @@ function(config)
     configmap.new() +
     metadata.new(app, ns=ns) +
     configmap.data({
-      'promtail.yaml': std.manifestYamlDoc((import 'promtail.yaml.libsonnet')(config)),
+      'promtail.yaml': std.manifestYamlDoc((import 'promtail.yaml.jsonnet')(config)),
     }),
 
     daemonset.new() +

@@ -1,19 +1,19 @@
-local certificate = import '../templates/certificate.libsonnet';
-local configmap = import '../templates/configmap.libsonnet';
-local container = import '../templates/container.libsonnet';
-local deployment = import '../templates/deployment.libsonnet';
-local destinationrule = import '../templates/destinationrule.libsonnet';
-local gateway = import '../templates/gateway.libsonnet';
-local metadata = import '../templates/metadata.libsonnet';
-local secret = import '../templates/secret.libsonnet';
-//local peerauthentication = import '../templates/peerauthentication.libsonnet';
-local openidprovider = import '../templates/openidprovider.libsonnet';
-local pod = import '../templates/pod.libsonnet';
-local role = import '../templates/role.libsonnet';
-local rolebinding = import '../templates/rolebinding.libsonnet';
-local service = import '../templates/service.libsonnet';
-local serviceaccount = import '../templates/serviceaccount.libsonnet';
-local virtualservice = import '../templates/virtualservice.libsonnet';
+local certificate = import '../templates/certificate.jsonnet';
+local configmap = import '../templates/configmap.jsonnet';
+local container = import '../templates/container.jsonnet';
+local deployment = import '../templates/deployment.jsonnet';
+local destinationrule = import '../templates/destinationrule.jsonnet';
+local gateway = import '../templates/gateway.jsonnet';
+local metadata = import '../templates/metadata.jsonnet';
+local secret = import '../templates/secret.jsonnet';
+//local peerauthentication = import '../templates/peerauthentication.jsonnet';
+local openidprovider = import '../templates/openidprovider.jsonnet';
+local pod = import '../templates/pod.jsonnet';
+local role = import '../templates/role.jsonnet';
+local rolebinding = import '../templates/rolebinding.jsonnet';
+local service = import '../templates/service.jsonnet';
+local serviceaccount = import '../templates/serviceaccount.jsonnet';
+local virtualservice = import '../templates/virtualservice.jsonnet';
 
 local app = 'keycloak';
 local image = 'jboss/keycloak:9.0.0';
@@ -75,11 +75,11 @@ function(config)
 
     configmap.new() +
     metadata.new(app, ns=ns) +
-    configmap.data((import 'keycloak.env.libsonnet')(app, config).configmap),
+    configmap.data((import 'keycloak.env.jsonnet')(app, config).configmap),
 
     secret.new() +
     metadata.new(app, ns=ns) +
-    secret.data((import 'keycloak.env.libsonnet')(app, config).secret),
+    secret.data((import 'keycloak.env.jsonnet')(app, config).secret),
 
     deployment.new(replicas=keycloak.replicas) +
     metadata.new(app, ns=ns) +
