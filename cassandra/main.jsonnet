@@ -19,7 +19,7 @@ function(config)
   then [
     destinationrule.new(app) +
     metadata.new(app, ns=ns) +
-    destinationrule.circuit_breaker(),
+    destinationrule.circuitBreaker(),
 
     service.new(app, headless=true) +
     metadata.new(app, ns=ns) +
@@ -27,9 +27,9 @@ function(config)
 
     destinationrule.new('%s-gossip' % app) +
     metadata.new('%s-gossip' % app, ns=ns) +
-    destinationrule.circuit_breaker(),
+    destinationrule.circuitBreaker(),
 
-    service.new(app, headless=true, only_ready=false) +
+    service.new(app, headless=true, onlyReady=false) +
     metadata.new('%s-gossip' % app, ns=ns) +
     service.port(7000, name='tcp-gossip'),
 
@@ -54,31 +54,31 @@ function(config)
         container.env({
           CASSANDRA_BROADCAST_ADDRESS: { fieldRef: { fieldPath: 'status.podIP' } },
         }) +
-        container.env_from(configmap=app) +
+        container.envFrom(configmap=app) +
         container.volume('config', '/etc/cassandra') +
         container.volume('data', '/var/lib/cassandra') +
         container.volume('tmp', '/tmp') +
         container.port('tcp-cql', 9042) +
         container.port('tcp-gossip', 7000) +
         container.resources('500m', '500m', '3Gi', '3Gi') +
-        container.exec_probe('readiness', ['/bin/sh', '-c', @'nodetool status | grep -E "^UN\s+$CASSANDRA_BROADCAST_ADDRESS"'], timeout=120) +
-        container.exec_probe('liveness', ['/bin/sh', '-c', 'nodetool status'], delay=120, timeout=120) +
-        container.exec_handler('stop', ['/bin/sh', '-c', 'nodetool drain']) +
-        container.security_context({ readOnlyRootFilesystem: true })
+        container.execProbe('readiness', ['/bin/sh', '-c', @'nodetool status | grep -E "^UN\s+$CASSANDRA_BROADCAST_ADDRESS"'], timeout=120) +
+        container.execProbe('liveness', ['/bin/sh', '-c', 'nodetool status'], delay=120, timeout=120) +
+        container.execHandler('stop', ['/bin/sh', '-c', 'nodetool drain']) +
+        container.securityContext({ readOnlyRootFilesystem: true })
       ) +
-      pod.volume_emptydir('config', '1Mi') +
-      pod.volume_emptydir('tmp', '1Mi') +
-      pod.security_context({ runAsUser: 999, runAsGroup: 999 }) +
+      pod.volumeEmptyDir('config', '1Mi') +
+      pod.volumeEmptyDir('tmp', '1Mi') +
+      pod.securityContext({ runAsUser: 999, runAsGroup: 999 }) +
       pod.affinity(cassandra.affinity) +
       pod.tolerations(cassandra.tolerations)
     ) +
-    statefulset.volume_claim('data', '50Gi'),
+    statefulset.volumeClaim('data', '50Gi'),
   ]
   else [
     serviceentry.new() +
     metadata.new(app, ns=ns) +
     serviceentry.host(app) +
-    serviceentry.vip(vip.internal_address) +
-    serviceentry.endpoint(vip.external_address) +
+    serviceentry.vip(vip.internalAddress) +
+    serviceentry.endpoint(vip.externalAddress) +
     serviceentry.port(app, vip.port),
   ]

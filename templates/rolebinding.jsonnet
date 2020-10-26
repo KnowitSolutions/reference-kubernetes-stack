@@ -13,10 +13,10 @@
   },
 
   subject(kind, name, ns=null): {
-    local is_api = std.member(['Group', 'User'], name),
+    local isApi = std.member(['Group', 'User'], name),
     subjects+: [
       {
-        [if is_api then 'apiGroup']: 'rbac.authorization.k8s.io',
+        [if isApi then 'apiGroup']: 'rbac.authorization.k8s.io',
         kind: kind,
         name: name,
         [if ns != null then 'namespace']: ns,

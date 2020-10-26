@@ -9,7 +9,7 @@ function(config) {
 
   external_services: {
     grafana: {
-      url: '%s://%s' % [grafana.external_protocol, grafana.external_address],
+      url: '%s://%s' % [grafana.externalProtocol, grafana.externalAddress],
     },
     istio: {
       url_service_version: 'http://istiod.istio-system:15014/version',
@@ -19,7 +19,7 @@ function(config) {
     },
     tracing: {
       in_cluster_url: 'http://jaeger-query.%s:16686' % jaeger.namespace,
-      url: '%s://%s' % [jaeger.external_protocol, jaeger.external_address],
+      url: '%s://%s' % [jaeger.externalProtocol, jaeger.externalAddress],
     },
   },
 }

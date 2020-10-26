@@ -5,8 +5,8 @@ function(config) {
 
   sections: {
     server: {
-      domain: grafana.external_address,
-      root_url: '%s://%s' % [grafana.external_protocol, grafana.external_address],
+      domain: grafana.externalAddress,
+      root_url: '%s://%s' % [grafana.externalProtocol, grafana.externalAddress],
     },
 
     database: if postgres.enabled then {
@@ -15,7 +15,7 @@ function(config) {
       name: postgres.database,
       ssl_mode:
         if !postgres.tls.enabled then 'disable'
-        else if !postgres.tls.hostname_validation then 'require'
+        else if !postgres.tls.hostnameValidation then 'require'
         else 'verify-full',
     } else {
       type: 'sqlite3',
@@ -24,18 +24,18 @@ function(config) {
     auth: {
       oauth_auto_login: true,
       signout_redirect_url: '%s://%s/auth/realms/master/protocol/openid-connect/logout?redirect_uri=%s%%3A%%2F%%2F%s' % [
-        keycloak.external_protocol,
-        keycloak.external_address,
-        grafana.external_protocol,
-        grafana.external_address,
+        keycloak.externalProtocol,
+        keycloak.externalAddress,
+        grafana.externalProtocol,
+        grafana.externalAddress,
       ],
     },
 
     'auth.generic_oauth': {
       enabled: true,
-      auth_url: '%s://%s/auth/realms/master/protocol/openid-connect/auth' % [keycloak.external_protocol, keycloak.external_address],
-      token_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/token' % [keycloak.internal_address],
-      api_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/userinfo' % [keycloak.internal_address],
+      auth_url: '%s://%s/auth/realms/master/protocol/openid-connect/auth' % [keycloak.externalProtocol, keycloak.externalAddress],
+      token_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/token' % [keycloak.internalAddress],
+      api_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/userinfo' % [keycloak.internalAddress],
       role_attribute_path: 'contains(roles, "admin") && "Admin" || "Editor"',
     },
 

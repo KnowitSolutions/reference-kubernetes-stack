@@ -12,11 +12,11 @@ function(app, config)
       DB_PORT: std.toString(storage.port),
       DB_DATABASE: storage.database,
       [if storage.tls.enabled then 'JDBC_PARAMS']: 'sslmode=%s' % (
-        if storage.tls.hostname_validation then 'verify-full' else 'require'
+        if storage.tls.hostnameValidation then 'verify-full' else 'require'
       ),
       JGROUPS_DISCOVERY_PROTOCOL: 'kubernetes.KUBE_PING',
       JGROUPS_DISCOVERY_PROPERTIES_DIRECT: '{namespace=>%s,labels=>app=%s,port_range=>0}' % [ns, app],
-      KEYCLOAK_FRONTEND_URL: '%s://%s/auth' % [keycloak.external_protocol, keycloak.external_address],
+      KEYCLOAK_FRONTEND_URL: '%s://%s/auth' % [keycloak.externalProtocol, keycloak.externalAddress],
       PROXY_ADDRESS_FORWARDING: 'true',
       KEYCLOAK_STATISTICS: 'all',
     },

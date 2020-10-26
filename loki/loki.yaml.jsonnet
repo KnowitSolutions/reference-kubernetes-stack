@@ -44,7 +44,7 @@ function(config) {
       keyspace: cassandra.keyspace,
       auth: cassandra.username != null && cassandra.password != null,
       SSL: cassandra.tls.enabled,
-      host_verification: cassandra.tls.hostname_validation,
+      host_verification: cassandra.tls.hostnameValidation,
       connect_timeout: cassandra.timeout,
       timeout: cassandra.timeout,
     },

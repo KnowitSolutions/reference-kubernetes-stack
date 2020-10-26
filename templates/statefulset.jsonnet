@@ -24,7 +24,7 @@ local metadata = import 'metadata.jsonnet';
     },
   },
 
-  volume_claim(name, size):: {
+  volumeClaim(name, size):: {
     spec+: {
       volumeClaimTemplates+: [
         metadata.new(name) + {

@@ -55,25 +55,25 @@ function(config)
         container.args(['-config.file', '/etc/promtail/promtail.yaml']) +
         container.env({ HOSTNAME: { fieldRef: { fieldPath: 'spec.nodeName' } } }) +
         container.port('http-telemetry', 8080) +
-        container.volume('config', '/etc/promtail', read_only=true) +
+        container.volume('config', '/etc/promtail', readOnly=true) +
         container.volume('lib', '/var/lib/promtail') +
-        container.volume('pod-logs', '/var/log/pods', read_only=true) +
-        (if promtail.log_type == 'docker'
-         then container.volume('docker-logs', '/var/lib/docker/containers', read_only=true)
+        container.volume('pod-logs', '/var/log/pods', readOnly=true) +
+        (if promtail.logType == 'docker'
+         then container.volume('docker-logs', '/var/lib/docker/containers', readOnly=true)
          else {}) +
         container.resources('100m', '100m', '128Mi', '128Mi') +
-        container.http_probe('readiness', '/ready', port='http-telemetry') +
-        container.http_probe('liveness', '/ready', port='http-telemetry') +
-        container.security_context({ readOnlyRootFilesystem: true })
+        container.httpProbe('readiness', '/ready', port='http-telemetry') +
+        container.httpProbe('liveness', '/ready', port='http-telemetry') +
+        container.securityContext({ readOnlyRootFilesystem: true })
       ) +
-      pod.service_account(app) +
-      pod.volume_configmap('config', configmap=app) +
-      pod.volume_hostpath('lib', path='/var/lib/promtail', type='DirectoryOrCreate') +
-      pod.volume_hostpath('pod-logs', path='/var/log/pods') +
-      (if promtail.log_type == 'docker'
-       then pod.volume_hostpath('docker-logs', path='/var/lib/docker/containers')
+      pod.serviceAccount(app) +
+      pod.volumeConfigMap('config', configmap=app) +
+      pod.volumeHostPath('lib', path='/var/lib/promtail', type='DirectoryOrCreate') +
+      pod.volumeHostPath('pod-logs', path='/var/log/pods') +
+      (if promtail.logType == 'docker'
+       then pod.volumeHostPath('docker-logs', path='/var/lib/docker/containers')
        else {}) +
-      pod.security_context({ runAsUser: 0, runAsGroup: 1000 }) +
+      pod.securityContext({ runAsUser: 0, runAsGroup: 1000 }) +
       pod.tolerations(promtail.tolerations)
     ),
   ]

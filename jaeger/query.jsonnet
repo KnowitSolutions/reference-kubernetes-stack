@@ -11,40 +11,40 @@ local service = import '../templates/service.jsonnet';
 local virtualservice = import '../templates/virtualservice.jsonnet';
 
 local app = 'jaeger';
-local query_app = 'jaeger-query';
-local query_image = 'jaegertracing/jaeger-query:1.19.2';
+local queryApp = 'jaeger-query';
+local queryImage = 'jaegertracing/jaeger-query:1.19.2';
 
 function(config)
   local ns = config.jaeger.namespace;
   local jaeger = config.jaeger;
   local keycloak = config.keycloak;
 
-  (if jaeger.tls.acme then [certificate.new(jaeger.external_address)] else []) +
+  (if jaeger.tls.acme then [certificate.new(jaeger.externalAddress)] else []) +
   [
-    gateway.new(jaeger.external_address, tls=jaeger.tls.enabled) +
+    gateway.new(jaeger.externalAddress, tls=jaeger.tls.enabled) +
     metadata.new(app, ns=ns),
 
     virtualservice.new() +
     metadata.new(app, ns=ns) +
-    virtualservice.host(jaeger.external_address) +
+    virtualservice.host(jaeger.externalAddress) +
     virtualservice.gateway(app) +
-    virtualservice.route(query_app, port=16686),
+    virtualservice.route(queryApp, port=16686),
 
     accesspolicy.new(app, 'keycloak') +
     metadata.new(app, ns=ns) +
     accesspolicy.credentials(app),
 
-    destinationrule.new(query_app) +
-    metadata.new(query_app, ns=ns) +
-    destinationrule.circuit_breaker(),
+    destinationrule.new(queryApp) +
+    metadata.new(queryApp, ns=ns) +
+    destinationrule.circuitBreaker(),
 
-    service.new(query_app) +
-    metadata.new(query_app, ns=ns) +
+    service.new(queryApp) +
+    metadata.new(queryApp, ns=ns) +
     service.port(16686) +
     service.port(16687, name='http-telemetry'),
 
     deployment.new(replicas=jaeger.replicas) +
-    metadata.new(query_app, ns=ns) +
+    metadata.new(queryApp, ns=ns) +
     deployment.pod(
       pod.new() +
       metadata.annotations({
@@ -54,9 +54,9 @@ function(config)
         'json-log-key': 'msg',
       }) +
       pod.container(
-        container.new(query_app, query_image) +
+        container.new(queryApp, queryImage) +
         container.args(['--config-file', '/etc/jaeger/query.yaml']) +
-        container.env_from(secret=app) +
+        container.envFrom(secret=app) +
         container.env({
           SPAN_STORAGE_TYPE: 'cassandra',
           JAEGER_DISABLED: 'true',
@@ -65,12 +65,12 @@ function(config)
         container.port('http-telemetry', 16687) +
         container.volume('config', '/etc/jaeger') +
         container.resources('200m', '200m', '128Mi', '128Mi') +
-        container.http_probe('readiness', '/', port='http') +
-        container.http_probe('liveness', '/', port='http-telemetry') +
-        container.security_context({ readOnlyRootFilesystem: true })
+        container.httpProbe('readiness', '/', port='http') +
+        container.httpProbe('liveness', '/', port='http-telemetry') +
+        container.securityContext({ readOnlyRootFilesystem: true })
       ) +
-      pod.volume_configmap('config', configmap=app) +
-      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
+      pod.volumeConfigMap('config', configmap=app) +
+      pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
       pod.affinity(jaeger.affinity) +
       pod.tolerations(jaeger.tolerations)
     ),

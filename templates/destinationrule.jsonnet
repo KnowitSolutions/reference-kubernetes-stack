@@ -18,7 +18,7 @@
     },
   },
 
-  circuit_breaker():: {
+  circuitBreaker():: {
     spec+: {
       trafficPolicy+: {
         outlierDetection: {

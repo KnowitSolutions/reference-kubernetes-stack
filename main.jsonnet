@@ -1,10 +1,10 @@
 local cassandra = import 'cassandra/main.jsonnet';
 local grafana = import 'grafana/main.jsonnet';
-local istio_oidc = import 'istio-oidc/deployment/main.jsonnet';
+local istioOidc = import 'istio-oidc/deployment/main.jsonnet';
 local jaeger = import 'jaeger/main.jsonnet';
 local keycloak = import 'keycloak/main.jsonnet';
 local kiali = import 'kiali/main.jsonnet';
-local kube_state_metrics = import 'kube-state-metrics/main.jsonnet';
+local kubeStateMetrics = import 'kube-state-metrics/main.jsonnet';
 local loki = import 'loki/main.jsonnet';
 local mssql = import 'mssql/main.jsonnet';
 local postgres = import 'postgres/main.jsonnet';
@@ -79,10 +79,10 @@ function(
   jaeger_keyspace='jaeger',
   jaeger_client_secret='Regenerate me',
 )
-  local affinity = if node_selector != null then pod.new_affinity(node_selector) else {};
-  local tolerations = if node_tolerations != null then pod.new_tolerations(node_tolerations) else [];
+  local affinity = if node_selector != null then pod.newAffinity(node_selector) else {};
+  local tolerations = if node_tolerations != null then pod.newTolerations(node_tolerations) else [];
 
-  local cassandra_connection = {
+  local cassandraConnection = {
     assert if cassandra_address == null then
       cassandra_address == null &&
       cassandra_port == 9042 &&
@@ -101,12 +101,12 @@ function(
     password: cassandra_password,
     tls: {
       enabled: cassandra_tls,
-      hostname_validation: cassandra_tls_hostname_validation,
+      hostnameValidation: cassandra_tls_hostname_validation,
     },
     timeout: cassandra_timeout,
   };
 
-  local postgres_connection = {
+  local postgresConnection = {
     assert if postgres_address != null then
       postgres_username != null &&
       postgres_password != null
@@ -119,11 +119,11 @@ function(
     password: postgres_password,
     tls: {
       enabled: postgres_tls,
-      hostname_validation: postgres_tls_hostname_validation,
+      hostnameValidation: postgres_tls_hostname_validation,
     },
   };
 
-  local mssql_connection = {
+  local mssqlConnection = {
     assert if mssql_address != null then
       mssql_username != null &&
       mssql_password != null
@@ -136,11 +136,11 @@ function(
     password: mssql_password,
     tls: {
       enabled: mssql_tls,
-      hostname_validation: mssql_tls_hostname_validation,
+      hostnameValidation: mssql_tls_hostname_validation,
     },
   };
 
-  local tls_config = {
+  local tlsConfig = {
     enabled: ingress_tls,
     acme: lets_encrypt_email != null,
   };
@@ -152,8 +152,8 @@ function(
       replicas: cassandra_replicas,
       vip: {
         enabled: cassandra_address != null,
-        internal_address: cassandra_vip,
-        external_address: cassandra_address,
+        internalAddress: cassandra_vip,
+        externalAddress: cassandra_address,
         port: cassandra_port,
       },
       affinity: affinity,
@@ -163,8 +163,8 @@ function(
       namespace: namespace,
       vip: {
         enabled: postgres_address != null,
-        internal_address: postgres_vip,
-        external_address: postgres_address,
+        internalAddress: postgres_vip,
+        externalAddress: postgres_address,
         port: postgres_port,
       },
     },
@@ -172,24 +172,24 @@ function(
       namespace: namespace,
       vip: {
         enabled: mssql_address != null,
-        internal_address: mssql_vip,
-        external_address: mssql_address,
+        internalAddress: mssql_vip,
+        externalAddress: mssql_address,
         port: mssql_port,
       },
     },
     loki: {
       namespace: namespace,
-      cassandra: cassandra_connection { keyspace: loki_keyspace },
+      cassandra: cassandraConnection { keyspace: loki_keyspace },
       affinity: affinity,
       tolerations: tolerations,
     },
     promtail: {
       namespace: namespace,
-      log_type: promtail_log_type,
+      logType: promtail_log_type,
       affinity: affinity,
       tolerations: tolerations,
     },
-    kube_state_metrics: {
+    kubeStateMetrics: {
       namespace: namespace,
       affinity: affinity,
       tolerations: tolerations,
@@ -201,12 +201,12 @@ function(
         if postgres_address != null then 'postgres'
         else if mssql_address != null then 'mssql'
         else error 'Missing Postgres/SQL Server connection details',
-      postgres: postgres_connection { database: keycloak_database },
-      mssql: mssql_connection { database: keycloak_database },
-      external_protocol: if self.tls.enabled then 'https' else 'http',
-      external_address: keycloak_address,
-      internal_address: 'keycloak.%s' % namespace,
-      tls: tls_config,
+      postgres: postgresConnection { database: keycloak_database },
+      mssql: mssqlConnection { database: keycloak_database },
+      externalProtocol: if self.tls.enabled then 'https' else 'http',
+      externalAddress: keycloak_address,
+      internalAddress: 'keycloak.%s' % namespace,
+      tls: tlsConfig,
       admin: {
         username: keycloak_username,
         password: keycloak_password,
@@ -220,13 +220,13 @@ function(
 
       namespace: namespace,
       replicas: grafana_replicas,
-      external_protocol: if self.tls.enabled then 'https' else 'http',
-      external_address: grafana_address,
-      tls: tls_config,
-      postgres: postgres_connection { database: grafana_database },
+      externalProtocol: if self.tls.enabled then 'https' else 'http',
+      externalAddress: grafana_address,
+      tls: tlsConfig,
+      postgres: postgresConnection { database: grafana_database },
       oidc: {
-        client_id: 'grafana',
-        client_secret: grafana_client_secret,
+        clientId: 'grafana',
+        clientSecret: grafana_client_secret,
       },
       affinity: affinity,
       tolerations: tolerations,
@@ -234,12 +234,12 @@ function(
     kiali: {
       namespace: namespace,
       replicas: kiali_replicas,
-      external_protocol: if self.tls.enabled then 'https' else 'http',
-      external_address: kiali_address,
-      tls: tls_config,
+      externalProtocol: if self.tls.enabled then 'https' else 'http',
+      externalAddress: kiali_address,
+      tls: tlsConfig,
       oidc: {
-        client_id: 'kiali',
-        client_secret: kiali_client_secret,
+        clientId: 'kiali',
+        clientSecret: kiali_client_secret,
       },
       affinity: affinity,
       tolerations: tolerations,
@@ -247,13 +247,13 @@ function(
     jaeger: {
       namespace: namespace,
       replicas: jaeger_replicas,
-      cassandra: cassandra_connection { keyspace: jaeger_keyspace },
-      external_protocol: if self.tls.enabled then 'https' else 'http',
-      external_address: jaeger_address,
-      tls: tls_config,
+      cassandra: cassandraConnection { keyspace: jaeger_keyspace },
+      externalProtocol: if self.tls.enabled then 'https' else 'http',
+      externalAddress: jaeger_address,
+      tls: tlsConfig,
       oidc: {
-        client_id: 'jaeger',
-        client_secret: jaeger_client_secret,
+        clientId: 'jaeger',
+        clientSecret: jaeger_client_secret,
       },
       affinity: affinity,
       tolerations: tolerations,
@@ -270,7 +270,7 @@ function(
 
   (if lets_encrypt_email != null then [
      issuer.new(email=lets_encrypt_email) +
-     issuer.http_solver(),
+     issuer.httpSolver(),
    ] else []) +
 
   cassandra(config) +
@@ -278,8 +278,8 @@ function(
   mssql(config) +
   loki(config) +
   promtail(config) +
-  kube_state_metrics(config) +
-  istio_oidc(
+  kubeStateMetrics(config) +
+  istioOidc(
     NAMESPACE=namespace,
     VERSION='master',
     REPLICAS=istio_oidc_replicas,

@@ -16,7 +16,7 @@ local metadata = import 'metadata.jsonnet';
     },
   } + metadata.new('lets-encrypt', 'istio-system'),
 
-  http_solver():: {
+  httpSolver():: {
     spec+: {
       acme+: {
         solvers+: [

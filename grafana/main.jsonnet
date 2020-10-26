@@ -27,14 +27,14 @@ function(config)
     metadata.new('prometheus.istio-system', ns=ns) +
     destinationrule.mtls(false),
   ] +
-  (if grafana.tls.acme then [certificate.new(grafana.external_address)] else []) +
+  (if grafana.tls.acme then [certificate.new(grafana.externalAddress)] else []) +
   [
-    gateway.new(grafana.external_address, tls=grafana.tls.enabled) +
+    gateway.new(grafana.externalAddress, tls=grafana.tls.enabled) +
     metadata.new(app, ns=ns),
 
     virtualservice.new() +
     metadata.new(app, ns=ns) +
-    virtualservice.host(grafana.external_address) +
+    virtualservice.host(grafana.externalAddress) +
     virtualservice.gateway(app) +
     virtualservice.route(app),
 
@@ -48,7 +48,7 @@ function(config)
 
     destinationrule.new(app) +
     metadata.new(app, ns=ns) +
-    destinationrule.circuit_breaker(),
+    destinationrule.circuitBreaker(),
 
     service.new(app) +
     metadata.new(app, ns=ns) +
@@ -70,8 +70,8 @@ function(config)
     secret.data({
       [if postgres.enabled then 'GF_DATABASE_USER']: postgres.username,
       [if postgres.enabled then 'GF_DATABASE_PASSWORD']: postgres.password,
-      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: grafana.oidc.client_id,
-      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: grafana.oidc.client_secret,
+      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: grafana.oidc.clientId,
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: grafana.oidc.clientSecret,
     }),
 
     (if postgres.enabled then deployment else statefulset).new(replicas=grafana.replicas) +
@@ -85,15 +85,15 @@ function(config)
       pod.container(
         container.new(app, image) +
         container.port('http', 3000) +
-        container.env_from(secret=app) +
+        container.envFrom(secret=app) +
         container.volume('config', '/etc/grafana') +
         container.volume('data', '/var/lib/grafana') +
         container.resources('50m', '50m', '64Mi', '64Mi') +
-        container.http_probe('readiness', '/api/health') +
-        container.http_probe('liveness', '/api/health') +
-        container.security_context({ readOnlyRootFilesystem: true })
+        container.httpProbe('readiness', '/api/health') +
+        container.httpProbe('liveness', '/api/health') +
+        container.securityContext({ readOnlyRootFilesystem: true })
       ) +
-      pod.volume_configmap('config', configmap=app, items={
+      pod.volumeConfigMap('config', configmap=app, items={
         'grafana.ini': 'grafana.ini',
         'datasources.yaml': 'provisioning/datasources/datasources.yaml',
         'dashboards.yaml': 'provisioning/dashboards/dashboards.yaml',
@@ -101,10 +101,10 @@ function(config)
         'pod-overview.json': 'dashboards/pod-overview.json',
         'resource-overview.json': 'dashboards/resource-overview.json',
       }) +
-      (if postgres.enabled then pod.volume_emptydir('data', '1Mi') else {}) +
-      pod.security_context({ runAsUser: 472, runAsGroup: 472 }) +
+      (if postgres.enabled then pod.volumeEmptyDir('data', '1Mi') else {}) +
+      pod.securityContext({ runAsUser: 472, runAsGroup: 472 }) +
       pod.affinity(grafana.affinity) +
       pod.tolerations(grafana.tolerations)
     ) +
-    (if !postgres.enabled then statefulset.volume_claim('data', '50Mi') else {}),
+    (if !postgres.enabled then statefulset.volumeClaim('data', '50Mi') else {}),
   ]

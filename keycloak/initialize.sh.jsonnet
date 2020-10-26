@@ -26,7 +26,7 @@ function(config) |||
       --id \
       --set clientId="$GRAFANA_GF_AUTH_GENERIC_OAUTH_CLIENT_ID" \
       --set secret="$GRAFANA_GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET" \
-      --set redirectUris='["%(grafana_url)s/*"]'
+      --set redirectUris='["%(grafanaUrl)s/*"]'
   )
   echo "Created new client with id '$client_id'"
 
@@ -44,7 +44,7 @@ function(config) |||
       --id \
       --set clientId="$KIALI_clientID" \
       --set secret="$KIALI_clientSecret" \
-      --set redirectUris='["%(kiali_url)s/*"]'
+      --set redirectUris='["%(kialiUrl)s/*"]'
   )
   echo "Created new client with id '$client_id'"
 
@@ -53,13 +53,13 @@ function(config) |||
       --id \
       --set clientId="$JAEGER_clientID" \
       --set secret="$JAEGER_clientSecret" \
-      --set redirectUris='["%(jaeger_url)s/*"]'
+      --set redirectUris='["%(jaegerUrl)s/*"]'
   )
   echo "Created new client with id '$client_id'"
 
   curl --request POST --silent --fail http://localhost:15020/quitquitquit
 ||| % {
-  grafana_url: '%s://%s' % [config.grafana.external_protocol, config.grafana.external_address],
-  kiali_url: '%s://%s' % [config.kiali.external_protocol, config.kiali.external_address],
-  jaeger_url: '%s://%s' % [config.jaeger.external_protocol, config.jaeger.external_address],
+  grafanaUrl: '%s://%s' % [config.grafana.externalProtocol, config.grafana.externalAddress],
+  kialiUrl: '%s://%s' % [config.kiali.externalProtocol, config.kiali.externalAddress],
+  jaegerUrl: '%s://%s' % [config.jaeger.externalProtocol, config.jaeger.externalAddress],
 }

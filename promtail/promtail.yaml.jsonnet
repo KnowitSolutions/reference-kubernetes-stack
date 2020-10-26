@@ -57,9 +57,9 @@ function(config) {
       ],
 
       pipeline_stages: (
-        if promtail.log_type == 'cri' then [{ cri: {} }]
-        else if promtail.log_type == 'docker' then [{ docker: {} }]
-        else if promtail.log_type == 'raw' then []
+        if promtail.logType == 'cri' then [{ cri: {} }]
+        else if promtail.logType == 'docker' then [{ docker: {} }]
+        else if promtail.logType == 'raw' then []
         else error 'Invalid Promtail log format'
       ) + [
         {

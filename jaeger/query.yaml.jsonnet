@@ -7,7 +7,7 @@ function(config) {
     keyspace: cassandra.keyspace,
     tls: {
       enabled: cassandra.tls.enabled,
-      'verify-host': cassandra.tls.hostname_validation,
+      'verify-host': cassandra.tls.hostnameValidation,
     },
     'connect-timeout': cassandra.timeout,
     timeout: cassandra.timeout,

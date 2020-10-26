@@ -91,14 +91,14 @@ function(config)
     rolebinding.role('%s-%s' % [app, ns], cluster=true) +
     rolebinding.subject('ServiceAccount', app, ns=ns),
   ] +
-  (if kiali.tls.acme then [certificate.new(kiali.external_address)] else []) +
+  (if kiali.tls.acme then [certificate.new(kiali.externalAddress)] else []) +
   [
-    gateway.new(kiali.external_address, tls=kiali.tls.enabled) +
+    gateway.new(kiali.externalAddress, tls=kiali.tls.enabled) +
     metadata.new(app, ns=ns),
 
     virtualservice.new() +
     metadata.new(app, ns=ns) +
-    virtualservice.host(kiali.external_address) +
+    virtualservice.host(kiali.externalAddress) +
     virtualservice.gateway(app) +
     virtualservice.route(app, port=20001),
 
@@ -109,13 +109,13 @@ function(config)
     secret.new() +
     metadata.new(app, ns=ns) +
     secret.data({
-      clientID: kiali.oidc.client_id,
-      clientSecret: kiali.oidc.client_secret,
+      clientID: kiali.oidc.clientId,
+      clientSecret: kiali.oidc.clientSecret,
     }),
 
     destinationrule.new(app) +
     metadata.new(app, ns=ns) +
-    destinationrule.circuit_breaker(),
+    destinationrule.circuitBreaker(),
 
     service.new(app) +
     metadata.new(app, ns=ns) +
@@ -143,13 +143,13 @@ function(config)
         container.port('http-telemetry', 9090) +
         container.volume('config', '/etc/kiali') +
         container.resources('200m', '200m', '64Mi', '64Mi') +
-        container.http_probe('readiness', '/healthz', port='http') +
-        container.http_probe('liveness', '/healthz', port='http') +
-        container.security_context({ readOnlyRootFilesystem: true })
+        container.httpProbe('readiness', '/healthz', port='http') +
+        container.httpProbe('liveness', '/healthz', port='http') +
+        container.securityContext({ readOnlyRootFilesystem: true })
       ) +
-      pod.service_account(app) +
-      pod.volume_configmap('config', configmap=app) +
-      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
+      pod.serviceAccount(app) +
+      pod.volumeConfigMap('config', configmap=app) +
+      pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
       pod.affinity(kiali.affinity) +
       pod.tolerations(kiali.tolerations)
     ),

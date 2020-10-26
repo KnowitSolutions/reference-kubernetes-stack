@@ -13,7 +13,7 @@ local metadata = import 'metadata.jsonnet';
     },
   },
 
-  volume_emptydir(name, size):: {
+  volumeEmptyDir(name, size):: {
     spec+: {
       volumes+: [
         {
@@ -26,7 +26,7 @@ local metadata = import 'metadata.jsonnet';
     },
   },
 
-  volume_hostpath(name, path, type='Directory'):: {
+  volumeHostPath(name, path, type='Directory'):: {
     spec+: {
       volumes+: [
         {
@@ -40,7 +40,7 @@ local metadata = import 'metadata.jsonnet';
     },
   },
 
-  volume_configmap(name, configmap, items=null, default_mode=null):: {
+  volumeConfigMap(name, configmap, items=null, defaultMode=null):: {
     spec+: {
       volumes+: [
         {
@@ -51,26 +51,26 @@ local metadata = import 'metadata.jsonnet';
               { key: key, path: items[key] }
               for key in std.objectFields(items)
             ],
-            [if default_mode != null then 'defaultMode']: default_mode,
+            [if defaultMode != null then 'defaultMode']: defaultMode,
           },
         },
       ],
     },
   },
 
-  service_account(service_account):: {
+  serviceAccount(serviceAccount):: {
     spec+: {
-      serviceAccountName: service_account,
+      serviceAccountName: serviceAccount,
     },
   },
 
-  security_context(security_context):: {
+  securityContext(securityContext):: {
     spec+: {
-      securityContext: security_context,
+      securityContext: securityContext,
     },
   },
 
-  new_affinity(labels):: {
+  newAffinity(labels):: {
     nodeAffinity: {
       requiredDuringSchedulingIgnoredDuringExecution: {
         nodeSelectorTerms: [{
@@ -95,7 +95,7 @@ local metadata = import 'metadata.jsonnet';
     },
   },
 
-  new_tolerations(tolerations):: [
+  newTolerations(tolerations):: [
     {
       local left = std.splitLimit(toleration, '=', 1),
       local right = std.splitLimit(left[1], ':', 1),

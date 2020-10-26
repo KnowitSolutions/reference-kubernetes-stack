@@ -12,8 +12,8 @@ local app = 'kube-state-metrics';
 local image = 'quay.io/coreos/kube-state-metrics:v1.9.5';
 
 function(config)
-  local ns = config.kube_state_metrics.namespace;
-  local kube_state_metrics = config.kube_state_metrics;
+  local ns = config.kubeStateMetrics.namespace;
+  local kubeStateMetrics = config.kubeStateMetrics;
 
   [
     serviceaccount.new() +
@@ -140,7 +140,7 @@ function(config)
 
     destinationrule.new(app) +
     metadata.new(app, ns=ns) +
-    destinationrule.circuit_breaker(),
+    destinationrule.circuitBreaker(),
 
     service.new(app) +
     metadata.new(app, ns=ns) +
@@ -159,13 +159,13 @@ function(config)
         container.port('http', 8080) +
         container.port('http-telemetry', 8081) +
         container.resources('10m', '10m', '128Mi', '128Mi') +
-        container.http_probe('readiness', '/', port='http-telemetry') +
-        container.http_probe('liveness', '/healthz') +
-        container.security_context({ readOnlyRootFilesystem: true })
+        container.httpProbe('readiness', '/', port='http-telemetry') +
+        container.httpProbe('liveness', '/healthz') +
+        container.securityContext({ readOnlyRootFilesystem: true })
       ) +
-      pod.service_account(app) +
-      pod.security_context({ runAsUser: 65534, runAsGroup: 65534 }) +
-      pod.affinity(kube_state_metrics.affinity) +
-      pod.tolerations(kube_state_metrics.tolerations)
+      pod.serviceAccount(app) +
+      pod.securityContext({ runAsUser: 65534, runAsGroup: 65534 }) +
+      pod.affinity(kubeStateMetrics.affinity) +
+      pod.tolerations(kubeStateMetrics.tolerations)
     ),
   ]

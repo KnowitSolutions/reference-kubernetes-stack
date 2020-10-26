@@ -22,7 +22,7 @@
     ],
   },
 
-  env_from(configmap=null, secret=null, prefix=null):: {
+  envFrom(configmap=null, secret=null, prefix=null):: {
     envFrom+: [
       {
         [if configmap != null then 'configMapRef']: { name: configmap },
@@ -41,20 +41,20 @@
     ],
   },
 
-  resources(cpu_request=null, cpu_limit=null, memory_request=null, memory_limit=null):: {
+  resources(cpuRequest=null, cpuLimit=null, memoryRequest=null, memoryLimit=null):: {
     resources: {
       requests: {
-        [if cpu_request != null then 'cpu']: cpu_request,
-        [if memory_request != null then 'memory']: memory_request,
+        [if cpuRequest != null then 'cpu']: cpuRequest,
+        [if memoryRequest != null then 'memory']: memoryRequest,
       },
       limits: {
-        [if cpu_limit != null then 'cpu']: cpu_limit,
-        [if memory_limit != null then 'memory']: memory_limit,
+        [if cpuLimit != null then 'cpu']: cpuLimit,
+        [if memoryLimit != null then 'memory']: memoryLimit,
       },
     },
   },
 
-  exec_probe(type, command, delay=null, timeout=10):: {
+  execProbe(type, command, delay=null, timeout=10):: {
     [type + 'Probe']: {
       [if delay != null then 'initialDelaySeconds']: delay,
       timeoutSeconds: timeout,
@@ -64,7 +64,7 @@
     },
   },
 
-  http_probe(type, path, port='http', delay=null, timeout=10):: {
+  httpProbe(type, path, port='http', delay=null, timeout=10):: {
     [type + 'Probe']: {
       [if delay != null then 'initialDelaySeconds']: delay,
       timeoutSeconds: timeout,
@@ -75,7 +75,7 @@
     },
   },
 
-  exec_handler(type, command):: {
+  execHandler(type, command):: {
     lifecycle+: {
       [if type == 'start' then 'postStart'
       else if type == 'stop' then 'preStop']: {
@@ -86,18 +86,18 @@
     },
   },
 
-  volume(name, path, sub_path=null, read_only=false):: {
+  volume(name, path, subPath=null, readOnly=false):: {
     volumeMounts+: [
       {
         name: name,
         mountPath: path,
-        [if sub_path != null then 'subPath']: sub_path,
-        readOnly: read_only,
+        [if subPath != null then 'subPath']: subPath,
+        readOnly: readOnly,
       },
     ],
   },
 
-  security_context(security_context):: {
-    securityContext: security_context,
+  securityContext(securityContext):: {
+    securityContext: securityContext,
   },
 }

@@ -39,20 +39,20 @@ function(config)
     rolebinding.role('%s-%s' % [app, ns], cluster=true) +
     rolebinding.subject('ServiceAccount', app, ns=ns),
   ] +
-  (if keycloak.tls.acme then [certificate.new(keycloak.external_address)] else []) +
+  (if keycloak.tls.acme then [certificate.new(keycloak.externalAddress)] else []) +
   [
-    gateway.new(keycloak.external_address, tls=keycloak.tls.enabled) +
+    gateway.new(keycloak.externalAddress, tls=keycloak.tls.enabled) +
     metadata.new(app, ns=ns),
 
     virtualservice.new() +
     metadata.new(app, ns=ns) +
-    virtualservice.host(keycloak.external_address) +
+    virtualservice.host(keycloak.externalAddress) +
     virtualservice.gateway(app) +
     virtualservice.route(app),
 
     destinationrule.new(app) +
     metadata.new(app, ns=ns) +
-    destinationrule.circuit_breaker(),
+    destinationrule.circuitBreaker(),
 
     service.new(app) +
     metadata.new(app, ns=ns) +
@@ -61,7 +61,7 @@ function(config)
     destinationrule.new(app + '-gossip') +
     metadata.new(app + '-gossip', ns=ns) +
     destinationrule.mtls(false) +
-    destinationrule.circuit_breaker(),
+    destinationrule.circuitBreaker(),
 
     service.new(app, headless=true) +
     metadata.new(app + '-gossip', ns=ns) +
@@ -93,22 +93,22 @@ function(config)
       }) +
       pod.container(
         container.new(app, image) +
-        container.env_from(configmap=app) +
-        container.env_from(secret=app) +
+        container.envFrom(configmap=app) +
+        container.envFrom(secret=app) +
         container.port('http', 8080) +
         container.port('tcp-gossip', 7600) +
         container.resources('100m', '1500m', '768Mi', '768Mi') +
-        container.http_probe('readiness', '/auth/realms/master') +
-        container.http_probe('liveness', '/', delay=120)
-        // TODO: container.security_context({ readOnlyRootFilesystem: true })
+        container.httpProbe('readiness', '/auth/realms/master') +
+        container.httpProbe('liveness', '/', delay=120)
+        // TODO: container.securityContext({ readOnlyRootFilesystem: true })
       ) +
-      pod.service_account(app) +
-      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
+      pod.serviceAccount(app) +
+      pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
       pod.affinity(keycloak.affinity) +
       pod.tolerations(keycloak.tolerations)
     ),
 
     openidprovider.new('http://keycloak:8080/auth/realms/master') +
     metadata.new(app, ns=ns) +
-    openidprovider.role_mapping('realm_access.roles'),
+    openidprovider.roleMapping('realm_access.roles'),
   ]

@@ -12,7 +12,7 @@ function(config)
     serviceentry.new() +
     metadata.new(app, ns=ns) +
     serviceentry.host(app) +
-    serviceentry.vip(vip.internal_address) +
-    serviceentry.endpoint(vip.external_address) +
+    serviceentry.vip(vip.internalAddress) +
+    serviceentry.endpoint(vip.externalAddress) +
     serviceentry.port(app, vip.port),
   ] else []

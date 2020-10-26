@@ -18,7 +18,7 @@ function(config)
   [
     destinationrule.new(app) +
     metadata.new(app, ns=ns) +
-    destinationrule.circuit_breaker(),
+    destinationrule.circuitBreaker(),
 
     service.new(app) +
     metadata.new(app, ns=ns) +
@@ -55,16 +55,16 @@ function(config)
           '-cassandra.password',
           '$(CASSANDRA_PASSWORD)',
         ]) +
-        container.env_from(secret=app) +
+        container.envFrom(secret=app) +
         container.port('http', 8080) +
         container.volume('config', '/etc/loki') +
         container.resources('500m', '500m', '512Mi', '512Mi') +
-        container.http_probe('readiness', '/ready') +
-        container.http_probe('liveness', '/ready', delay=120) +
-        container.security_context({ readOnlyRootFilesystem: true })
+        container.httpProbe('readiness', '/ready') +
+        container.httpProbe('liveness', '/ready', delay=120) +
+        container.securityContext({ readOnlyRootFilesystem: true })
       ) +
-      pod.volume_configmap('config', configmap=app) +
-      pod.security_context({ runAsUser: 1000, runAsGroup: 1000 }) +
+      pod.volumeConfigMap('config', configmap=app) +
+      pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
       pod.affinity(loki.affinity) +
       pod.tolerations(loki.tolerations)
     ),

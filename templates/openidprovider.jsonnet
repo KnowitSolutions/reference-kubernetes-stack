@@ -7,7 +7,7 @@
     },
   },
 
-  role_mapping(path):: {
+  roleMapping(path):: {
     spec+: {
       roleMappings+: [{
         path: path,

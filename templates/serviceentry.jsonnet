@@ -3,21 +3,21 @@
     local and = function(x, y) x && y;
     std.foldl(and, arr, true),
 
-  is_int:: function(str)
+  isInt:: function(str)
     local range = std.range(std.codepoint('0'), std.codepoint('9'));
-    local in_range = function(x) std.member(range, x);
+    local inRange = function(x) std.member(range, x);
     local codepoints = std.map(std.codepoint, str);
-    $.all(std.map(in_range, codepoints)),
+    $.all(std.map(inRange, codepoints)),
 
-  is_byte:: function(int)
+  isByte:: function(int)
     0 <= int && int < 256,
 
-  is_ip:: function(str)
-    local octets_str = std.split(str, '.');
-    local is_ints = $.all(std.map($.is_int, octets_str));
-    local octets_int = std.map(std.parseInt, octets_str);
-    local is_bytes = $.all(std.map($.is_byte, octets_int));
-    is_ints && is_bytes && std.length(octets_int) == 4,
+  isIp:: function(str)
+    local octetsStr = std.split(str, '.');
+    local isInts = $.all(std.map($.isInt, octetsStr));
+    local octetsInt = std.map(std.parseInt, octetsStr);
+    local isBytes = $.all(std.map($.isByte, octetsInt));
+    isInts && isBytes && std.length(octetsInt) == 4,
 
   new(internal=false):: {
     apiVersion: 'networking.istio.io/v1beta1',
@@ -27,7 +27,7 @@
       local addresses = std.map(function(ep) ep.address, self.endpoints),
       resolution:
         if std.length(self.endpoints) == 0 then 'NONE'
-        else if $.all(std.map($.is_ip, addresses)) then 'STATIC'
+        else if $.all(std.map($.isIp, addresses)) then 'STATIC'
         else 'DNS',
       endpoints: [],
     },
