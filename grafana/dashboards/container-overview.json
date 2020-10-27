@@ -84,7 +84,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "count(kube_pod_container_status_running{exported_namespace=~\"$namespaces\"} + kube_pod_container_status_ready == 1)",
+          "expr": "count(kube_pod_container_status_running{namespace=~\"$namespaces\"} + kube_pod_container_status_ready == 1)",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -171,7 +171,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "count(\n  (kube_pod_container_status_running{exported_namespace=~\"$namespaces\"} == 0)\n  + on (exported_namespace, pod, container)\n  (kube_pod_container_status_terminated_reason{reason!=\"Completed\"} == 1)\n)",
+          "expr": "count(\n  (kube_pod_container_status_running{namespace=~\"$namespaces\"} == 0)\n  + on (namespace, pod, container)\n  (kube_pod_container_status_terminated_reason{reason!=\"Completed\"} == 1)\n)",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -258,7 +258,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "count(\n  (kube_pod_container_resource_requests_cpu_cores{exported_namespace=~\"$namespaces\"} !=\n   kube_pod_container_resource_limits_cpu_cores) +\n  (kube_pod_container_resource_requests_memory_bytes != \n   kube_pod_container_resource_limits_memory_bytes)\n)",
+          "expr": "count(\n  (kube_pod_container_resource_requests_cpu_cores{namespace=~\"$namespaces\"} !=\n   kube_pod_container_resource_limits_cpu_cores) +\n  (kube_pod_container_resource_requests_memory_bytes != \n   kube_pod_container_resource_limits_memory_bytes)\n)",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -345,7 +345,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "count(\n  kube_pod_container_info{exported_namespace=~\"$namespaces\"} unless\n  on (exported_namespace, pod, container)\n  (kube_pod_container_resource_limits_cpu_cores + kube_pod_container_resource_limits_memory_bytes)\n)",
+          "expr": "count(\n  kube_pod_container_info{namespace=~\"$namespaces\"} unless\n  on (namespace, pod, container)\n  (kube_pod_container_resource_limits_cpu_cores + kube_pod_container_resource_limits_memory_bytes)\n)",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -398,7 +398,7 @@
           "decimals": 2,
           "link": false,
           "mappingType": 1,
-          "pattern": "exported_namespace",
+          "pattern": "namespace",
           "thresholds": [
             ""
           ],
@@ -554,7 +554,7 @@
       ],
       "targets": [
         {
-          "expr": "(2*(kube_pod_container_status_terminated_reason{exported_namespace=~\"$namespaces\", reason=\"Completed\"} == 1)\nor on (exported_namespace, pod, container) kube_pod_container_status_running{exported_namespace=~\"$namespaces\"} +\non (exported_namespace, pod, container) 4*kube_pod_container_status_ready) *\non (exported_namespace, pod, container) group_left(resources)\nclamp_min(clamp_max(\n  label_replace(\n    (kube_pod_container_resource_requests_cpu_cores == kube_pod_container_resource_limits_cpu_cores) +\n    (kube_pod_container_resource_requests_memory_bytes == kube_pod_container_resource_limits_memory_bytes)\n  , \"resources\", \"0\", \"\", \"\") or\n  label_replace(\n    (kube_pod_container_resource_requests_cpu_cores != kube_pod_container_resource_limits_cpu_cores) +\n    (kube_pod_container_resource_requests_memory_bytes != kube_pod_container_resource_limits_memory_bytes)\n  , \"resources\", \"1\", \"\", \"\") or\n  label_replace(\n    (kube_pod_container_resource_limits_cpu_cores + kube_pod_container_resource_limits_memory_bytes) unless\n    (kube_pod_container_resource_requests_cpu_cores + kube_pod_container_resource_requests_memory_bytes)\n  , \"resources\", \"2\", \"\", \"\") or\n  on (exported_namespace, pod, container)\n  label_replace(kube_pod_container_info, \"resources\", \"3\", \"\", \"\")\n, 1), 1)",
+          "expr": "(2*(kube_pod_container_status_terminated_reason{namespace=~\"$namespaces\", reason=\"Completed\"} == 1)\nor on (namespace, pod, container) kube_pod_container_status_running{namespace=~\"$namespaces\"} +\non (namespace, pod, container) 4*kube_pod_container_status_ready) *\non (namespace, pod, container) group_left(resources)\nclamp_min(clamp_max(\n  label_replace(\n    (kube_pod_container_resource_requests_cpu_cores == kube_pod_container_resource_limits_cpu_cores) +\n    (kube_pod_container_resource_requests_memory_bytes == kube_pod_container_resource_limits_memory_bytes)\n  , \"resources\", \"0\", \"\", \"\") or\n  label_replace(\n    (kube_pod_container_resource_requests_cpu_cores != kube_pod_container_resource_limits_cpu_cores) +\n    (kube_pod_container_resource_requests_memory_bytes != kube_pod_container_resource_limits_memory_bytes)\n  , \"resources\", \"1\", \"\", \"\") or\n  label_replace(\n    (kube_pod_container_resource_limits_cpu_cores + kube_pod_container_resource_limits_memory_bytes) unless\n    (kube_pod_container_resource_requests_cpu_cores + kube_pod_container_resource_requests_memory_bytes)\n  , \"resources\", \"2\", \"\", \"\") or\n  on (namespace, pod, container)\n  label_replace(kube_pod_container_info, \"resources\", \"3\", \"\", \"\")\n, 1), 1)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -584,14 +584,14 @@
           ]
         },
         "datasource": "Prometheus",
-        "definition": "label_values(kube_pod_container_info, exported_namespace)",
+        "definition": "label_values(kube_pod_container_info, namespace)",
         "hide": 0,
         "includeAll": true,
         "label": "Namespaces",
         "multi": true,
         "name": "namespaces",
         "options": [],
-        "query": "label_values(kube_pod_container_info, exported_namespace)",
+        "query": "label_values(kube_pod_container_info, namespace)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,

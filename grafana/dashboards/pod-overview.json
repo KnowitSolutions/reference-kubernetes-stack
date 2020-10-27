@@ -285,7 +285,7 @@
       ],
       "targets": [
         {
-          "expr": "kube_pod_container_status_running{exported_namespace=\"$namespace\",pod=\"$pod\"}",
+          "expr": "kube_pod_container_status_running{namespace=\"$namespace\",pod=\"$pod\"}",
           "instant": true,
           "legendFormat": "{{container}}",
           "refId": "A"
@@ -386,7 +386,7 @@
       ],
       "targets": [
         {
-          "expr": "kube_pod_container_status_ready{exported_namespace=\"$namespace\",pod=\"$pod\"}",
+          "expr": "kube_pod_container_status_ready{namespace=\"$namespace\",pod=\"$pod\"}",
           "instant": true,
           "legendFormat": "{{container}}",
           "refId": "A"
@@ -486,7 +486,7 @@
       ],
       "targets": [
         {
-          "expr": "increase(kube_pod_container_status_restarts_total{exported_namespace=\"$namespace\",pod=\"$pod\"}[$__range])",
+          "expr": "increase(kube_pod_container_status_restarts_total{namespace=\"$namespace\",pod=\"$pod\"}[$__range])",
           "instant": true,
           "legendFormat": "{{container}}",
           "refId": "A"
@@ -589,7 +589,7 @@
       ],
       "targets": [
         {
-          "expr": "kube_pod_container_status_last_terminated_reason{exported_namespace=\"$namespace\",pod=\"$pod\"} == 1",
+          "expr": "kube_pod_container_status_last_terminated_reason{namespace=\"$namespace\",pod=\"$pod\"} == 1",
           "instant": true,
           "legendFormat": "{{container}}: {{reason}}",
           "refId": "A"
@@ -678,7 +678,7 @@
       ],
       "targets": [
         {
-          "expr": "kube_pod_container_resource_requests_cpu_cores{exported_namespace=\"$namespace\",pod=\"$pod\"}",
+          "expr": "kube_pod_container_resource_requests_cpu_cores{namespace=\"$namespace\",pod=\"$pod\"}",
           "instant": true,
           "legendFormat": "{{container}}",
           "refId": "A"
@@ -767,7 +767,7 @@
       ],
       "targets": [
         {
-          "expr": "kube_pod_container_resource_limits_cpu_cores{exported_namespace=\"$namespace\",pod=\"$pod\"}",
+          "expr": "kube_pod_container_resource_limits_cpu_cores{namespace=\"$namespace\",pod=\"$pod\"}",
           "instant": true,
           "legendFormat": "{{container}}",
           "refId": "A"
@@ -856,7 +856,7 @@
       ],
       "targets": [
         {
-          "expr": "kube_pod_container_resource_requests_memory_bytes{exported_namespace=\"$namespace\",pod=\"$pod\"}",
+          "expr": "kube_pod_container_resource_requests_memory_bytes{namespace=\"$namespace\",pod=\"$pod\"}",
           "instant": true,
           "legendFormat": "{{container}}",
           "refId": "A"
@@ -945,7 +945,7 @@
       ],
       "targets": [
         {
-          "expr": "kube_pod_container_resource_limits_memory_bytes{exported_namespace=\"$namespace\",pod=\"$pod\"}",
+          "expr": "kube_pod_container_resource_limits_memory_bytes{namespace=\"$namespace\",pod=\"$pod\"}",
           "instant": true,
           "legendFormat": "{{container}}",
           "refId": "A"
@@ -1086,14 +1086,14 @@
         "allValue": null,
         "current": {},
         "datasource": "Prometheus",
-        "definition": "label_values(kube_pod_info, exported_namespace)",
+        "definition": "label_values(kube_pod_info, namespace)",
         "hide": 0,
         "includeAll": false,
         "label": "Namespace",
         "multi": false,
         "name": "namespace",
         "options": [],
-        "query": "label_values(kube_pod_info, exported_namespace)",
+        "query": "label_values(kube_pod_info, namespace)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1108,14 +1108,14 @@
         "allValue": null,
         "current": {},
         "datasource": "Prometheus",
-        "definition": "label_values(kube_pod_info{exported_namespace=\"$namespace\"}, pod)",
+        "definition": "label_values(kube_pod_info{namespace=\"$namespace\"}, pod)",
         "hide": 0,
         "includeAll": false,
         "label": "Pod",
         "multi": false,
         "name": "pod",
         "options": [],
-        "query": "label_values(kube_pod_info{exported_namespace=\"$namespace\"}, pod)",
+        "query": "label_values(kube_pod_info{namespace=\"$namespace\"}, pod)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,

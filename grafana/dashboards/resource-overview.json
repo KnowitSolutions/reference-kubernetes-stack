@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1586865841605,
+  "iteration": 1603810823639,
   "links": [],
   "panels": [
     {
@@ -24,6 +24,13 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -47,11 +54,8 @@
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
-      "pluginVersion": "6.6.1",
+      "pluginVersion": "7.1.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -61,20 +65,21 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(kube_pod_container_resource_requests_cpu_cores{node=~\"$nodes\", exported_namespace=~\"$namespaces\"})",
+          "expr": "sum(kube_pod_container_resource_requests_cpu_cores{node=~\"$nodes\", namespace=~\"$namespaces\"})",
           "instant": false,
           "legendFormat": "Requests",
           "refId": "A"
         },
         {
-          "expr": "sum(kube_pod_container_resource_limits_cpu_cores{node=~\"$nodes\", exported_namespace=~\"$namespaces\"})",
+          "expr": "sum(kube_pod_container_resource_limits_cpu_cores{node=~\"$nodes\", namespace=~\"$namespaces\"})",
           "instant": false,
           "legendFormat": "Limits",
           "refId": "B"
         },
         {
-          "expr": "sum(rate((\n  container_cpu_usage_seconds_total{container!=\"\"} *\n  on (namespace, pod) group_left(node)\n  label_replace(\n    kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"},\n  \"namespace\", \"$1\", \"exported_namespace\", \"(.*)\")\n)[$__interval:]))",
+          "expr": "sum(rate((\n  container_cpu_usage_seconds_total{container!=\"\"} *\n  on (namespace, pod) group_left(node)\n  kube_pod_info{node=~\"$nodes\", namespace=~\"$namespaces\"}\n)[$__interval:]))",
           "instant": false,
+          "interval": "",
           "legendFormat": "Usage",
           "refId": "C"
         },
@@ -132,6 +137,13 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -155,10 +167,8 @@
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -168,17 +178,18 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(kube_pod_container_resource_requests_memory_bytes{node=~\"$nodes\", exported_namespace=~\"$namespaces\"})",
+          "expr": "sum(kube_pod_container_resource_requests_memory_bytes{node=~\"$nodes\", namespace=~\"$namespaces\"})",
           "legendFormat": "Requests",
           "refId": "A"
         },
         {
-          "expr": "sum(kube_pod_container_resource_limits_memory_bytes{node=~\"$nodes\", exported_namespace=~\"$namespaces\"})",
+          "expr": "sum(kube_pod_container_resource_limits_memory_bytes{node=~\"$nodes\", namespace=~\"$namespaces\"})",
           "legendFormat": "Limits",
           "refId": "B"
         },
         {
-          "expr": "sum(\n  container_memory_working_set_bytes{container!=\"\"} *\n  on (namespace, pod) group_left(node)\n  label_replace(\n    kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"},\n  \"namespace\", \"$1\", \"exported_namespace\", \"(.*)\")\n)",
+          "expr": "sum(\n  container_memory_working_set_bytes{container!=\"\"} *\n  on (namespace, pod) group_left(node)\n  kube_pod_info{node=~\"$nodes\", namespace=~\"$namespaces\"}\n)",
+          "interval": "",
           "legendFormat": "Usage",
           "refId": "C"
         },
@@ -232,6 +243,12 @@
     {
       "columns": [],
       "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fontSize": "100%",
       "gridPos": {
         "h": 9,
@@ -240,7 +257,6 @@
         "y": 9
       },
       "id": 5,
-      "options": {},
       "pageSize": null,
       "showHeader": true,
       "sort": {
@@ -368,32 +384,32 @@
       ],
       "targets": [
         {
-          "expr": "kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"}",
+          "expr": "kube_pod_info{node=~\"$nodes\", namespace=~\"$namespaces\"}",
           "format": "table",
           "hide": false,
           "instant": true,
           "refId": "A"
         },
         {
-          "expr": "kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_requests_cpu_cores) by (exported_namespace, pod)",
+          "expr": "kube_pod_info{node=~\"$nodes\", namespace=~\"$namespaces\"} * on (namespace, pod)\nsum(kube_pod_container_resource_requests_cpu_cores) by (namespace, pod)",
           "format": "table",
           "instant": true,
           "refId": "B"
         },
         {
-          "expr": "kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_limits_cpu_cores) by (exported_namespace, pod)",
+          "expr": "kube_pod_info{node=~\"$nodes\", namespace=~\"$namespaces\"} * on (namespace, pod)\nsum(kube_pod_container_resource_limits_cpu_cores) by (namespace, pod)",
           "format": "table",
           "instant": true,
           "refId": "C"
         },
         {
-          "expr": "kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_requests_memory_bytes) by (exported_namespace, pod)",
+          "expr": "kube_pod_info{node=~\"$nodes\", namespace=~\"$namespaces\"} * on (namespace, pod)\nsum(kube_pod_container_resource_requests_memory_bytes) by (namespace, pod)",
           "format": "table",
           "instant": true,
           "refId": "D"
         },
         {
-          "expr": "kube_pod_info{node=~\"$nodes\", exported_namespace=~\"$namespaces\"} * on (exported_namespace, pod)\nsum(kube_pod_container_resource_limits_memory_bytes) by (exported_namespace, pod)",
+          "expr": "kube_pod_info{node=~\"$nodes\", namespace=~\"$namespaces\"} * on (namespace, pod)\nsum(kube_pod_container_resource_limits_memory_bytes) by (namespace, pod)",
           "format": "table",
           "instant": true,
           "refId": "E"
@@ -403,10 +419,10 @@
       "timeShift": null,
       "title": "Pods",
       "transform": "table",
-      "type": "table"
+      "type": "table-old"
     }
   ],
-  "schemaVersion": 22,
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -414,7 +430,10 @@
       {
         "allValue": null,
         "current": {
-          "text": "All",
+          "selected": true,
+          "text": [
+            "All"
+          ],
           "value": [
             "$__all"
           ]
@@ -441,20 +460,23 @@
       {
         "allValue": null,
         "current": {
-          "text": "All",
+          "selected": true,
+          "text": [
+            "All"
+          ],
           "value": [
             "$__all"
           ]
         },
         "datasource": "Prometheus",
-        "definition": "label_values(kube_pod_info, exported_namespace)",
+        "definition": "label_values(kube_pod_info, namespace)",
         "hide": 0,
         "includeAll": true,
         "label": "Namespaces",
         "multi": true,
         "name": "namespaces",
         "options": [],
-        "query": "label_values(kube_pod_info, exported_namespace)",
+        "query": "label_values(kube_pod_info, namespace)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
