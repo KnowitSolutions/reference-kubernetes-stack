@@ -8,6 +8,7 @@ local kubeStateMetrics = import 'kube-state-metrics/main.jsonnet';
 local loki = import 'loki/main.jsonnet';
 local mssql = import 'mssql/main.jsonnet';
 local postgres = import 'postgres/main.jsonnet';
+local prometheus = import 'prometheus/main.jsonnet';
 local promtail = import 'promtail/main.jsonnet';
 local issuer = import 'templates/issuer.jsonnet';
 local metadata = import 'templates/metadata.jsonnet';
@@ -53,6 +54,7 @@ function(
   mssql_tls=false,
   mssql_tls_hostname_validation=true,
 
+  prometheus_replicas=2,
   // TODO: loki_replicas=2,
   loki_keyspace='loki',
   promtail_log_type='cri',  // Valid choices: cri, docker, raw
@@ -177,6 +179,12 @@ function(
         port: mssql_port,
       },
     },
+    prometheus: {
+      namespace: namespace,
+      replicas: prometheus_replicas,
+      affinity: affinity,
+      tolerations: tolerations,
+    },
     loki: {
       namespace: namespace,
       cassandra: cassandraConnection { keyspace: loki_keyspace },
@@ -276,6 +284,7 @@ function(
   cassandra(config) +
   postgres(config) +
   mssql(config) +
+  prometheus(config) +
   loki(config) +
   promtail(config) +
   kubeStateMetrics(config) +

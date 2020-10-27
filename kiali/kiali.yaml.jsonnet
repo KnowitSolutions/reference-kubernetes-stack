@@ -15,7 +15,7 @@ function(config) {
       url_service_version: 'http://istiod.istio-system:15014/version',
     },
     prometheus: {
-      url: 'http://prometheus.istio-system:9090',
+      url: 'http://prometheus:9090',
     },
     tracing: {
       in_cluster_url: 'http://jaeger-query.%s:16686' % jaeger.namespace,

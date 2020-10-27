@@ -22,11 +22,6 @@ function(config)
   local keycloak = config.keycloak;
   local postgres = grafana.postgres;
 
-  [
-    destinationrule.new('prometheus.istio-system.svc.cluster.local') +
-    metadata.new('prometheus.istio-system', ns=ns) +
-    destinationrule.mtls(false),
-  ] +
   (if grafana.tls.acme then [certificate.new(grafana.externalAddress)] else []) +
   [
     gateway.new(grafana.externalAddress, tls=grafana.tls.enabled) +

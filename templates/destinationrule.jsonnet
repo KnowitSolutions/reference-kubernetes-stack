@@ -30,4 +30,16 @@
       },
     },
   },
+
+  stickySessions():: {
+    spec+: {
+      trafficPolicy+: {
+        loadBalancer: {
+          consistentHash: {
+            useSourceIp: true,
+          },
+        },
+      },
+    },
+  },
 }

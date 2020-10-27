@@ -27,10 +27,6 @@ function(config)
     metadata.new('istiod.istio-system', ns=ns) +
     destinationrule.mtls(false),
 
-    destinationrule.new('prometheus.istio-system.svc.cluster.local') +
-    metadata.new('prometheus.istio-system', ns=ns) +
-    destinationrule.mtls(false),
-
     serviceaccount.new() +
     metadata.new(app, ns=ns),
 

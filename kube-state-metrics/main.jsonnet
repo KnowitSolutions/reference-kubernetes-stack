@@ -153,6 +153,7 @@ function(config)
       pod.new() +
       metadata.annotations({
         'prometheus.io/scrape': 'true',
+        'prometheus.io/port': '8080',
       }) +
       pod.container(
         container.new(app, image) +

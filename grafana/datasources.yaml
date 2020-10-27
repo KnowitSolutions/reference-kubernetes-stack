@@ -3,7 +3,7 @@ datasources:
   - name: Prometheus
     type: prometheus
     access: proxy
-    url: http://prometheus.istio-system:9090
+    url: http://prometheus:9090
   - name: Loki
     type: loki
     access: proxy
