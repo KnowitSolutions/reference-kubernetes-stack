@@ -35,8 +35,6 @@ istioctl install \
   --set values.global.proxy.resources.requests.memory="64Mi" \
   --set values.global.proxy.resources.limits.cpu="50m" \
   --set values.global.proxy.resources.limits.memory="64Mi" \
-  --set values.prometheus.replicaCount=2 \
-  --set values.prometheus.retention=30d \
   --set values.global.tracer.zipkin.address=jaeger-collector.base:9411 \
   --set values.pilot.traceSampling=100
 ```
