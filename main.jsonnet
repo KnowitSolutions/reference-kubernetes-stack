@@ -55,7 +55,7 @@ function(
   mssql_tls_hostname_validation=true,
 
   prometheus_replicas=2,
-  // TODO: loki_replicas=2,
+  loki_replicas=2,
   loki_keyspace='loki',
   promtail_log_type='cri',  // Valid choices: cri, docker, raw
 
@@ -187,6 +187,7 @@ function(
     },
     loki: {
       namespace: namespace,
+      replicas: loki_replicas,
       cassandra: cassandraConnection { keyspace: loki_keyspace },
       affinity: affinity,
       tolerations: tolerations,

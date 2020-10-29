@@ -70,6 +70,7 @@ jsonnet \
   --tla-str postgres_username='postgres' \
   --tla-str postgres_password='postgres' \
   --tla-code prometheus_replicas=1 \
+  --tla-code loki_replicas=1 \
   --tla-code keycloak_replicas=1 \
   --tla-str keycloak_address='keycloak.localhost' \
   --tla-code istio_oidc_replicas=1 \

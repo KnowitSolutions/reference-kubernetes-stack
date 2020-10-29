@@ -7,16 +7,24 @@ function(config) {
     http_listen_port: 8080,
   },
 
-  // TODO: Fix high availability
+  distributor: {
+    ring: {
+      kvstore: { store: 'memberlist' },
+    },
+  },
+
   ingester: {
     lifecycler: {
       ring: {
-        kvstore: {
-          store: 'inmemory',
-        },
+        kvstore: { store: 'memberlist' },
         replication_factor: 1,
       },
     },
+  },
+
+  memberlist: {
+    randomize_node_name: false,
+    join_members: ['loki-gossip:7946'],
   },
 
   schema_config: {
@@ -25,14 +33,8 @@ function(config) {
         from: '2020-01-01',
         store: 'cassandra',
         schema: 'v11',
-        index: {
-          prefix: 'index_',
-          period: '168h',
-        },
-        chunks: {
-          prefix: 'chunk_',
-          period: '168h',
-        },
+        index: { prefix: 'index_', period: '168h' },
+        chunks: { prefix: 'chunk_', period: '168h' },
       },
     ],
   },

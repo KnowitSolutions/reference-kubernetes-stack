@@ -24,6 +24,15 @@ function(config)
     metadata.new(app, ns=ns) +
     service.port(8080),
 
+    destinationrule.new('%s-gossip' % app) +
+    metadata.new('%s-gossip' % app, ns=ns) +
+    destinationrule.circuitBreaker(),
+
+    service.new(app, headless=true, onlyReady=false) +
+    metadata.new(app + '-gossip', ns=ns) +
+    service.port(7946, name='tcp-gossip') +
+    service.port(9095, name='tcp-grpc'),
+
     configmap.new() +
     metadata.new(app, ns=ns) +
     configmap.data({
@@ -37,7 +46,7 @@ function(config)
       [if cassandra.password != null then 'CASSANDRA_PASSWORD']: cassandra.password,
     }),
 
-    deployment.new() +
+    deployment.new(replicas=loki.replicas) +
     metadata.new(app, ns=ns) +
     deployment.pod(
       pod.new() +
@@ -57,6 +66,8 @@ function(config)
         ]) +
         container.envFrom(secret=app) +
         container.port('http', 8080) +
+        container.port('tcp-gossip', 7946) +
+        container.port('tcp-grpc', 9095) +
         container.volume('config', '/etc/loki') +
         container.resources('500m', '500m', '512Mi', '512Mi') +
         container.httpProbe('readiness', '/ready') +
