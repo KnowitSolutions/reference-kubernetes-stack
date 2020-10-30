@@ -1,6 +1,6 @@
 local cassandra = import 'cassandra/main.jsonnet';
+local istioOidc = import 'github.com/KnowitSolutions/istio-oidc/deployment/main.jsonnet';
 local grafana = import 'grafana/main.jsonnet';
-local istioOidc = import 'istio-oidc/deployment/main.jsonnet';
 local jaeger = import 'jaeger/main.jsonnet';
 local keycloak = import 'keycloak/main.jsonnet';
 local kiali = import 'kiali/main.jsonnet';
@@ -71,6 +71,7 @@ function(
   grafana_address,
   grafana_database='grafana',
   grafana_client_secret='Regenerate me',
+  grafana_dashboards=true,
 
   kiali_replicas=2,
   kiali_address,
@@ -239,6 +240,7 @@ function(
       },
       affinity: affinity,
       tolerations: tolerations,
+      dashboards: grafana_dashboards,
     },
     kiali: {
       namespace: namespace,

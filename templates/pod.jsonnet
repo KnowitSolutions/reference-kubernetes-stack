@@ -40,7 +40,7 @@ local metadata = import 'metadata.jsonnet';
     },
   },
 
-  volumeConfigMap(name, configmap, items=null, defaultMode=null):: {
+  volumeConfigMap(name, configmap, items=null, defaultMode=null, optional=false):: {
     spec+: {
       volumes+: [
         {
@@ -52,6 +52,7 @@ local metadata = import 'metadata.jsonnet';
               for key in std.objectFields(items)
             ],
             [if defaultMode != null then 'defaultMode']: defaultMode,
+            optional: optional,
           },
         },
       ],

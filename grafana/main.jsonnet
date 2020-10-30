@@ -1,3 +1,4 @@
+local kubernetesMixin = import '../kubernetes-mixin/mixin.jsonnet';
 local authorizationpolicy = import '../templates/authorizationpolicy.jsonnet';
 local certificate = import '../templates/certificate.jsonnet';
 local configmap = import '../templates/configmap.jsonnet';
@@ -21,6 +22,7 @@ function(config)
   local grafana = config.grafana;
   local keycloak = config.keycloak;
   local postgres = grafana.postgres;
+  local reduce = function(arr) std.foldl(function(a, b) a + b, arr, {});
 
   (if grafana.tls.acme then [certificate.new(grafana.externalAddress)] else []) +
   [
@@ -55,10 +57,16 @@ function(config)
       'grafana.ini': std.manifestIni((import 'grafana.ini.jsonnet')(config)),
       'datasources.yaml': importstr 'datasources.yaml',
       'dashboards.yaml': importstr 'dashboards.yaml',
-      'container-overview.json': importstr 'dashboards/container-overview.json',
-      'pod-overview.json': importstr 'dashboards/pod-overview.json',
-      'resource-overview.json': importstr 'dashboards/resource-overview.json',
     }),
+
+  ] + [
+    local name = std.substr(key, 0, std.length(key) - 5);
+    local value = kubernetesMixin.grafanaDashboards[key];
+    configmap.new() +
+    metadata.new(app + '-dashboard-' + name, ns=ns) +
+    configmap.data({ [key]: std.manifestJson(value) })
+    for key in if grafana.dashboards then std.objectFields(kubernetesMixin.grafanaDashboards) else []
+  ] + [
 
     secret.new() +
     metadata.new(app, ns=ns) +
@@ -82,6 +90,12 @@ function(config)
         container.port('http', 3000) +
         container.envFrom(secret=app) +
         container.volume('config', '/etc/grafana') +
+        container.volume('dashboards', '/etc/grafana/dashboards') +
+        reduce([
+          local name = std.substr(key, 0, std.length(key) - 5);
+          container.volume('dashboard-' + name, '/etc/grafana/dashboards/' + key, subPath=key)
+          for key in std.objectFields(kubernetesMixin.grafanaDashboards)
+        ]) +
         container.volume('data', '/var/lib/grafana') +
         container.resources('50m', '50m', '64Mi', '64Mi') +
         container.httpProbe('readiness', '/api/health') +
@@ -92,10 +106,13 @@ function(config)
         'grafana.ini': 'grafana.ini',
         'datasources.yaml': 'provisioning/datasources/datasources.yaml',
         'dashboards.yaml': 'provisioning/dashboards/dashboards.yaml',
-        'container-overview.json': 'dashboards/container-overview.json',
-        'pod-overview.json': 'dashboards/pod-overview.json',
-        'resource-overview.json': 'dashboards/resource-overview.json',
       }) +
+      pod.volumeEmptyDir('dashboards', '0') +
+      reduce([
+        local name = std.substr(key, 0, std.length(key) - 5);
+        pod.volumeConfigMap('dashboard-' + name, configmap=app + '-dashboard-' + name, optional=true)
+        for key in std.objectFields(kubernetesMixin.grafanaDashboards)
+      ]) +
       (if postgres.enabled then pod.volumeEmptyDir('data', '1Mi') else {}) +
       pod.securityContext({ runAsUser: 472, runAsGroup: 472 }) +
       pod.affinity(grafana.affinity) +

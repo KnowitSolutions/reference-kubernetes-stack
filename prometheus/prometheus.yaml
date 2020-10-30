@@ -1,7 +1,11 @@
 global:
-  evaluation_interval: 1m
+  evaluation_interval: 15s
   scrape_interval: 15s
-  scrape_timeout: 10s
+
+rule_files:
+- alerts.yaml
+- rules.yaml
+
 scrape_configs:
 - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
   job_name: kubernetes-apiservers
