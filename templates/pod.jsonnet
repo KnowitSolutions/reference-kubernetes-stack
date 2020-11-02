@@ -71,6 +71,13 @@ local metadata = import 'metadata.jsonnet';
     },
   },
 
+  host(pid=false, network=false):: {
+    spec+: {
+      hostPID: pid,
+      hostNetwork: network,
+    },
+  },
+
   newAffinity(labels):: {
     nodeAffinity: {
       requiredDuringSchedulingIgnoredDuringExecution: {

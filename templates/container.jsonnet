@@ -86,13 +86,14 @@
     },
   },
 
-  volume(name, path, subPath=null, readOnly=false):: {
+  volume(name, path, subPath=null, readOnly=false, propagation='None'):: {
     volumeMounts+: [
       {
         name: name,
         mountPath: path,
         [if subPath != null then 'subPath']: subPath,
         readOnly: readOnly,
+        mountPropagation: propagation,
       },
     ],
   },

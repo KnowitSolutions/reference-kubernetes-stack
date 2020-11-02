@@ -7,6 +7,7 @@ local kiali = import 'kiali/main.jsonnet';
 local kubeStateMetrics = import 'kube-state-metrics/main.jsonnet';
 local loki = import 'loki/main.jsonnet';
 local mssql = import 'mssql/main.jsonnet';
+local nodeExporter = import 'node-exporter/main.jsonnet';
 local postgres = import 'postgres/main.jsonnet';
 local prometheus = import 'prometheus/main.jsonnet';
 local promtail = import 'promtail/main.jsonnet';
@@ -196,7 +197,10 @@ function(
     promtail: {
       namespace: namespace,
       logType: promtail_log_type,
-      affinity: affinity,
+      tolerations: tolerations,
+    },
+    nodeExporter: {
+      namespace: namespace,
       tolerations: tolerations,
     },
     kubeStateMetrics: {
@@ -290,6 +294,7 @@ function(
   prometheus(config) +
   loki(config) +
   promtail(config) +
+  nodeExporter(config) +
   kubeStateMetrics(config) +
   istioOidc(
     NAMESPACE=namespace,

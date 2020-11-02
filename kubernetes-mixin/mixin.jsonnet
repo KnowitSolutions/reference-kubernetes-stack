@@ -10,7 +10,7 @@ kubernetesMixin {
     kubeletSelector: 'job="kubernetes-nodes"',
     cadvisorSelector: 'job="kubernetes-nodes-cadvisor"',
 
-    // TODO: nodeExporterSelector: 'job="kubernetes-pods",kubernetes_namespace="base",app="node-exporter"',
+    nodeExporterSelector: 'job="kubernetes-pods",kubernetes_namespace="base",app="node-exporter"',
     kubeStateMetricsSelector: 'job="kubernetes-pods",kubernetes_namespace="base",app="kube-state-metrics"',
 
     grafanaK8s+:: {
