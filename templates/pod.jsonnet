@@ -118,9 +118,11 @@ local metadata = import 'metadata.jsonnet';
     for toleration in tolerations
   ],
 
-  tolerations(tolerations):: {
+  tolerations(tolerations=[], anything=false):: {
     spec+: {
-      tolerations: tolerations,
+      tolerations: if anything
+      then [{ effect: 'NoExecute', operator: 'Exists' }, { effect: 'NoSchedule', operator: 'Exists' }]
+      else tolerations,
     },
   },
 }

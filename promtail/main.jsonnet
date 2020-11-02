@@ -74,6 +74,6 @@ function(config)
        then pod.volumeHostPath('docker-logs', path='/var/lib/docker/containers')
        else {}) +
       pod.securityContext({ runAsUser: 0, runAsGroup: 1000 }) +
-      pod.tolerations(promtail.tolerations)
+      pod.tolerations(anything=true)
     ),
   ]

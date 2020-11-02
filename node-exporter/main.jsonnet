@@ -9,7 +9,6 @@ local image = 'prom/node-exporter:v1.0.1';
 
 function(config)
   local ns = config.nodeExporter.namespace;
-  local nodeExporter = config.nodeExporter;
 
   [
     service.new(app) +
@@ -42,6 +41,6 @@ function(config)
       pod.volumeHostPath('root', path='/') +
       pod.host(pid=true, network=true) +
       pod.securityContext({ runAsUser: 65534, runAsGroup: 65534 }) +
-      pod.tolerations(nodeExporter.tolerations)
+      pod.tolerations(anything=true)
     ),
   ]
