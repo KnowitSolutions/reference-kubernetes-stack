@@ -97,5 +97,5 @@ function(config)
       pod.affinity(prometheus.affinity) +
       pod.tolerations(prometheus.tolerations)
     ) +
-    statefulset.volumeClaim('data', '5Gi'),
+    statefulset.volumeClaim('data', '500Gi'),
   ]
