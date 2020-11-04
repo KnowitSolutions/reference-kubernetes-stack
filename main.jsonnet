@@ -298,7 +298,7 @@ function(
   kubeStateMetrics(config) +
   istioOidc(
     NAMESPACE=namespace,
-    VERSION='master',
+    VERSION='latest',
     REPLICAS=istio_oidc_replicas,
     AFFINITY=affinity,
     TOLERATIONS=tolerations,
