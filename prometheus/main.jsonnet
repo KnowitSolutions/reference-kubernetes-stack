@@ -86,7 +86,7 @@ function(config)
         container.port('http', 9090) +
         container.volume('config', '/prometheus/config', readOnly=true) +
         container.volume('data', '/prometheus/data') +
-        container.resources('100m', '100m', '3Gi', '3Gi') +
+        container.resources('100m', '100m', '4Gi', '4Gi') +
         container.httpProbe('readiness', '/-/ready', port='http') +
         container.httpProbe('liveness', '/-/healthy', port='http') +
         container.securityContext({ readOnlyRootFilesystem: true })
