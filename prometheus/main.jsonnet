@@ -86,7 +86,7 @@ function(config)
         container.port('http', 9090) +
         container.volume('config', '/prometheus/config', readOnly=true) +
         container.volume('data', '/prometheus/data') +
-        container.resources('100m', '100m', '4Gi', '4Gi') +
+        container.resources('300m', '1', '3Gi', '6Gi') +
         container.httpProbe('readiness', '/-/ready', port='http') +
         container.httpProbe('liveness', '/-/healthy', port='http') +
         container.securityContext({ readOnlyRootFilesystem: true })
@@ -97,5 +97,5 @@ function(config)
       pod.affinity(prometheus.affinity) +
       pod.tolerations(prometheus.tolerations)
     ) +
-    statefulset.volumeClaim('data', '500Gi'),
+    statefulset.volumeClaim('data', '100Gi'),
   ]
