@@ -10,44 +10,40 @@ local service = import '../templates/service.jsonnet';
 local app = 'loki';
 local image = 'grafana/loki:1.6.1';
 
-function(config)
-  local ns = config.loki.namespace;
-  local loki = config.loki;
-  local cassandra = loki.cassandra;
-
+function(global, loki, cassandra)
   [
     destinationrule.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     service.port(8080),
 
     destinationrule.new('%s-gossip' % app) +
-    metadata.new('%s-gossip' % app, ns=ns) +
+    metadata.new('%s-gossip' % app, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(app, headless=true, onlyReady=false) +
-    metadata.new(app + '-gossip', ns=ns) +
+    metadata.new(app + '-gossip', global.namespace) +
     service.port(7946, name='tcp-gossip') +
     service.port(9095, name='tcp-grpc'),
 
     configmap.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     configmap.data({
-      'loki.yaml': std.manifestYamlDoc((import 'loki.yaml.jsonnet')(config)),
+      'loki.yaml': std.manifestYamlDoc((import 'loki.yaml.jsonnet')(loki, cassandra)),
     }),
 
     secret.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     secret.data({
       [if cassandra.username != null then 'CASSANDRA_USERNAME']: cassandra.username,
       [if cassandra.password != null then 'CASSANDRA_PASSWORD']: cassandra.password,
     }),
 
     deployment.new(replicas=loki.replicas) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     deployment.pod(
       pod.new() +
       metadata.annotations({
@@ -76,7 +72,7 @@ function(config)
       ) +
       pod.volumeConfigMap('config', configmap=app) +
       pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
-      pod.affinity(loki.affinity) +
-      pod.tolerations(loki.tolerations)
+      pod.affinity(global.affinity) +
+      pod.tolerations(global.tolerations)
     ),
   ]

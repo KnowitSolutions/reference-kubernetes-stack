@@ -3,16 +3,12 @@ local serviceentry = import '../templates/serviceentry.jsonnet';
 
 local app = 'mssql';
 
-function(config)
-  local ns = config.mssql.namespace;
-  local mssql = config.mssql;
-  local vip = mssql.vip;
-
-  if vip.enabled then [
+function(global, mssql)
+  if mssql.externalAddress != null then [
     serviceentry.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     serviceentry.host(app) +
-    serviceentry.vip(vip.internalAddress) +
-    serviceentry.endpoint(vip.externalAddress) +
-    serviceentry.port(app, vip.port),
+    serviceentry.vip(mssql.internalAddress) +
+    serviceentry.endpoint(mssql.externalAddress) +
+    serviceentry.port(app, mssql.port),
   ] else []

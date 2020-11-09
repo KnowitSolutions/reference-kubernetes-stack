@@ -1,28 +1,22 @@
-function(app, config)
-  local ns = config.keycloak.namespace;
-  local keycloak = config.keycloak;
-  local storage =
-    if keycloak.storage == 'postgres' then keycloak.postgres
-    else if keycloak.storage == 'mssql' then keycloak.mssql;
-
+function(global, keycloak, sql)
   {
     configmap: {
-      DB_VENDOR: keycloak.storage,
-      DB_ADDR: storage.address,
-      DB_PORT: std.toString(storage.port),
-      DB_DATABASE: storage.database,
-      [if storage.tls.enabled then 'JDBC_PARAMS']: 'sslmode=%s' % (
-        if storage.tls.hostnameValidation then 'verify-full' else 'require'
+      DB_VENDOR: sql.vendor,
+      DB_ADDR: sql.address,
+      DB_PORT: std.toString(sql.port),
+      DB_DATABASE: keycloak.database,
+      [if sql.tls.enabled then 'JDBC_PARAMS']: 'sslmode=%s' % (
+        if sql.tls.hostnameValidation then 'verify-full' else 'require'
       ),
       JGROUPS_DISCOVERY_PROTOCOL: 'kubernetes.KUBE_PING',
-      JGROUPS_DISCOVERY_PROPERTIES_DIRECT: '{namespace=>%s,labels=>app=%s,port_range=>0}' % [ns, app],
-      KEYCLOAK_FRONTEND_URL: '%s://%s/auth' % [keycloak.externalProtocol, keycloak.externalAddress],
+      JGROUPS_DISCOVERY_PROPERTIES_DIRECT: '{namespace=>%s,labels=>app=keycloak,port_range=>0}' % global.namespace,
+      KEYCLOAK_FRONTEND_URL: '%s://%s/auth' % [if global.tls then 'https' else 'http', keycloak.externalAddress],
       PROXY_ADDRESS_FORWARDING: 'true',
       KEYCLOAK_STATISTICS: 'all',
     },
     secret: {
-      DB_USER: storage.username,
-      DB_PASSWORD: storage.password,
+      DB_USER: sql.username,
+      DB_PASSWORD: sql.password,
       KEYCLOAK_USER: keycloak.admin.username,
       KEYCLOAK_PASSWORD: keycloak.admin.password,
     },

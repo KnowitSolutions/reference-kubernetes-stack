@@ -13,16 +13,13 @@ local statefulset = import '../templates/statefulset.jsonnet';
 local app = 'prometheus';
 local image = 'prom/prometheus:v2.22.0';
 
-function(config)
-  local ns = config.prometheus.namespace;
-  local prometheus = config.prometheus;
-
+function(global, prometheus)
   [
     serviceaccount.new() +
-    metadata.new(app, ns=ns),
+    metadata.new(app, global.namespace),
 
     role.new(cluster=true) +
-    metadata.new('%s-%s' % [app, ns]) +
+    metadata.new(app + '-' + global.namespace) +
     role.rule({
       apiGroups: [''],
       verbs: ['get', 'list', 'watch'],
@@ -48,21 +45,21 @@ function(config)
     }),
 
     rolebinding.new(cluster=true) +
-    metadata.new('%s-%s' % [app, ns]) +
-    rolebinding.role('%s-%s' % [app, ns], cluster=true) +
-    rolebinding.subject('ServiceAccount', app, ns=ns),
+    metadata.new(app + '-' + global.namespace) +
+    rolebinding.role(app + '-' + global.namespace, cluster=true) +
+    rolebinding.subject('ServiceAccount', app, global.namespace),
 
     destinationrule.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     destinationrule.circuitBreaker() +
     destinationrule.stickySessions(),
 
     service.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     service.port(9090, name='http'),
 
     configmap.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     configmap.data({
       'prometheus.yaml': importstr 'prometheus.yaml',
       'alerts.yaml': std.manifestYamlDoc(kubernetesMixin.prometheusAlerts),
@@ -70,7 +67,7 @@ function(config)
     }),
 
     statefulset.new(replicas=prometheus.replicas, parallel=true, service=app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     statefulset.pod(
       pod.new() +
       metadata.annotations({
@@ -94,8 +91,8 @@ function(config)
       pod.serviceAccount(app) +
       pod.volumeConfigMap('config', configmap=app) +
       pod.securityContext({ runAsUser: 65534, runAsGroup: 65534 }) +
-      pod.affinity(prometheus.affinity) +
-      pod.tolerations(prometheus.tolerations)
+      pod.affinity(global.affinity) +
+      pod.tolerations(global.tolerations)
     ) +
     statefulset.volumeClaim('data', '100Gi'),
   ]

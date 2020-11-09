@@ -11,267 +11,208 @@ local nodeExporter = import 'node-exporter/main.jsonnet';
 local postgres = import 'postgres/main.jsonnet';
 local prometheus = import 'prometheus/main.jsonnet';
 local promtail = import 'promtail/main.jsonnet';
-local issuer = import 'templates/issuer.jsonnet';
 local metadata = import 'templates/metadata.jsonnet';
 local namespace = import 'templates/namespace.jsonnet';
 local peerauthentication = import 'templates/peerauthentication.jsonnet';
 local pod = import 'templates/pod.jsonnet';
 
-local ns(name) =
-  namespace.new() +
-  metadata.new(name);
-
 function(
-  namespace='base',
-  node_selector=null,
-  node_tolerations=null,
+  NAMESPACE='base',
+  AFFINITY=[],
+  TOLERATIONS=[],
 
-  ingress_tls=false,
-  lets_encrypt_email=null,
+  CERTIFICATE_ISSUER=null,
+  INGRESS_TLS=false,
 
-  cassandra_replicas=3,
-  cassandra_vip='10.0.10.1',
-  cassandra_address=null,
-  cassandra_port=9042,
-  cassandra_username=null,
-  cassandra_password=null,
-  cassandra_tls=false,
-  cassandra_tls_hostname_validation=true,
-  cassandra_timeout='1s',
+  CASSANDRA_REPLICAS=3,
+  CASSANDRA_VIP='10.0.10.1',
+  CASSANDRA_ADDRESS=null,
+  CASSANDRA_PORT=9042,
+  CASSANDRA_USERNAME=null,
+  CASSANDRA_PASSWORD=null,
+  CASSANDRA_TLS=false,
+  CASSANDRA_TLS_HOSTNAME_VALIDATION=true,
+  CASSANDRA_TIMEOUT='1s',
 
-  postgres_vip='10.0.10.2',
-  postgres_address=null,
-  postgres_port=5432,
-  postgres_username=null,
-  postgres_password=null,
-  postgres_tls=false,
-  postgres_tls_hostname_validation=true,
+  POSTGRES_VIP='10.0.10.2',
+  POSTGRES_ADDRESS=null,
+  POSTGRES_PORT=5432,
+  POSTGRES_USERNAME=null,
+  POSTGRES_PASSWORD=null,
+  POSTGRES_TLS=false,
+  POSTGRES_TLS_HOSTNAME_VALIDATION=true,
 
-  mssql_vip='10.0.10.3',
-  mssql_address=null,
-  mssql_port=1433,
-  mssql_username=null,
-  mssql_password=null,
-  mssql_tls=false,
-  mssql_tls_hostname_validation=true,
+  MSSQL_VIP='10.0.10.3',
+  MSSQL_ADDRESS=null,
+  MSSQL_PORT=1433,
+  MSSQL_USERNAME=null,
+  MSSQL_PASSWORD=null,
+  MSSQL_TLS=false,
+  MSSQL_TLS_HOSTNAME_VALIDATION=true,
 
-  prometheus_replicas=2,
-  loki_replicas=2,
-  loki_keyspace='loki',
-  promtail_log_type='cri',  // Valid choices: cri, docker, raw
+  PROMETHEUS_REPLICAS=2,
+  LOKI_REPLICAS=2,
+  LOKI_KEYSPACE='loki',
+  PROMTAIL_LOG_TYPE='cri',  // Valid choices: cri, docker, raw
 
-  keycloak_replicas=2,
-  keycloak_address,
-  keycloak_database='keycloak',
-  keycloak_username='admin',
-  keycloak_password='admin',
+  KEYCLOAK_REPLICAS=2,
+  KEYCLOAK_ADDRESS,
+  KEYCLOAK_DATABASE='keycloak',
+  KEYCLOAK_USERNAME='admin',
+  KEYCLOAK_PASSWORD='admin',
 
-  istio_oidc_replicas=2,
+  ISTIO_OIDC_REPLICAS=2,
 
-  grafana_replicas=2,
-  grafana_address,
-  grafana_database='grafana',
-  grafana_client_secret='Regenerate me',
-  grafana_dashboards=true,
+  GRAFANA_REPLICAS=2,
+  GRAFANA_ADDRESS,
+  GRAFANA_DATABASE='grafana',
+  GRAFANA_CLIENT_SECRET='Regenerate me',
+  GRAFANA_DASHBOARDS=true,
 
-  kiali_replicas=2,
-  kiali_address,
-  kiali_client_secret='Regenerate me',
+  KIALI_REPLICAS=2,
+  KIALI_ADDRESS,
+  KIALI_CLIENT_SECRET='Regenerate me',
 
-  jaeger_replicas=2,
-  jaeger_address,
-  jaeger_keyspace='jaeger',
-  jaeger_client_secret='Regenerate me',
+  JAEGER_REPLICAS=2,
+  JAEGER_ADDRESS,
+  JAEGER_KEYSPACE='jaeger',
+  JAEGER_CLIENT_SECRET='Regenerate me',
 )
-  local affinity = if node_selector != null then pod.newAffinity(node_selector) else {};
-  local tolerations = if node_tolerations != null then pod.newTolerations(node_tolerations) else [];
+  local globalCfg = {
+    namespace: NAMESPACE,
+    affinity: AFFINITY,
+    tolerations: TOLERATIONS,
+    certificateIssuer: CERTIFICATE_ISSUER,
+    tls: INGRESS_TLS,
+  };
 
-  local cassandraConnection = {
-    assert if cassandra_address == null then
-      cassandra_address == null &&
-      cassandra_port == 9042 &&
-      cassandra_username == null &&
-      cassandra_password == null &&
-      cassandra_tls == false
-    else true : 'Cannot override Cassandra connection details when using bundled instance',
-
-    assert if cassandra_address != null then
-      cassandra_replicas == 3
-    else true : 'Cannot override Cassandra settings when using external instance',
-
-    address: if cassandra_address == null then 'cassandra.%s' % namespace else cassandra_vip,
-    port: cassandra_port,
-    username: cassandra_username,
-    password: cassandra_password,
+  local cassandraCfg = {
+    _:: if CASSANDRA_ADDRESS == null
+    then assert
+      CASSANDRA_VIP == '10.0.10.1' &&
+      CASSANDRA_ADDRESS == null &&
+      CASSANDRA_PORT == 9042 &&
+      CASSANDRA_USERNAME == null &&
+      CASSANDRA_PASSWORD == null &&
+      CASSANDRA_TLS == false :
+      'Cannot override Cassandra connection details when using bundled instance'; {}
+    else assert
+      CASSANDRA_REPLICAS == 3 :
+      'Cannot override Cassandra settings when using external instance'; {},
+    bundled: CASSANDRA_ADDRESS == null,
+    replicas: CASSANDRA_REPLICAS,
+    internalAddress: CASSANDRA_VIP,
+    address: if CASSANDRA_ADDRESS == null then 'cassandra.%s' % NAMESPACE else CASSANDRA_VIP,
+    externalAddress: CASSANDRA_ADDRESS,
+    port: CASSANDRA_PORT,
+    username: CASSANDRA_USERNAME,
+    password: CASSANDRA_PASSWORD,
     tls: {
-      enabled: cassandra_tls,
-      hostnameValidation: cassandra_tls_hostname_validation,
+      enabled: CASSANDRA_TLS,
+      hostnameValidation: CASSANDRA_TLS_HOSTNAME_VALIDATION,
     },
-    timeout: cassandra_timeout,
+    timeout: CASSANDRA_TIMEOUT,
   };
 
-  local postgresConnection = {
-    assert if postgres_address != null then
-      postgres_username != null &&
-      postgres_password != null
-    else true : 'Missing Postgres credentials',
-
-    enabled: postgres_address != null,
-    address: postgres_vip,
-    port: postgres_port,
-    username: postgres_username,
-    password: postgres_password,
+  local sqlCfg = if POSTGRES_ADDRESS != null then {
+    _:: if POSTGRES_ADDRESS == null
+    then assert
+      POSTGRES_USERNAME != null &&
+      POSTGRES_PASSWORD != null :
+      'Missing Postgres credentials'; {},
+    vendor: 'postgres',
+    address: POSTGRES_VIP,
+    port: POSTGRES_PORT,
+    username: POSTGRES_USERNAME,
+    password: POSTGRES_PASSWORD,
     tls: {
-      enabled: postgres_tls,
-      hostnameValidation: postgres_tls_hostname_validation,
+      enabled: POSTGRES_TLS,
+      hostnameValidation: POSTGRES_TLS_HOSTNAME_VALIDATION,
     },
-  };
-
-  local mssqlConnection = {
-    assert if mssql_address != null then
-      mssql_username != null &&
-      mssql_password != null
-    else true : 'Missing SQL Server credentials',
-
-    enabled: mssql_address != null,
-    address: mssql_vip,
-    port: mssql_port,
-    username: mssql_username,
-    password: mssql_password,
+  }
+  else if MSSQL_ADDRESS != null then {
+    _:: if MSSQL_ADDRESS != null
+    then assert
+      MSSQL_USERNAME != null &&
+      MSSQL_PASSWORD != null :
+      'Missing SQL Server credentials'; {},
+    vendor: 'mssql',
+    address: MSSQL_VIP,
+    port: MSSQL_PORT,
+    username: MSSQL_USERNAME,
+    password: MSSQL_PASSWORD,
     tls: {
-      enabled: mssql_tls,
-      hostnameValidation: mssql_tls_hostname_validation,
+      enabled: MSSQL_TLS,
+      hostnameValidation: MSSQL_TLS_HOSTNAME_VALIDATION,
+    },
+  }
+  else error 'Missing SQL configuration';
+
+  local postgresCfg = {
+    internalAddress: POSTGRES_VIP,
+    externalAddress: POSTGRES_ADDRESS,
+    port: POSTGRES_PORT,
+  };
+
+  local mssqlCfg = {
+    internalAddress: MSSQL_VIP,
+    externalAddress: MSSQL_ADDRESS,
+    port: MSSQL_PORT,
+  };
+
+  local prometheusCfg = {
+    replicas: PROMETHEUS_REPLICAS,
+  };
+
+  local lokiCfg = {
+    replicas: LOKI_REPLICAS,
+    keyspace: LOKI_KEYSPACE,
+  };
+
+  local promtailCfg = {
+    logType: PROMTAIL_LOG_TYPE,
+  };
+
+  local keycloakCfg = {
+    replicas: KEYCLOAK_REPLICAS,
+    database: KEYCLOAK_DATABASE,
+    externalAddress: KEYCLOAK_ADDRESS,
+    internalAddress: 'keycloak.%s' % NAMESPACE,
+    admin: {
+      username: KEYCLOAK_USERNAME,
+      password: KEYCLOAK_PASSWORD,
     },
   };
 
-  local tlsConfig = {
-    enabled: ingress_tls,
-    acme: lets_encrypt_email != null,
+  local grafanaCfg = {
+    assert GRAFANA_REPLICAS == 1 || sqlCfg.vendor == 'postgres' :
+           'Grafana high availability in unavailable without Postgres',
+    replicas: GRAFANA_REPLICAS,
+    externalAddress: GRAFANA_ADDRESS,
+    database: GRAFANA_DATABASE,
+    oidc: {
+      clientId: 'grafana',
+      clientSecret: GRAFANA_CLIENT_SECRET,
+    },
+    dashboards: GRAFANA_DASHBOARDS,
   };
 
-  local config = {
-    cassandra: {
-      bundled: cassandra_address == null,
-      namespace: namespace,
-      replicas: cassandra_replicas,
-      vip: {
-        enabled: cassandra_address != null,
-        internalAddress: cassandra_vip,
-        externalAddress: cassandra_address,
-        port: cassandra_port,
-      },
-      affinity: affinity,
-      tolerations: tolerations,
+  local kialiCfg = {
+    replicas: KIALI_REPLICAS,
+    externalAddress: KIALI_ADDRESS,
+    oidc: {
+      clientId: 'kiali',
+      clientSecret: KIALI_CLIENT_SECRET,
     },
-    postgres: {
-      namespace: namespace,
-      vip: {
-        enabled: postgres_address != null,
-        internalAddress: postgres_vip,
-        externalAddress: postgres_address,
-        port: postgres_port,
-      },
-    },
-    mssql: {
-      namespace: namespace,
-      vip: {
-        enabled: mssql_address != null,
-        internalAddress: mssql_vip,
-        externalAddress: mssql_address,
-        port: mssql_port,
-      },
-    },
-    prometheus: {
-      namespace: namespace,
-      replicas: prometheus_replicas,
-      affinity: affinity,
-      tolerations: tolerations,
-    },
-    loki: {
-      namespace: namespace,
-      replicas: loki_replicas,
-      cassandra: cassandraConnection { keyspace: loki_keyspace },
-      affinity: affinity,
-      tolerations: tolerations,
-    },
-    promtail: {
-      namespace: namespace,
-      logType: promtail_log_type,
-      tolerations: tolerations,
-    },
-    nodeExporter: {
-      namespace: namespace,
-      tolerations: tolerations,
-    },
-    kubeStateMetrics: {
-      namespace: namespace,
-      affinity: affinity,
-      tolerations: tolerations,
-    },
-    keycloak: {
-      namespace: namespace,
-      replicas: keycloak_replicas,
-      storage:
-        if postgres_address != null then 'postgres'
-        else if mssql_address != null then 'mssql'
-        else error 'Missing Postgres/SQL Server connection details',
-      postgres: postgresConnection { database: keycloak_database },
-      mssql: mssqlConnection { database: keycloak_database },
-      externalProtocol: if self.tls.enabled then 'https' else 'http',
-      externalAddress: keycloak_address,
-      internalAddress: 'keycloak.%s' % namespace,
-      tls: tlsConfig,
-      admin: {
-        username: keycloak_username,
-        password: keycloak_password,
-      },
-      affinity: affinity,
-      tolerations: tolerations,
-    },
-    grafana: {
-      assert grafana_replicas == 1 || self.postgres.enabled
-             : 'Grafana high availability in unavailable without Postgres',
+  };
 
-      namespace: namespace,
-      replicas: grafana_replicas,
-      externalProtocol: if self.tls.enabled then 'https' else 'http',
-      externalAddress: grafana_address,
-      tls: tlsConfig,
-      postgres: postgresConnection { database: grafana_database },
-      oidc: {
-        clientId: 'grafana',
-        clientSecret: grafana_client_secret,
-      },
-      affinity: affinity,
-      tolerations: tolerations,
-      dashboards: grafana_dashboards,
-    },
-    kiali: {
-      namespace: namespace,
-      replicas: kiali_replicas,
-      externalProtocol: if self.tls.enabled then 'https' else 'http',
-      externalAddress: kiali_address,
-      tls: tlsConfig,
-      oidc: {
-        clientId: 'kiali',
-        clientSecret: kiali_client_secret,
-      },
-      affinity: affinity,
-      tolerations: tolerations,
-    },
-    jaeger: {
-      namespace: namespace,
-      replicas: jaeger_replicas,
-      cassandra: cassandraConnection { keyspace: jaeger_keyspace },
-      externalProtocol: if self.tls.enabled then 'https' else 'http',
-      externalAddress: jaeger_address,
-      tls: tlsConfig,
-      oidc: {
-        clientId: 'jaeger',
-        clientSecret: jaeger_client_secret,
-      },
-      affinity: affinity,
-      tolerations: tolerations,
+  local jaegerCfg = {
+    replicas: JAEGER_REPLICAS,
+    keyspace: JAEGER_KEYSPACE,
+    externalAddress: JAEGER_ADDRESS,
+    oidc: {
+      clientId: 'jaeger',
+      clientSecret: JAEGER_CLIENT_SECRET,
     },
   };
 
@@ -280,30 +221,25 @@ function(
     metadata.new('default', ns='istio-system') +
     peerauthentication.mtls(true),
 
-    ns(namespace),
+    namespace.new() +
+    metadata.new(NAMESPACE),
   ] +
-
-  (if lets_encrypt_email != null then [
-     issuer.new(email=lets_encrypt_email) +
-     issuer.httpSolver(),
-   ] else []) +
-
-  cassandra(config) +
-  postgres(config) +
-  mssql(config) +
-  prometheus(config) +
-  loki(config) +
-  promtail(config) +
-  nodeExporter(config) +
-  kubeStateMetrics(config) +
+  cassandra(globalCfg, cassandraCfg) +
+  postgres(globalCfg, postgresCfg) +
+  mssql(globalCfg, mssqlCfg) +
+  prometheus(globalCfg, prometheusCfg) +
+  loki(globalCfg, lokiCfg, cassandraCfg) +
+  promtail(globalCfg, promtailCfg) +
+  nodeExporter(globalCfg) +
+  kubeStateMetrics(globalCfg) +
   istioOidc(
-    NAMESPACE=namespace,
+    NAMESPACE=NAMESPACE,
     VERSION='latest',
-    REPLICAS=istio_oidc_replicas,
-    AFFINITY=affinity,
-    TOLERATIONS=tolerations,
+    REPLICAS=ISTIO_OIDC_REPLICAS,
+    AFFINITY=pod.affinity(AFFINITY).spec.affinity,
+    TOLERATIONS=pod.tolerations(TOLERATIONS).spec.tolerations,
   ) +
-  keycloak(config) +
-  grafana(config) +
-  kiali(config) +
-  jaeger(config)
+  keycloak(globalCfg, keycloakCfg, sqlCfg, grafanaCfg, kialiCfg, jaegerCfg) +
+  grafana(globalCfg, grafanaCfg, sqlCfg, keycloakCfg) +
+  kiali(globalCfg, kialiCfg, grafanaCfg, jaegerCfg) +
+  jaeger(globalCfg, jaegerCfg, cassandraCfg)

@@ -18,16 +18,13 @@ local virtualservice = import '../templates/virtualservice.jsonnet';
 local app = 'keycloak';
 local image = 'jboss/keycloak:9.0.0';
 
-function(config)
-  local ns = config.keycloak.namespace;
-  local keycloak = config.keycloak;
-
+function(global, keycloak, sql)
   [
     serviceaccount.new() +
-    metadata.new(app, ns=ns),
+    metadata.new(app, global.namespace),
 
     role.new(cluster=true) +
-    metadata.new('%s-%s' % [app, ns]) +
+    metadata.new(app + '-' + global.namespace) +
     role.rule({
       apiGroups: [''],
       verbs: ['get', 'list'],
@@ -35,54 +32,54 @@ function(config)
     }),
 
     rolebinding.new(cluster=true) +
-    metadata.new('%s-%s' % [app, ns]) +
-    rolebinding.role('%s-%s' % [app, ns], cluster=true) +
-    rolebinding.subject('ServiceAccount', app, ns=ns),
+    metadata.new(app + '-' + global.namespace) +
+    rolebinding.role(app + '-' + global.namespace, cluster=true) +
+    rolebinding.subject('ServiceAccount', app, global.namespace),
   ] +
-  (if keycloak.tls.acme then [certificate.new(keycloak.externalAddress)] else []) +
+  (if global.tls then [certificate.new(keycloak.externalAddress)] else []) +
   [
-    gateway.new(keycloak.externalAddress, tls=keycloak.tls.enabled) +
-    metadata.new(app, ns=ns),
+    gateway.new(keycloak.externalAddress, tls=global.tls) +
+    metadata.new(app, global.namespace),
 
     virtualservice.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     virtualservice.host(keycloak.externalAddress) +
     virtualservice.gateway(app) +
     virtualservice.route(app),
 
     destinationrule.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     service.port(8080),
 
     destinationrule.new(app + '-gossip') +
-    metadata.new(app + '-gossip', ns=ns) +
+    metadata.new(app + '-gossip', global.namespace) +
     destinationrule.mtls(false) +
     destinationrule.circuitBreaker(),
 
     service.new(app, headless=true) +
-    metadata.new(app + '-gossip', ns=ns) +
+    metadata.new(app + '-gossip', global.namespace) +
     service.port(7600, name='tcp-gossip'),
 
     // TODO: Why doesn't it work when adding this and removing the excludeInboundPorts?
     //peerauthentication.new({ app: app }) +
-    //metadata.new(app, ns=ns) +
+    //metadata.new(app, global.namespace) +
     //peerauthentication.mtls(true) +
     //peerauthentication.mtls(false, 7600),
 
     configmap.new() +
-    metadata.new(app, ns=ns) +
-    configmap.data((import 'keycloak.env.jsonnet')(app, config).configmap),
+    metadata.new(app, global.namespace) +
+    configmap.data((import 'keycloak.env.jsonnet')(global, keycloak, sql).configmap),
 
     secret.new() +
-    metadata.new(app, ns=ns) +
-    secret.data((import 'keycloak.env.jsonnet')(app, config).secret),
+    metadata.new(app, global.namespace) +
+    secret.data((import 'keycloak.env.jsonnet')(global, keycloak, sql).secret),
 
     deployment.new(replicas=keycloak.replicas) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     deployment.pod(
       pod.new() +
       metadata.new(app) +
@@ -104,11 +101,11 @@ function(config)
       ) +
       pod.serviceAccount(app) +
       pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
-      pod.affinity(keycloak.affinity) +
-      pod.tolerations(keycloak.tolerations)
+      pod.affinity(global.affinity) +
+      pod.tolerations(global.tolerations)
     ),
 
     openidprovider.new('http://keycloak:8080/auth/realms/master') +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     openidprovider.roleMapping('realm_access.roles'),
   ]

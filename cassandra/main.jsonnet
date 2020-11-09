@@ -10,35 +10,31 @@ local statefulset = import '../templates/statefulset.jsonnet';
 local app = 'cassandra';
 local image = 'cassandra:3.11.6';
 
-function(config)
-  local ns = config.cassandra.namespace;
-  local cassandra = config.cassandra;
-  local vip = cassandra.vip;
-
+function(global, cassandra)
   if cassandra.bundled
   then [
     destinationrule.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(app, headless=true) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     service.port(9042, name='tcp-cql'),
 
     destinationrule.new('%s-gossip' % app) +
-    metadata.new('%s-gossip' % app, ns=ns) +
+    metadata.new('%s-gossip' % app, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(app, headless=true, onlyReady=false) +
-    metadata.new('%s-gossip' % app, ns=ns) +
+    metadata.new('%s-gossip' % app, global.namespace) +
     service.port(7000, name='tcp-gossip'),
 
     configmap.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     configmap.data((import 'cassandra.env.jsonnet')(app)),
 
     statefulset.new(replicas=cassandra.replicas, parallel=true, service='%s-gossip' % app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     statefulset.pod(
       pod.new() +
       metadata.new(app) +
@@ -69,16 +65,16 @@ function(config)
       pod.volumeEmptyDir('config', '1Mi') +
       pod.volumeEmptyDir('tmp', '1Mi') +
       pod.securityContext({ runAsUser: 999, runAsGroup: 999 }) +
-      pod.affinity(cassandra.affinity) +
-      pod.tolerations(cassandra.tolerations)
+      pod.affinity(global.affinity) +
+      pod.tolerations(global.tolerations)
     ) +
     statefulset.volumeClaim('data', '50Gi'),
   ]
   else [
     serviceentry.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     serviceentry.host(app) +
-    serviceentry.vip(vip.internalAddress) +
-    serviceentry.endpoint(vip.externalAddress) +
-    serviceentry.port(app, vip.port),
+    serviceentry.vip(cassandra.internalAddress) +
+    serviceentry.endpoint(cassandra.externalAddress) +
+    serviceentry.port(app, cassandra.port),
   ]

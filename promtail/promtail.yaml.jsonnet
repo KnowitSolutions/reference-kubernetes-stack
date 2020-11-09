@@ -1,6 +1,4 @@
-function(config) {
-  local promtail = config.promtail,
-
+function(promtail) {
   server: {
     http_listen_port: 8080,
   },

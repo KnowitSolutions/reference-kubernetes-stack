@@ -7,16 +7,14 @@ local service = import '../templates/service.jsonnet';
 local app = 'node-exporter';
 local image = 'prom/node-exporter:v1.0.1';
 
-function(config)
-  local ns = config.nodeExporter.namespace;
-
+function(global)
   [
     service.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     service.port(9100, name='http'),
 
     daemonset.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     daemonset.pod(
       pod.new() +
       metadata.annotations({

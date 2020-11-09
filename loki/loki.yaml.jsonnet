@@ -1,6 +1,4 @@
-function(config) {
-  local cassandra = config.loki.cassandra,
-
+function(loki, cassandra) {
   auth_enabled: false,
 
   server: {
@@ -43,7 +41,7 @@ function(config) {
     cassandra: {
       addresses: cassandra.address,
       port: cassandra.port,
-      keyspace: cassandra.keyspace,
+      keyspace: loki.keyspace,
       auth: cassandra.username != null && cassandra.password != null,
       SSL: cassandra.tls.enabled,
       host_verification: cassandra.tls.hostnameValidation,

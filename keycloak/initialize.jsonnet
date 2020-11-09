@@ -11,19 +11,16 @@ local appKiali = 'kiali';
 local appJaeger = 'jaeger';
 local image = 'jboss/keycloak:9.0.0';
 
-function(config)
-  local ns = config.keycloak.namespace;
-  local keycloak = config.keycloak;
-
+function(global, keycloak, grafana, kiali, jaeger)
   [
     configmap.new() +
-    metadata.new(appInit, ns=ns) +
+    metadata.new(appInit, global.namespace) +
     configmap.data({
-      'initialize.sh': (import 'initialize.sh.jsonnet')(config),
+      'initialize.sh': (import 'initialize.sh.jsonnet')(global, grafana, kiali, jaeger),
     }),
 
     job.new() +
-    metadata.new(appInit, ns=ns) +
+    metadata.new(appInit, global.namespace) +
     job.pod(
       pod.new() +
       metadata.new(appInit) +
@@ -40,7 +37,7 @@ function(config)
       ) +
       pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
       pod.volumeConfigMap('script', appInit, defaultMode=std.parseOctal('555')) +
-      pod.affinity(keycloak.affinity) +
-      pod.tolerations(keycloak.tolerations)
+      pod.affinity(global.affinity) +
+      pod.tolerations(global.tolerations)
     ),
   ]

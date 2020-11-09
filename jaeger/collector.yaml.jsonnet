@@ -1,10 +1,8 @@
-function(config) {
-  local cassandra = config.jaeger.cassandra,
-
+function(jaeger, cassandra) {
   cassandra: {
     servers: cassandra.address,
     port: cassandra.port,
-    keyspace: cassandra.keyspace,
+    keyspace: jaeger.keyspace,
     tls: {
       enabled: cassandra.tls.enabled,
       'verify-host': cassandra.tls.hostnameValidation,

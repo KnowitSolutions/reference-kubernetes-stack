@@ -10,26 +10,23 @@ local app = 'jaeger';
 local collectorApp = 'jaeger-collector';
 local image = 'jaegertracing/jaeger-collector:1.19.2';
 
-function(config)
-  local ns = config.jaeger.namespace;
-  local jaeger = config.jaeger;
-
+function(global, jaeger)
   [
     destinationrule.new(collectorApp) +
-    metadata.new(collectorApp, ns=ns) +
+    metadata.new(collectorApp, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(collectorApp) +
-    metadata.new(collectorApp, ns=ns) +
+    metadata.new(collectorApp, global.namespace) +
     service.port(9411) +
     service.port(14269, name='http-telemetry'),
 
     peerauthentication.new({ app: collectorApp }) +
-    metadata.new(collectorApp, ns=ns) +
+    metadata.new(collectorApp, global.namespace) +
     peerauthentication.mtls(false, 9411),
 
     deployment.new(replicas=jaeger.replicas) +
-    metadata.new(collectorApp, ns=ns) +
+    metadata.new(collectorApp, global.namespace) +
     deployment.pod(
       pod.new() +
       metadata.annotations({
@@ -53,7 +50,7 @@ function(config)
       ) +
       pod.volumeConfigMap('config', configmap=app) +
       pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
-      pod.affinity(jaeger.affinity) +
-      pod.tolerations(jaeger.tolerations)
+      pod.affinity(global.affinity) +
+      pod.tolerations(global.tolerations)
     ),
   ]

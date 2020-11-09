@@ -78,51 +78,52 @@ local metadata = import 'metadata.jsonnet';
     },
   },
 
-  newAffinity(labels):: {
-    nodeAffinity: {
-      requiredDuringSchedulingIgnoredDuringExecution: {
-        nodeSelectorTerms: [{
-          matchExpressions: [
-            {
-              local split = std.splitLimit(label, '=', 1),
-              assert std.length(split) == 2 : 'Invalid label: %s' % label,
-              key: split[0],
-              operator: 'In',
-              values: [split[1]],
-            }
-            for label in labels
-          ],
-        }],
+
+  affinity(labels):: {
+    spec+: {
+      affinity: {
+        nodeAffinity: {
+          requiredDuringSchedulingIgnoredDuringExecution: {
+            nodeSelectorTerms: [{
+              matchExpressions: [
+                {
+                  local split = std.splitLimit(label, '=', 1),
+                  assert std.length(split) == 2 : 'Invalid label: %s' % label,
+                  key: split[0],
+                  operator: 'In',
+                  values: [split[1]],
+                }
+                for label in labels
+              ],
+            }],
+          },
+        },
       },
     },
   },
 
-  affinity(affinity):: {
-    spec+: {
-      affinity: affinity,
-    },
-  },
-
-  newTolerations(tolerations):: [
-    {
-      local left = std.splitLimit(toleration, '=', 1),
-      local right = std.splitLimit(left[1], ':', 1),
-      assert std.length(left) == 2 : 'Invalid toleration: %s' % toleration,
-      assert std.length(right) == 2 : 'Invalid toleration: %s' % toleration,
-      local split = [left[0], right[0], right[1]],
-      key: split[0],
-      operator: 'Equal',
-      value: split[1],
-      effect: split[2],
-    }
-    for toleration in tolerations
-  ],
 
   tolerations(tolerations=[], anything=false):: {
     spec+: {
       tolerations: if anything
-      then [{ effect: 'NoExecute', operator: 'Exists' }, { effect: 'NoSchedule', operator: 'Exists' }]
-      else tolerations,
+      then [
+        { effect: 'NoExecute', operator: 'Exists' },
+        { effect: 'NoSchedule', operator: 'Exists' },
+      ]
+      else [
+        {
+          local left = std.splitLimit(toleration, '=', 1),
+          local right = std.splitLimit(left[1], ':', 1),
+          assert std.length(left) == 2 : 'Invalid toleration: %s' % toleration,
+          assert std.length(right) == 2 : 'Invalid toleration: %s' % toleration,
+          local split = [left[0], right[0], right[1]],
+          key: split[0],
+          operator: 'Equal',
+          value: split[1],
+          effect: split[2],
+        }
+        for toleration in tolerations
+      ],
     },
   },
 }

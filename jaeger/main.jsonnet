@@ -1,27 +1,20 @@
 local configmap = import '../templates/configmap.jsonnet';
 local metadata = import '../templates/metadata.jsonnet';
 local secret = import '../templates/secret.jsonnet';
-local collector = import 'collector.jsonnet';
-local query = import 'query.jsonnet';
-local scheme = import 'scheme.jsonnet';
 
 local app = 'jaeger';
 
-function(config)
-  local ns = config.jaeger.namespace;
-  local jaeger = config.jaeger;
-  local cassandra = config.jaeger.cassandra;
-
+function(global, jaeger, cassandra)
   [
     configmap.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     configmap.data({
-      'collector.yaml': std.manifestYamlDoc((import 'collector.yaml.jsonnet')(config)),
-      'query.yaml': std.manifestYamlDoc((import 'query.yaml.jsonnet')(config)),
+      'collector.yaml': std.manifestYamlDoc((import 'collector.yaml.jsonnet')(jaeger, cassandra)),
+      'query.yaml': std.manifestYamlDoc((import 'query.yaml.jsonnet')(jaeger, cassandra)),
     }),
 
     secret.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     secret.data({
       [if cassandra.username != null then 'CASSANDRA_USERNAME']: cassandra.username,
       [if cassandra.password != null then 'CASSANDRA_PASSWORD']: cassandra.password,
@@ -30,6 +23,6 @@ function(config)
     }),
   ] +
 
-  scheme(config) +
-  collector(config) +
-  query(config)
+  (import 'scheme.jsonnet')(global, jaeger, cassandra) +
+  (import 'collector.jsonnet')(global, jaeger) +
+  (import 'query.jsonnet')(global, jaeger)

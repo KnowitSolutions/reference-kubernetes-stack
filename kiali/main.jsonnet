@@ -17,21 +17,17 @@ local virtualservice = import '../templates/virtualservice.jsonnet';
 local app = 'kiali';
 local image = 'quay.io/kiali/kiali:v1.18.1';
 
-function(config)
-  local ns = config.kiali.namespace;
-  local kiali = config.kiali;
-  local keycloak = config.keycloak;
-
+function(global, kiali, grafana, jaeger)
   [
     destinationrule.new('istiod.istio-system.svc.cluster.local') +
-    metadata.new('istiod.istio-system', ns=ns) +
+    metadata.new('istiod.istio-system', global.namespace) +
     destinationrule.mtls(false),
 
     serviceaccount.new() +
-    metadata.new(app, ns=ns),
+    metadata.new(app, global.namespace),
 
     role.new(cluster=true) +
-    metadata.new('%s-%s' % [app, ns]) +
+    metadata.new(app + '-' + global.namespace) +
     role.rule({
       apiGroups: [''],
       verbs: ['get', 'list', 'watch'],
@@ -83,49 +79,49 @@ function(config)
     }),
 
     rolebinding.new(cluster=true) +
-    metadata.new('%s-%s' % [app, ns]) +
-    rolebinding.role('%s-%s' % [app, ns], cluster=true) +
-    rolebinding.subject('ServiceAccount', app, ns=ns),
+    metadata.new(app + '-' + global.namespace) +
+    rolebinding.role(app + '-' + global.namespace, cluster=true) +
+    rolebinding.subject('ServiceAccount', app, global.namespace),
   ] +
-  (if kiali.tls.acme then [certificate.new(kiali.externalAddress)] else []) +
+  (if global.tls then [certificate.new(kiali.externalAddress)] else []) +
   [
-    gateway.new(kiali.externalAddress, tls=kiali.tls.enabled) +
-    metadata.new(app, ns=ns),
+    gateway.new(kiali.externalAddress, tls=global.tls) +
+    metadata.new(app, global.namespace),
 
     virtualservice.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     virtualservice.host(kiali.externalAddress) +
     virtualservice.gateway(app) +
     virtualservice.route(app, port=20001),
 
     accesspolicy.new(app, 'keycloak') +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     accesspolicy.credentials(app),
 
     secret.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     secret.data({
       clientID: kiali.oidc.clientId,
       clientSecret: kiali.oidc.clientSecret,
     }),
 
     destinationrule.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     service.port(20001) +
     service.port(9090, name='http-telemetry'),
 
     configmap.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     configmap.data({
-      'config.yaml': std.manifestYamlDoc((import 'kiali.yaml.jsonnet')(config)),
+      'config.yaml': std.manifestYamlDoc((import 'kiali.yaml.jsonnet')(global, grafana, jaeger)),
     }),
 
     deployment.new(replicas=kiali.replicas) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     deployment.pod(
       pod.new() +
       metadata.annotations({
@@ -146,7 +142,7 @@ function(config)
       pod.serviceAccount(app) +
       pod.volumeConfigMap('config', configmap=app) +
       pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
-      pod.affinity(kiali.affinity) +
-      pod.tolerations(kiali.tolerations)
+      pod.affinity(global.affinity) +
+      pod.tolerations(global.tolerations)
     ),
   ]

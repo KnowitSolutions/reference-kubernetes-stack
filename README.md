@@ -73,21 +73,21 @@ For local development installations the following command should be a good start
 
 ```
 jsonnet \
-  --tla-code cassandra_replicas=1 \
-  --tla-str postgres_address='postgres.default' \
-  --tla-str postgres_username='postgres' \
-  --tla-str postgres_password='postgres' \
-  --tla-code prometheus_replicas=1 \
-  --tla-code loki_replicas=1 \
-  --tla-code keycloak_replicas=1 \
-  --tla-str keycloak_address='keycloak.localhost' \
-  --tla-code istio_oidc_replicas=1 \
-  --tla-code grafana_replicas=1 \
-  --tla-str grafana_address='grafana.localhost' \
-  --tla-code kiali_replicas=1 \
-  --tla-str kiali_address='kiali.localhost' \
-  --tla-code jaeger_replicas=1 \
-  --tla-str jaeger_address='jaeger.localhost' \
+  --tla-code CASSANDRA_REPLICAS=1 \
+  --tla-str POSTGRES_ADDRESS='postgres.default' \
+  --tla-str POSTGRES_USERNAME='postgres' \
+  --tla-str POSTGRES_PASSWORD='postgres' \
+  --tla-code PROMETHEUS_REPLICAS=1 \
+  --tla-code LOKI_REPLICAS=1 \
+  --tla-code KEYCLOAK_REPLICAS=1 \
+  --tla-str KEYCLOAK_ADDRESS='keycloak.localhost' \
+  --tla-code ISTIO_OIDC_REPLICAS=1 \
+  --tla-code GRAFANA_REPLICAS=1 \
+  --tla-str GRAFANA_ADDRESS='grafana.localhost' \
+  --tla-code KIALI_REPLICAS=1 \
+  --tla-str KIALI_ADDRESS='kiali.localhost' \
+  --tla-code JAEGER_REPLICAS=1 \
+  --tla-str JAEGER_ADDRESS='jaeger.localhost' \
   --jpath vendor \
   --yaml-stream \
   main.jsonnet | kubectl apply --filename -

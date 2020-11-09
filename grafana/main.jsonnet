@@ -16,27 +16,23 @@ local virtualservice = import '../templates/virtualservice.jsonnet';
 local app = 'grafana';
 local image = 'grafana/grafana:7.1.5';
 
-// TODO: Switch to Istio OIDC
-function(config)
-  local ns = config.grafana.namespace;
-  local grafana = config.grafana;
-  local keycloak = config.keycloak;
-  local postgres = grafana.postgres;
-  local reduce = function(arr) std.foldl(function(a, b) a + b, arr, {});
+local reduce = function(arr) std.foldl(function(a, b) a + b, arr, {});
 
-  (if grafana.tls.acme then [certificate.new(grafana.externalAddress)] else []) +
+// TODO: Switch to Istio OIDC
+function(global, grafana, sql, keycloak)
+  (if global.tls then [certificate.new(grafana.externalAddress)] else []) +
   [
-    gateway.new(grafana.externalAddress, tls=grafana.tls.enabled) +
-    metadata.new(app, ns=ns),
+    gateway.new(grafana.externalAddress, tls=global.tls) +
+    metadata.new(app, global.namespace),
 
     virtualservice.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     virtualservice.host(grafana.externalAddress) +
     virtualservice.gateway(app) +
     virtualservice.route(app),
 
     authorizationpolicy.new({ app: app }) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     authorizationpolicy.rule(
       authorizationpolicy.from({ principals: ['*/ns/istio-system/sa/istio-ingressgateway-service-account'] }) +
       authorizationpolicy.to({ paths: ['/metrics'] })
@@ -44,17 +40,17 @@ function(config)
     authorizationpolicy.allow(false),
 
     destinationrule.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     service.port(3000),
 
     configmap.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     configmap.data({
-      'grafana.ini': std.manifestIni((import 'grafana.ini.jsonnet')(config)),
+      'grafana.ini': std.manifestIni((import 'grafana.ini.jsonnet')(global, grafana, sql, keycloak)),
       'datasources.yaml': importstr 'datasources.yaml',
       'dashboards.yaml': importstr 'dashboards.yaml',
     }),
@@ -63,23 +59,23 @@ function(config)
     local name = std.substr(key, 0, std.length(key) - 5);
     local value = kubernetesMixin.grafanaDashboards[key];
     configmap.new() +
-    metadata.new(app + '-dashboard-' + name, ns=ns) +
+    metadata.new(app + '-dashboard-' + name, global.namespace) +
     configmap.data({ [key]: std.manifestJson(value) })
     for key in if grafana.dashboards then std.objectFields(kubernetesMixin.grafanaDashboards) else []
   ] + [
 
     secret.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     secret.data({
-      [if postgres.enabled then 'GF_DATABASE_USER']: postgres.username,
-      [if postgres.enabled then 'GF_DATABASE_PASSWORD']: postgres.password,
+      [if sql.vendor == 'postgres' then 'GF_DATABASE_USER']: sql.username,
+      [if sql.vendor == 'postgres' then 'GF_DATABASE_PASSWORD']: sql.password,
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID: grafana.oidc.clientId,
       GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: grafana.oidc.clientSecret,
     }),
 
-    (if postgres.enabled then deployment else statefulset).new(replicas=grafana.replicas) +
-    metadata.new(app, ns=ns) +
-    (if postgres.enabled then deployment else statefulset).pod(
+    (if sql.vendor == 'postgres' then deployment else statefulset).new(replicas=grafana.replicas) +
+    metadata.new(app, global.namespace) +
+    (if sql.vendor == 'postgres' then deployment else statefulset).pod(
       pod.new() +
       metadata.annotations({
         'prometheus.io/scrape': 'true',
@@ -113,10 +109,10 @@ function(config)
         pod.volumeConfigMap('dashboard-' + name, configmap=app + '-dashboard-' + name, optional=true)
         for key in std.objectFields(kubernetesMixin.grafanaDashboards)
       ]) +
-      (if postgres.enabled then pod.volumeEmptyDir('data', '1Mi') else {}) +
+      (if sql.vendor == 'postgres' then pod.volumeEmptyDir('data', '1Mi') else {}) +
       pod.securityContext({ runAsUser: 472, runAsGroup: 472 }) +
-      pod.affinity(grafana.affinity) +
-      pod.tolerations(grafana.tolerations)
+      pod.affinity(global.affinity) +
+      pod.tolerations(global.tolerations)
     ) +
-    (if !postgres.enabled then statefulset.volumeClaim('data', '50Mi') else {}),
+    (if sql.vendor != 'postgres' then statefulset.volumeClaim('data', '50Mi') else {}),
   ]

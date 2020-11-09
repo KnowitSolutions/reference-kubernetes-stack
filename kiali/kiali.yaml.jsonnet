@@ -1,7 +1,4 @@
-function(config) {
-  local grafana = config.grafana,
-  local jaeger = config.jaeger,
-
+function(global, grafana, jaeger) {
   server: { port: 20001 },
   auth: { strategy: 'anonymous' },
   deployment: { accessible_namespaces: ['**'] },
@@ -9,17 +6,17 @@ function(config) {
 
   external_services: {
     grafana: {
-      url: '%s://%s' % [grafana.externalProtocol, grafana.externalAddress],
+      url: '%s://%s' % [if global.tls then 'https' else 'http', grafana.externalAddress],
     },
     istio: {
       url_service_version: 'http://istiod.istio-system:15014/version',
     },
     prometheus: {
-      url: 'http://prometheus:9090',
+      url: 'http://prometheus.%s:9090' % global.namespace,
     },
     tracing: {
-      in_cluster_url: 'http://jaeger-query.%s:16686' % jaeger.namespace,
-      url: '%s://%s' % [jaeger.externalProtocol, jaeger.externalAddress],
+      in_cluster_url: 'http://jaeger-query.%s:16686' % global.namespace,
+      url: '%s://%s' % [if global.tls then 'https' else 'http', jaeger.externalAddress],
     },
   },
 }

@@ -14,37 +14,33 @@ local app = 'jaeger';
 local queryApp = 'jaeger-query';
 local queryImage = 'jaegertracing/jaeger-query:1.19.2';
 
-function(config)
-  local ns = config.jaeger.namespace;
-  local jaeger = config.jaeger;
-  local keycloak = config.keycloak;
-
-  (if jaeger.tls.acme then [certificate.new(jaeger.externalAddress)] else []) +
+function(global, jaeger)
+  (if global.tls then [certificate.new(jaeger.externalAddress)] else []) +
   [
-    gateway.new(jaeger.externalAddress, tls=jaeger.tls.enabled) +
-    metadata.new(app, ns=ns),
+    gateway.new(jaeger.externalAddress, tls=global.tls) +
+    metadata.new(app, global.namespace),
 
     virtualservice.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     virtualservice.host(jaeger.externalAddress) +
     virtualservice.gateway(app) +
     virtualservice.route(queryApp, port=16686),
 
     accesspolicy.new(app, 'keycloak') +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     accesspolicy.credentials(app),
 
     destinationrule.new(queryApp) +
-    metadata.new(queryApp, ns=ns) +
+    metadata.new(queryApp, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(queryApp) +
-    metadata.new(queryApp, ns=ns) +
+    metadata.new(queryApp, global.namespace) +
     service.port(16686) +
     service.port(16687, name='http-telemetry'),
 
     deployment.new(replicas=jaeger.replicas) +
-    metadata.new(queryApp, ns=ns) +
+    metadata.new(queryApp, global.namespace) +
     deployment.pod(
       pod.new() +
       metadata.annotations({
@@ -71,7 +67,7 @@ function(config)
       ) +
       pod.volumeConfigMap('config', configmap=app) +
       pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
-      pod.affinity(jaeger.affinity) +
-      pod.tolerations(jaeger.tolerations)
+      pod.affinity(global.affinity) +
+      pod.tolerations(global.tolerations)
     ),
   ]

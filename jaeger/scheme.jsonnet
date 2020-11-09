@@ -7,14 +7,10 @@ local app = 'jaeger';
 local appSchema = 'jaeger-schema';
 local image = 'jaegertracing/jaeger-cassandra-schema:1.19.2';
 
-function(config)
-  local ns = config.jaeger.namespace;
-  local jaeger = config.jaeger;
-  local cassandra = jaeger.cassandra;
-
+function(global, jaeger, cassandra)
   [
     job.new() +
-    metadata.new(appSchema, ns=ns) +
+    metadata.new(appSchema, global.namespace) +
     job.pod(
       pod.new() +
       metadata.new(appSchema) +
@@ -31,7 +27,7 @@ function(config)
           [if cassandra.tls.enabled then 'CQLSH_SSL']: '--ssl',
           [if cassandra.tls.enabled then 'SSL_VERSION']: 'TLSv1_2',
           [if cassandra.tls.enabled then 'SSL_VALIDATE']: std.toString(cassandra.tls.hostnameValidation),
-          KEYSPACE: cassandra.keyspace,
+          KEYSPACE: jaeger.keyspace,
           TRACE_TTL: '2592000',
         }) +
         container.resources('100m', '100m', '64Mi', '64Mi') +
@@ -40,7 +36,7 @@ function(config)
       ) +
       pod.volumeEmptyDir('tmp', '1Mi') +
       pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
-      pod.affinity(jaeger.affinity) +
-      pod.tolerations(jaeger.tolerations)
+      pod.affinity(global.affinity) +
+      pod.tolerations(global.tolerations)
     ),
   ]

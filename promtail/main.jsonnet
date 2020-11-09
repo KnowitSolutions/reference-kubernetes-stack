@@ -11,16 +11,13 @@ local serviceaccount = import '../templates/serviceaccount.jsonnet';
 local app = 'promtail';
 local image = 'grafana/promtail:1.6.1';
 
-function(config)
-  local ns = config.promtail.namespace;
-  local promtail = config.promtail;
-
+function(global, promtail)
   [
     serviceaccount.new() +
-    metadata.new(app, ns=ns),
+    metadata.new(app, global.namespace),
 
     role.new(cluster=true) +
-    metadata.new('%s-%s' % [app, ns]) +
+    metadata.new(app + '-' + global.namespace) +
     role.rule({
       apiGroups: [''],
       verbs: ['get', 'list', 'watch'],
@@ -28,22 +25,22 @@ function(config)
     }),
 
     rolebinding.new(cluster=true) +
-    metadata.new('%s-%s' % [app, ns]) +
-    rolebinding.role('%s-%s' % [app, ns], cluster=true) +
-    rolebinding.subject('ServiceAccount', app, ns=ns),
+    metadata.new(app + '-' + global.namespace) +
+    rolebinding.role(app + '-' + global.namespace, cluster=true) +
+    rolebinding.subject('ServiceAccount', app, global.namespace),
 
     service.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     service.port(8080, name='http-telemetry'),
 
     configmap.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     configmap.data({
-      'promtail.yaml': std.manifestYamlDoc((import 'promtail.yaml.jsonnet')(config)),
+      'promtail.yaml': std.manifestYamlDoc((import 'promtail.yaml.jsonnet')(promtail)),
     }),
 
     daemonset.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     daemonset.pod(
       pod.new() +
       metadata.annotations({

@@ -1,6 +1,3 @@
-local initialize = import 'initialize.jsonnet';
-local keycloak = import 'keycloak.jsonnet';
-
-function(config)
-  keycloak(config) +
-  initialize(config)
+function(global, keycloak, sql, grafana, kiali, jaeger)
+  (import 'keycloak.jsonnet')(global, keycloak, sql) +
+  (import 'initialize.jsonnet')(global, keycloak, grafana, kiali, jaeger)

@@ -11,16 +11,13 @@ local serviceaccount = import '../templates/serviceaccount.jsonnet';
 local app = 'kube-state-metrics';
 local image = 'quay.io/coreos/kube-state-metrics:v1.9.5';
 
-function(config)
-  local ns = config.kubeStateMetrics.namespace;
-  local kubeStateMetrics = config.kubeStateMetrics;
-
+function(global)
   [
     serviceaccount.new() +
-    metadata.new(app, ns=ns),
+    metadata.new(app, global.namespace),
 
     role.new(cluster=true) +
-    metadata.new('%s-%s' % [app, ns]) +
+    metadata.new(app + '-' + global.namespace) +
     role.rule({
       apiGroups: [''],
       verbs: ['list', 'watch'],
@@ -134,21 +131,21 @@ function(config)
     }),
 
     rolebinding.new(cluster=true) +
-    metadata.new('%s-%s' % [app, ns]) +
-    rolebinding.role('%s-%s' % [app, ns], cluster=true) +
-    rolebinding.subject('ServiceAccount', app, ns=ns),
+    metadata.new(app + '-' + global.namespace) +
+    rolebinding.role(app + '-' + global.namespace, cluster=true) +
+    rolebinding.subject('ServiceAccount', app, global.namespace),
 
     destinationrule.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(app) +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     service.port(8080) +
     service.port(8081, name='http-telemetry'),
 
     deployment.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     deployment.pod(
       pod.new() +
       metadata.annotations({
@@ -166,7 +163,7 @@ function(config)
       ) +
       pod.serviceAccount(app) +
       pod.securityContext({ runAsUser: 65534, runAsGroup: 65534 }) +
-      pod.affinity(kubeStateMetrics.affinity) +
-      pod.tolerations(kubeStateMetrics.tolerations)
+      pod.affinity(global.affinity) +
+      pod.tolerations(global.tolerations)
     ),
   ]

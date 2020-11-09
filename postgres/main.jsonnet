@@ -3,16 +3,12 @@ local serviceentry = import '../templates/serviceentry.jsonnet';
 
 local app = 'postgres';
 
-function(config)
-  local ns = config.postgres.namespace;
-  local postgres = config.postgres;
-  local vip = postgres.vip;
-
-  if vip.enabled then [
+function(global, postgres)
+  if postgres.externalAddress != null then [
     serviceentry.new() +
-    metadata.new(app, ns=ns) +
+    metadata.new(app, global.namespace) +
     serviceentry.host(app) +
-    serviceentry.vip(vip.internalAddress) +
-    serviceentry.endpoint(vip.externalAddress) +
-    serviceentry.port(app, vip.port),
+    serviceentry.vip(postgres.internalAddress) +
+    serviceentry.endpoint(postgres.externalAddress) +
+    serviceentry.port(app, postgres.port),
   ] else []

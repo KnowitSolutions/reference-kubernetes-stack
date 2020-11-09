@@ -1,4 +1,4 @@
-function(config) |||
+function(global, grafana, kiali, jaeger) |||
   #!/bin/bash
   set -e
   export PATH="/opt/jboss/keycloak/bin:$PATH"
@@ -59,7 +59,7 @@ function(config) |||
 
   curl --request POST --silent --fail http://localhost:15020/quitquitquit
 ||| % {
-  grafanaUrl: '%s://%s' % [config.grafana.externalProtocol, config.grafana.externalAddress],
-  kialiUrl: '%s://%s' % [config.kiali.externalProtocol, config.kiali.externalAddress],
-  jaegerUrl: '%s://%s' % [config.jaeger.externalProtocol, config.jaeger.externalAddress],
+  grafanaUrl: '%s://%s' % [if global.tls then 'https' else 'http', grafana.externalAddress],
+  kialiUrl: '%s://%s' % [if global.tls then 'https' else 'http', kiali.externalAddress],
+  jaegerUrl: '%s://%s' % [if global.tls then 'https' else 'http', jaeger.externalAddress],
 }
