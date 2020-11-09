@@ -63,6 +63,6 @@ function(config) {
   },
 
   chunk_store_config: {
-    max_look_back_period: '672h',  // TODO: This is probably wrong, as default is documented as 30s. Might cause slowdowns?
+    max_look_back_period: '672h',
   },
 }

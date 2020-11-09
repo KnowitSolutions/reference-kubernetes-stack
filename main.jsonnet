@@ -37,7 +37,7 @@ function(
   cassandra_password=null,
   cassandra_tls=false,
   cassandra_tls_hostname_validation=true,
-  cassandra_timeout='10s',  // TODO: Why is this so high? 1s ought to be enough
+  cassandra_timeout='1s',
 
   postgres_vip='10.0.10.2',
   postgres_address=null,
