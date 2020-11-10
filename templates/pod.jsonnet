@@ -59,6 +59,25 @@ local metadata = import 'metadata.jsonnet';
     },
   },
 
+  volumeSecret(name, secret, items=null, defaultMode=null, optional=false):: {
+    spec+: {
+      volumes+: [
+        {
+          name: name,
+          secret: {
+            secretName: secret,
+            [if items != null then 'items']: [
+              { key: key, path: items[key] }
+              for key in std.objectFields(items)
+            ],
+            [if defaultMode != null then 'defaultMode']: defaultMode,
+            optional: optional,
+          },
+        },
+      ],
+    },
+  },
+
   serviceAccount(serviceAccount):: {
     spec+: {
       serviceAccountName: serviceAccount,
