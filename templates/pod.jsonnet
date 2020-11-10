@@ -82,7 +82,7 @@ local metadata = import 'metadata.jsonnet';
   affinity(labels):: {
     spec+: {
       affinity: {
-        nodeAffinity: {
+        [if labels != [] then 'nodeAffinity']: {
           requiredDuringSchedulingIgnoredDuringExecution: {
             nodeSelectorTerms: [{
               matchExpressions: [
