@@ -84,7 +84,16 @@ function(global, grafana, sql, keycloak)
       pod.container(
         container.new(app, image) +
         container.port('http', 3000) +
-        container.envFrom(secret=app) +
+        container.env({
+          [if sql.vendor == 'postgres' then 'GF_DATABASE_USER']:
+            { secretKeyRef: { name: app, key: 'GF_DATABASE_USER' } },
+          [if sql.vendor == 'postgres' then 'GF_DATABASE_PASSWORD']:
+            { secretKeyRef: { name: app, key: 'GF_DATABASE_PASSWORD' } },
+          GF_AUTH_GENERIC_OAUTH_CLIENT_ID:
+            { secretKeyRef: { name: app, key: 'GF_AUTH_GENERIC_OAUTH_CLIENT_ID' } },
+          GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+            { secretKeyRef: { name: app, key: 'GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET' } },
+        }) +
         container.volume('config', '/etc/grafana') +
         container.volume('dashboards', '/etc/grafana/dashboards') +
         reduce([

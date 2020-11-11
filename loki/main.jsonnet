@@ -60,7 +60,12 @@ function(global, loki, cassandra)
           '-cassandra.password',
           '$(CASSANDRA_PASSWORD)',
         ]) +
-        container.envFrom(secret=app) +
+        container.env({
+          [if cassandra.username != null then 'CASSANDRA_USERNAME']:
+            { secretKeyRef: { name: app, key: 'CASSANDRA_USERNAME' } },
+          [if cassandra.password != null then 'CASSANDRA_PASSWORD']:
+            { secretKeyRef: { name: app, key: 'CASSANDRA_PASSWORD' } },
+        }) +
         container.port('http', 8080) +
         container.port('tcp-gossip', 7946) +
         container.port('tcp-grpc', 9095) +

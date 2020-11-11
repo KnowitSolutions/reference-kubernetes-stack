@@ -54,10 +54,13 @@ function(global, jaeger, cassandra)
       pod.container(
         container.new(schemaApp, schemaImage) +
         container.command(['sh', '-c', '/cassandra-schema/docker.sh && sleep infinity']) +
-        container.envFrom(secret=app) +
         container.env({
           MODE: 'prod',
           CQLSH_HOST: '%s %s' % [cassandra.address, cassandra.port],
+          [if cassandra.username != null then 'CASSANDRA_USERNAME']:
+            { secretKeyRef: { name: app, key: 'CASSANDRA_USERNAME' } },
+          [if cassandra.password != null then 'CASSANDRA_PASSWORD']:
+            { secretKeyRef: { name: app, key: 'CASSANDRA_PASSWORD' } },
           [if cassandra.tls.enabled then 'CQLSH_SSL']: '--ssl',
           [if cassandra.tls.enabled then 'SSL_VERSION']: 'TLSv1_2',
           [if cassandra.tls.enabled then 'SSL_VALIDATE']: std.toString(cassandra.tls.hostnameValidation),
@@ -71,8 +74,11 @@ function(global, jaeger, cassandra)
       pod.container(
         container.new(queryApp, queryImage) +
         container.args(['--config-file', '/etc/jaeger/query.yaml']) +
-        container.envFrom(secret=app) +
         container.env({
+          [if cassandra.username != null then 'CASSANDRA_USERNAME']:
+            { secretKeyRef: { name: app, key: 'CASSANDRA_USERNAME' } },
+          [if cassandra.password != null then 'CASSANDRA_PASSWORD']:
+            { secretKeyRef: { name: app, key: 'CASSANDRA_PASSWORD' } },
           SPAN_STORAGE_TYPE: 'cassandra',
           JAEGER_DISABLED: 'true',
         }) +
