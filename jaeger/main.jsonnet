@@ -23,6 +23,5 @@ function(global, jaeger, cassandra)
     }),
   ] +
 
-  (import 'scheme.jsonnet')(global, jaeger, cassandra) +
-  (import 'collector.jsonnet')(global, jaeger) +
-  (import 'query.jsonnet')(global, jaeger)
+  (import 'collector.jsonnet')(global, jaeger, cassandra) +
+  (import 'query.jsonnet')(global, jaeger, cassandra)

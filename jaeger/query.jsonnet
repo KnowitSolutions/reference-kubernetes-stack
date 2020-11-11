@@ -12,9 +12,11 @@ local virtualservice = import '../templates/virtualservice.jsonnet';
 
 local app = 'jaeger';
 local queryApp = 'jaeger-query';
+local schemaApp = 'jaeger-schema';
 local queryImage = 'jaegertracing/jaeger-query:1.19.2';
+local schemaImage = 'jaegertracing/jaeger-cassandra-schema:1.19.2';
 
-function(global, jaeger)
+function(global, jaeger, cassandra)
   (if global.tls then [certificate.new(jaeger.externalAddress)] else []) +
   [
     gateway.new(jaeger.externalAddress, tls=global.tls) +
@@ -50,6 +52,23 @@ function(global, jaeger)
         'json-log-key': 'msg',
       }) +
       pod.container(
+        container.new(schemaApp, schemaImage) +
+        container.command(['sh', '-c', '/cassandra-schema/docker.sh && sleep infinity']) +
+        container.envFrom(secret=app) +
+        container.env({
+          MODE: 'prod',
+          CQLSH_HOST: '%s %s' % [cassandra.address, cassandra.port],
+          [if cassandra.tls.enabled then 'CQLSH_SSL']: '--ssl',
+          [if cassandra.tls.enabled then 'SSL_VERSION']: 'TLSv1_2',
+          [if cassandra.tls.enabled then 'SSL_VALIDATE']: std.toString(cassandra.tls.hostnameValidation),
+          KEYSPACE: jaeger.keyspace,
+          TRACE_TTL: '2592000',
+        }) +
+        container.resources('100m', '100m', '64Mi', '64Mi') +
+        container.volume('tmp', '/tmp') +
+        container.securityContext({ readOnlyRootFilesystem: true })
+      ) +
+      pod.container(
         container.new(queryApp, queryImage) +
         container.args(['--config-file', '/etc/jaeger/query.yaml']) +
         container.envFrom(secret=app) +
@@ -66,6 +85,7 @@ function(global, jaeger)
         container.securityContext({ readOnlyRootFilesystem: true })
       ) +
       pod.volumeConfigMap('config', configmap=app) +
+      pod.volumeEmptyDir('tmp', '1Mi') +
       pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
       pod.affinity(global.affinity) +
       pod.tolerations(global.tolerations)

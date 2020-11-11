@@ -8,9 +8,11 @@ local service = import '../templates/service.jsonnet';
 
 local app = 'jaeger';
 local collectorApp = 'jaeger-collector';
-local image = 'jaegertracing/jaeger-collector:1.19.2';
+local schemaApp = 'jaeger-schema';
+local collectorImage = 'jaegertracing/jaeger-collector:1.19.2';
+local schemaImage = 'jaegertracing/jaeger-cassandra-schema:1.19.2';
 
-function(global, jaeger)
+function(global, jaeger, cassandra)
   [
     destinationrule.new(collectorApp) +
     metadata.new(collectorApp, global.namespace) +
@@ -36,7 +38,24 @@ function(global, jaeger)
         'json-log-key': 'msg',
       }) +
       pod.container(
-        container.new(collectorApp, image) +
+        container.new(schemaApp, schemaImage) +
+        container.command(['sh', '-c', '/cassandra-schema/docker.sh && sleep infinity']) +
+        container.envFrom(secret=app) +
+        container.env({
+          MODE: 'prod',
+          CQLSH_HOST: '%s %s' % [cassandra.address, cassandra.port],
+          [if cassandra.tls.enabled then 'CQLSH_SSL']: '--ssl',
+          [if cassandra.tls.enabled then 'SSL_VERSION']: 'TLSv1_2',
+          [if cassandra.tls.enabled then 'SSL_VALIDATE']: std.toString(cassandra.tls.hostnameValidation),
+          KEYSPACE: jaeger.keyspace,
+          TRACE_TTL: '2592000',
+        }) +
+        container.resources('100m', '100m', '64Mi', '64Mi') +
+        container.volume('tmp', '/tmp') +
+        container.securityContext({ readOnlyRootFilesystem: true })
+      ) +
+      pod.container(
+        container.new(collectorApp, collectorImage) +
         container.args(['--config-file', '/etc/jaeger/collector.yaml']) +
         container.envFrom(secret=app) +
         container.env({ SPAN_STORAGE_TYPE: 'cassandra' }) +
@@ -49,6 +68,7 @@ function(global, jaeger)
         container.securityContext({ readOnlyRootFilesystem: true })
       ) +
       pod.volumeConfigMap('config', configmap=app) +
+      pod.volumeEmptyDir('tmp', '1Mi') +
       pod.securityContext({ runAsUser: 1000, runAsGroup: 1000 }) +
       pod.affinity(global.affinity) +
       pod.tolerations(global.tolerations)
