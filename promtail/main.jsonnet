@@ -9,7 +9,7 @@ local service = import '../templates/service.jsonnet';
 local serviceaccount = import '../templates/serviceaccount.jsonnet';
 
 local app = 'promtail';
-local image = 'grafana/promtail:1.6.1';
+local image = 'grafana/promtail:2.0.0';
 
 function(global, promtail)
   [

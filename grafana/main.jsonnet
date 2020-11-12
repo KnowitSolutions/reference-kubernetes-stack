@@ -14,7 +14,7 @@ local statefulset = import '../templates/statefulset.jsonnet';
 local virtualservice = import '../templates/virtualservice.jsonnet';
 
 local app = 'grafana';
-local image = 'grafana/grafana:7.1.5';
+local image = 'grafana/grafana:7.3.2';
 
 local reduce = function(arr) std.foldl(function(a, b) a + b, arr, {});
 

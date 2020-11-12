@@ -8,7 +8,7 @@ local secret = import '../templates/secret.jsonnet';
 local service = import '../templates/service.jsonnet';
 
 local app = 'loki';
-local image = 'grafana/loki:1.6.1';
+local image = 'grafana/loki:2.0.0';
 
 function(global, loki, cassandra)
   [
