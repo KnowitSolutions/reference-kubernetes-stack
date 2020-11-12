@@ -39,8 +39,13 @@ create_client() {
   return $code
 }
 
+failed() {
+  echo 'Migration failed. Exiting...'
+  kill 1
+}
+
 (
-  trap "kill 1" EXIT
+  trap failed EXIT
   until login; do sleep 10s; done
   create_client "$GRAFANA_CLIENT_ID" "$GRAFANA_CLIENT_SECRET" "$GRAFANA_CALLBACK_URL"
   create_client "$KIALI_CLIENT_ID" "$KIALI_CLIENT_SECRET" "$KIALI_CALLBACK_URL"
