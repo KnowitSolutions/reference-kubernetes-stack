@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
-export PATH="/opt/jboss/tools:/opt/jboss/tools/databases:/opt/jboss/keycloak/bin:$PATH"
+
 . /tmp/configmap/environment.sh
 . /tmp/secret/environment.sh
 
+if [[ "$DB_VENDOR" == "postgres" ]]; then
+  DB_ADDR+=":$DB_PORT"
+fi
+
+/opt/jboss/keycloak/bin/add-user-keycloak.sh --user "$KEYCLOAK_USER" --password "$KEYCLOAK_PASSWORD"
+. /opt/jboss/tools/databases/change-database.sh "$DB_VENDOR"
+/opt/jboss/tools/x509.sh
+/opt/jboss/tools/jgroups.sh
+/opt/jboss/tools/infinispan.sh
+/opt/jboss/tools/statistics.sh
+/opt/jboss/tools/autorun.sh
+/opt/jboss/tools/vault.sh
+
 login() {
-  kcadm.sh config credentials \
+  /opt/jboss/keycloak/bin/kcadm.sh config credentials \
     --server http://localhost:8080/auth \
     --realm master \
     --user "$KEYCLOAK_USER" \
@@ -14,7 +26,7 @@ login() {
 }
 
 create_client() {
-  local text=$(kcadm.sh create clients \
+  local text=$(/opt/jboss/keycloak/bin/kcadm.sh create clients \
     --set clientId="$1" \
     --set secret="$2" \
     --set redirectUris="[\"$3\"]" 2>&1)
@@ -36,20 +48,7 @@ create_client() {
   trap - EXIT
 )&
 
-if [[ "$DB_VENDOR" == "postgres" ]]; then
-  DB_ADDR+=":$DB_PORT"
-fi
-
-add-user-keycloak.sh --user "$KEYCLOAK_USER" --password "$KEYCLOAK_PASSWORD"
-. change-database.sh "$DB_VENDOR"
-x509.sh
-jgroups.sh
-infinispan.sh
-statistics.sh
-autorun.sh
-vault.sh
-
-exec standalone.sh \
+exec /opt/jboss/keycloak/bin/standalone.sh \
   -c=standalone-ha.xml \
   -Djboss.bind.address=0.0.0.0 \
   -Djboss.bind.address.private=0.0.0.0 \
