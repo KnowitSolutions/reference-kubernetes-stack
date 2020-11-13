@@ -11,7 +11,7 @@ function(global, keycloak, sql, grafana, kiali, jaeger)
       DB_ADDR: sql.address,
       DB_PORT: std.toString(sql.port),
       DB_DATABASE: keycloak.database,
-      [if sql.tls.enabled then 'JDBC_PARAMS']: 'sslmode=%s' % (if sql.tls.hostnameValidation then 'verify-full' else 'require'),
+      [if sql.tls.enabled then 'JDBC_PARAMS']: '?sslmode=%s' % (if sql.tls.hostnameValidation then 'verify-full' else 'require'),
 
       JGROUPS_DISCOVERY_PROTOCOL: 'kubernetes.KUBE_PING',
       JGROUPS_DISCOVERY_PROPERTIES_DIRECT: '{namespace=>%s,labels=>app=keycloak,port_range=>0}' % global.namespace,
