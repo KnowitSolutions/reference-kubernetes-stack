@@ -53,9 +53,14 @@ failed() {
   trap - EXIT
 )&
 
+for addr in $(hostname --all-ip-addresses)
+do
+    bind+=" -Djboss.bind.address=$addr -Djboss.bind.address.private=$addr "
+done
+
 exec /opt/jboss/keycloak/bin/standalone.sh \
-  -c=standalone-ha.xml \
-  -Djboss.bind.address=0.0.0.0 \
-  -Djboss.bind.address.private=0.0.0.0 \
+  -Dkeycloak.frontendUrl=$KEYCLOAK_FRONTEND_URL \
+  $bind \
   -Djboss.bind.address.management=0.0.0.0 \
-  -Dkeycloak.frontendUrl="$KEYCLOAK_FRONTEND_URL"
+  -c=standalone-ha.xml \
+  -b 0.0.0.0
