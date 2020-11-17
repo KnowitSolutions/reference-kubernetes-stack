@@ -151,6 +151,7 @@ function(global)
       metadata.annotations({
         'prometheus.io/scrape': 'true',
         'prometheus.io/port': '8080',
+        'prometheus.io/skip-labels': 'true',
       }) +
       pod.container(
         container.new(app, image) +
