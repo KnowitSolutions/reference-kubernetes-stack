@@ -102,7 +102,7 @@ function(global, grafana, sql, keycloak)
           for key in std.objectFields(kubernetesMixin.grafanaDashboards)
         ]) +
         container.volume('data', '/var/lib/grafana') +
-        container.resources('50m', '50m', '64Mi', '64Mi') +
+        container.resources('50m', '200m', '64Mi', '64Mi') +
         container.httpProbe('readiness', '/api/health') +
         container.httpProbe('liveness', '/api/health') +
         container.securityContext({ readOnlyRootFilesystem: true })

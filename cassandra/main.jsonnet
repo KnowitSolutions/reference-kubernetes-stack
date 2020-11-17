@@ -56,7 +56,7 @@ function(global, cassandra)
         container.volume('tmp', '/tmp') +
         container.port('tcp-cql', 9042) +
         container.port('tcp-gossip', 7000) +
-        container.resources('500m', '500m', '3Gi', '3Gi') +
+        container.resources('500m', '2', '3Gi', '3Gi') +
         container.execProbe('readiness', ['/bin/sh', '-c', @'nodetool status | grep -E "^UN\s+$CASSANDRA_BROADCAST_ADDRESS"'], timeout=120) +
         container.execProbe('liveness', ['/bin/sh', '-c', 'nodetool status'], delay=120, timeout=120) +
         container.execHandler('stop', ['/bin/sh', '-c', 'nodetool drain']) +

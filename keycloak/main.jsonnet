@@ -101,7 +101,7 @@ function(global, keycloak, sql, grafana, kiali, jaeger)
         container.port('tcp-gossip', 7600) +
         container.volume('configmap', '/tmp/configmap') +
         container.volume('secret', '/tmp/secret') +
-        container.resources('100m', '1500m', '768Mi', '768Mi') +
+        container.resources('50m', '1500m', '768Mi', '768Mi') +
         container.httpProbe('readiness', '/auth/realms/master') +
         container.httpProbe('liveness', '/', delay=120)
         // TODO: container.securityContext({ readOnlyRootFilesystem: true })

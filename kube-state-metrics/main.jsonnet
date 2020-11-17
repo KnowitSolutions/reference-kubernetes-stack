@@ -156,7 +156,7 @@ function(global)
         container.new(app, image) +
         container.port('http', 8080) +
         container.port('http-telemetry', 8081) +
-        container.resources('10m', '10m', '128Mi', '128Mi') +
+        container.resources('10m', '20m', '128Mi', '128Mi') +
         container.httpProbe('readiness', '/', port='http-telemetry') +
         container.httpProbe('liveness', '/healthz') +
         container.securityContext({ readOnlyRootFilesystem: true })

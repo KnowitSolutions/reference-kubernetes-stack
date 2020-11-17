@@ -134,7 +134,7 @@ function(global, kiali, grafana, jaeger)
         container.port('http', 20001) +
         container.port('http-telemetry', 9090) +
         container.volume('config', '/etc/kiali') +
-        container.resources('200m', '200m', '64Mi', '64Mi') +
+        container.resources('50m', '300m', '64Mi', '64Mi') +
         container.httpProbe('readiness', '/healthz', port='http') +
         container.httpProbe('liveness', '/healthz', port='http') +
         container.securityContext({ readOnlyRootFilesystem: true })

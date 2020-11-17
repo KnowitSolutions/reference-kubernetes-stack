@@ -67,7 +67,7 @@ function(global, jaeger, cassandra)
           KEYSPACE: jaeger.keyspace,
           TRACE_TTL: '2592000',
         }) +
-        container.resources('100m', '100m', '64Mi', '64Mi') +
+        container.resources('0', '100m', '8Mi', '64Mi') +
         container.volume('tmp', '/tmp') +
         container.securityContext({ readOnlyRootFilesystem: true })
       ) +
@@ -85,7 +85,7 @@ function(global, jaeger, cassandra)
         container.port('http', 16686) +
         container.port('http-telemetry', 16687) +
         container.volume('config', '/etc/jaeger') +
-        container.resources('200m', '200m', '128Mi', '128Mi') +
+        container.resources('50m', '200m', '128Mi', '128Mi') +
         container.httpProbe('readiness', '/', port='http') +
         container.httpProbe('liveness', '/', port='http-telemetry') +
         container.securityContext({ readOnlyRootFilesystem: true })

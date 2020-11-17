@@ -31,7 +31,7 @@ function(global)
         ]) +
         container.port('http', 9100) +
         container.volume('root', '/host', readOnly=true, propagation='HostToContainer') +
-        container.resources('100m', '100m', '200Mi', '200Mi') +
+        container.resources('100m', '300m', '200Mi', '200Mi') +
         container.httpProbe('readiness', '/', port='http') +
         container.httpProbe('liveness', '/', port='http') +
         container.securityContext({ readOnlyRootFilesystem: true })

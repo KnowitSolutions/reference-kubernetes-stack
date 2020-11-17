@@ -70,7 +70,7 @@ function(global, loki, cassandra)
         container.port('tcp-gossip', 7946) +
         container.port('tcp-grpc', 9095) +
         container.volume('config', '/etc/loki') +
-        container.resources('500m', '500m', '512Mi', '512Mi') +
+        container.resources('50m', '500m', '512Mi', '512Mi') +
         container.httpProbe('readiness', '/ready') +
         container.httpProbe('liveness', '/ready', delay=120) +
         container.securityContext({ readOnlyRootFilesystem: true })
