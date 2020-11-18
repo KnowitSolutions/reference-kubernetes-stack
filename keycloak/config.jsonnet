@@ -21,6 +21,7 @@ function(global, keycloak, sql, grafana, kiali, jaeger)
 
       KEYCLOAK_STATISTICS: 'all',
 
+      GRAFANA_URL: (if global.tls then 'https://' else 'http://') + grafana.externalAddress,
       GRAFANA_CALLBACK_URL: (if global.tls then 'https://' else 'http://') + grafana.externalAddress + '/login/generic_oauth',
       KIALI_CALLBACK_URL: (if global.tls then 'https://' else 'http://') + kiali.externalAddress + '/oidc/callback',
       JAEGER_CALLBACK_URL: (if global.tls then 'https://' else 'http://') + jaeger.externalAddress + '/oidc/callback',

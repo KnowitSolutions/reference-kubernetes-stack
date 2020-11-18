@@ -32,7 +32,7 @@ function(global, grafana, sql, keycloak) {
       auth_url: '%s://%s/auth/realms/master/protocol/openid-connect/auth' % [if global.tls then 'https' else 'http', keycloak.externalAddress],
       token_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/token' % [keycloak.internalAddress],
       api_url: 'http://%s:8080/auth/realms/master/protocol/openid-connect/userinfo' % [keycloak.internalAddress],
-      role_attribute_path: 'contains(roles, "admin") && "Admin" || "Editor"',
+      role_attribute_path: "contains(keys(@), 'roles') && contains(roles, 'admin') && 'Admin' || 'Editor'",
     },
 
     security: {

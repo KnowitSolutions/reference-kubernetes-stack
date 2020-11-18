@@ -17,26 +17,61 @@ fi
 /opt/jboss/tools/autorun.sh
 /opt/jboss/tools/vault.sh
 
+kcadm='/opt/jboss/keycloak/bin/kcadm.sh'
+
 login() {
-  /opt/jboss/keycloak/bin/kcadm.sh config credentials \
-    --server http://localhost:8080/auth \
-    --realm master \
-    --user "$KEYCLOAK_USER" \
-    --password "$KEYCLOAK_PASSWORD"
+  local srv='http://localhost:8080/auth'
+  "$kcadm" config credentials --server "$srv" --realm master --user "$1" --password "$2"
+}
+
+set_email() {
+  local id="$("$kcadm" get users --query username="$1" --format csv --fields id | tr -d '"')"
+  local verified=$("$kcadm" get "users/$id" --format csv --fields emailVerified)
+  if [[ "$verified" == "false" ]]; then
+    "$kcadm" update "users/$id" --set email="$2" --set emailVerified=true
+  else
+    echo "Email is already verified"
+  fi
 }
 
 create_client() {
-  local text=$(/opt/jboss/keycloak/bin/kcadm.sh create clients \
+  local text="$("$kcadm" create clients \
     --set clientId="$1" \
     --set secret="$2" \
-    --set redirectUris="[\"$3\"]" 2>&1)
-  local code=$?
-  echo "$text"
+    --set redirectUris="$3" \
+    --set fullScopeAllowed=false 2>&1)" && \
+  local code=$? || local code=$?
 
+  echo "$text"
   if [[ "$text" == "Client $1 already exists" ]]; then
-    code=0;
+    code=0
   fi
   return $code
+}
+
+create_userinfo_roles_mapper() {
+  local id="$("$kcadm" get clients --query clientId="$1" --format csv --fields id | tr -d '"')"
+  local text=$("$kcadm" create "clients/$id/protocol-mappers/models" \
+    --set protocol=openid-connect \
+    --set name=Roles \
+    --set protocolMapper=oidc-usermodel-realm-role-mapper \
+    --set config.multivalued=true \
+    --set 'config."claim.name"=roles' \
+    --set 'config."jsonType.label"=String' \
+    --set 'config."userinfo.token.claim"=true') && \
+  local code=$? || local code=$?
+
+  echo "$text"
+  if [[ "$text" == "Protocol mapper exists with same name" ]]; then
+    code=0
+  fi
+  return $code
+}
+
+add_scope() {
+  local client_id="$("$kcadm" get clients --query clientId="$1" --format csv --fields id | tr -d '"')"
+  local role_id="$("$kcadm" get roles --format csv --fields id,name | grep "\"$2\"\$" | cut -f 1 -d , | tr -d '"')"
+  "$kcadm" create "clients/$client_id/scope-mappings/realm" --body "[{\"id\":\"$role_id\"}]"
 }
 
 failed() {
@@ -46,16 +81,20 @@ failed() {
 
 (
   trap failed EXIT
-  until login; do sleep 10s; done
-  create_client "$GRAFANA_CLIENT_ID" "$GRAFANA_CLIENT_SECRET" "$GRAFANA_CALLBACK_URL"
-  create_client "$KIALI_CLIENT_ID" "$KIALI_CLIENT_SECRET" "$KIALI_CALLBACK_URL"
-  create_client "$JAEGER_CLIENT_ID" "$JAEGER_CLIENT_SECRET" "$JAEGER_CALLBACK_URL"
+  until login "$KEYCLOAK_USER" "$KEYCLOAK_PASSWORD"; do sleep 10s; done
+  echo "Applying migrations"
+  set_email "$KEYCLOAK_USER" 'admin@localhost'
+  create_client "$GRAFANA_CLIENT_ID" "$GRAFANA_CLIENT_SECRET" "[\"$GRAFANA_URL\",\"$GRAFANA_CALLBACK_URL\"]"
+  create_userinfo_roles_mapper "$GRAFANA_CLIENT_ID"
+  add_scope "$GRAFANA_CLIENT_ID" 'admin'
+  create_client "$KIALI_CLIENT_ID" "$KIALI_CLIENT_SECRET" "[\"$KIALI_CALLBACK_URL\"]"
+  create_client "$JAEGER_CLIENT_ID" "$JAEGER_CLIENT_SECRET" "[\"$JAEGER_CALLBACK_URL\"]"
   trap - EXIT
 )&
 
 for addr in $(hostname --all-ip-addresses)
 do
-    bind+=" -Djboss.bind.address=$addr -Djboss.bind.address.private=$addr "
+    bind+="-Djboss.bind.address=$addr -Djboss.bind.address.private=$addr "
 done
 
 exec /opt/jboss/keycloak/bin/standalone.sh \
