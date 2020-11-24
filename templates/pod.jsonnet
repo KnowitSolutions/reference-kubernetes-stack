@@ -2,6 +2,12 @@ local metadata = import 'metadata.jsonnet';
 
 {
   new():: {
+    local pod = self,
+    metadata: {
+      annotations: {
+        'kubectl.kubernetes.io/default-logs-container': pod.spec.containers[0].name,
+      },
+    },
     spec: {
       nodeSelector: { 'kubernetes.io/os': 'linux' },
     },
