@@ -31,10 +31,6 @@ The command given below installs Istio if it is not already installed, or resets
 
 ```
 istioctl install \
-  --set values.global.proxy.resources.requests.cpu="50m" \
-  --set values.global.proxy.resources.requests.memory="64Mi" \
-  --set values.global.proxy.resources.limits.cpu="50m" \
-  --set values.global.proxy.resources.limits.memory="64Mi" \
   --set values.global.tracer.zipkin.address=jaeger-collector.base:9411 \
   --set values.pilot.traceSampling=100
 ```
