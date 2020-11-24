@@ -39,7 +39,7 @@ Support for provisioning TLS certificates for use with HTTPS is provided through
 
 ### Local development databases
 
-For local development the required Postgres database can run as a Kubernetes deployment. This will however not provide any persistence, and as such all data in the database is lost every time the associated pod is restarted. The following commands will setup a namespace `db` and create the database inside it.
+For local development the required Postgres database can run as a Kubernetes pod. This will however not provide any persistence, and as such all data in the database is lost every time the associated pod is restarted. The following commands will create suitable a database in the default namespace.
 
 ```
 kubectl --namespace=default run postgres --image=postgres --env=POSTGRES_PASSWORD=postgres --port=5432
