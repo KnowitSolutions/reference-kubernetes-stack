@@ -1,4 +1,5 @@
 local cassandra = import 'cassandra/main.jsonnet';
+local eventRouter = import 'event-router/main.jsonnet';
 local istioOidc = import 'github.com/KnowitSolutions/istio-oidc/deployment/main.jsonnet';
 local grafana = import 'grafana/main.jsonnet';
 local jaeger = import 'jaeger/main.jsonnet';
@@ -232,6 +233,7 @@ function(
   promtail(globalCfg, promtailCfg) +
   nodeExporter(globalCfg) +
   kubeStateMetrics(globalCfg) +
+  eventRouter(globalCfg) +
   istioOidc(
     NAMESPACE=NAMESPACE,
     VERSION='latest',
