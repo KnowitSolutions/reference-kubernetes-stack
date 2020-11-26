@@ -1,23 +1,23 @@
 local metadata = import 'metadata.jsonnet';
 
 {
-  new():: {
+  new(version):: {
     local daemonset = self,
     apiVersion: 'apps/v1',
     kind: 'DaemonSet',
     metadata: (
       metadata.label('app', daemonset.metadata.name) +
-      metadata.label('version', 'master')
+      metadata.label('version', version)
     ).metadata,
     spec: {
-      selector: { matchLabels: daemonset.metadata.labels },
+      selector: { matchLabels: { app: daemonset.metadata.name } },
     },
   },
 
   pod(pod):: {
     local daemonset = self,
     spec+: {
-      template: pod + metadata.labels(daemonset.spec.selector.matchLabels),
+      template: pod + metadata.labels(daemonset.metadata.labels),
     },
   },
 }

@@ -11,7 +11,8 @@ local serviceaccount = import '../templates/serviceaccount.jsonnet';
 local statefulset = import '../templates/statefulset.jsonnet';
 
 local app = 'prometheus';
-local image = 'prom/prometheus:v2.22.0';
+local version = 'v2.22.0';
+local image = 'prom/prometheus:' + version;
 
 function(global, prometheus)
   [
@@ -66,7 +67,7 @@ function(global, prometheus)
       'rules.yaml': std.manifestYamlDoc(kubernetesMixin.prometheusRules),
     }),
 
-    statefulset.new(replicas=prometheus.replicas, parallel=true, service=app) +
+    statefulset.new(version=version, replicas=prometheus.replicas, parallel=true, service=app) +
     metadata.new(app, global.namespace) +
     statefulset.pod(
       pod.new() +

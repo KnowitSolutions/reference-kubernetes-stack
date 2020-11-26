@@ -9,7 +9,8 @@ local service = import '../templates/service.jsonnet';
 local serviceaccount = import '../templates/serviceaccount.jsonnet';
 
 local app = 'promtail';
-local image = 'grafana/promtail:2.0.0';
+local version = '2.0.0';
+local image = 'grafana/promtail:' + version;
 
 function(global, promtail)
   [
@@ -39,7 +40,7 @@ function(global, promtail)
       'promtail.yaml': std.manifestYamlDoc((import 'promtail.yaml.jsonnet')(promtail)),
     }),
 
-    daemonset.new() +
+    daemonset.new(version=version) +
     metadata.new(app, global.namespace) +
     daemonset.pod(
       pod.new() +

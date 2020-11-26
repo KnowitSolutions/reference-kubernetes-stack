@@ -16,7 +16,8 @@ local serviceaccount = import '../templates/serviceaccount.jsonnet';
 local virtualservice = import '../templates/virtualservice.jsonnet';
 
 local app = 'keycloak';
-local image = 'jboss/keycloak:9.0.0';
+local version = '9.0.0';
+local image = 'jboss/keycloak:' + version;
 
 function(global, keycloak, sql, grafana, kiali, jaeger)
   local config = (import 'config.jsonnet')(global, keycloak, sql, grafana, kiali, jaeger);
@@ -84,7 +85,7 @@ function(global, keycloak, sql, grafana, kiali, jaeger)
       'environment.sh': config.secret,
     }),
 
-    deployment.new(replicas=keycloak.replicas) +
+    deployment.new(version=version, replicas=keycloak.replicas) +
     metadata.new(app, global.namespace) +
     deployment.pod(
       pod.new() +

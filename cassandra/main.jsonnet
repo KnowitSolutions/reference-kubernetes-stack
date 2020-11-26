@@ -8,7 +8,8 @@ local serviceentry = import '../templates/serviceentry.jsonnet';
 local statefulset = import '../templates/statefulset.jsonnet';
 
 local app = 'cassandra';
-local image = 'cassandra:3.11.6';
+local version = '3.11.6';
+local image = 'cassandra:' + version;
 
 function(global, cassandra)
   if cassandra.bundled
@@ -33,7 +34,7 @@ function(global, cassandra)
     metadata.new(app, global.namespace) +
     configmap.data((import 'cassandra.env.jsonnet')(app)),
 
-    statefulset.new(replicas=cassandra.replicas, parallel=true, service='%s-gossip' % app) +
+    statefulset.new(version=version, replicas=cassandra.replicas, parallel=true, service='%s-gossip' % app) +
     metadata.new(app, global.namespace) +
     statefulset.pod(
       pod.new() +

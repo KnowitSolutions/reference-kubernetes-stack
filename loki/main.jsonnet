@@ -8,7 +8,8 @@ local secret = import '../templates/secret.jsonnet';
 local service = import '../templates/service.jsonnet';
 
 local app = 'loki';
-local image = 'grafana/loki:2.0.0';
+local version = '2.0.0';
+local image = 'grafana/loki:' + version;
 
 function(global, loki, cassandra)
   [
@@ -42,7 +43,7 @@ function(global, loki, cassandra)
       [if cassandra.password != null then 'CASSANDRA_PASSWORD']: cassandra.password,
     }),
 
-    deployment.new(replicas=loki.replicas) +
+    deployment.new(version=version, replicas=loki.replicas) +
     metadata.new(app, global.namespace) +
     deployment.pod(
       pod.new() +

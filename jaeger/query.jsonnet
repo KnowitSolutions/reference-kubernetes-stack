@@ -11,10 +11,11 @@ local service = import '../templates/service.jsonnet';
 local virtualservice = import '../templates/virtualservice.jsonnet';
 
 local app = 'jaeger';
+local version = '1.19.2';
 local queryApp = 'jaeger-query';
 local schemaApp = 'jaeger-schema';
-local queryImage = 'jaegertracing/jaeger-query:1.19.2';
-local schemaImage = 'jaegertracing/jaeger-cassandra-schema:1.19.2';
+local queryImage = 'jaegertracing/jaeger-query:' + version;
+local schemaImage = 'jaegertracing/jaeger-cassandra-schema:' + version;
 
 function(global, jaeger, cassandra)
   (if global.tls then [certificate.new(jaeger.externalAddress)] else []) +
@@ -41,7 +42,7 @@ function(global, jaeger, cassandra)
     service.port(16686) +
     service.port(16687, name='http-telemetry'),
 
-    deployment.new(replicas=jaeger.replicas) +
+    deployment.new(version=version, replicas=jaeger.replicas) +
     metadata.new(queryApp, global.namespace) +
     deployment.pod(
       pod.new() +

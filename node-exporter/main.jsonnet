@@ -5,7 +5,8 @@ local pod = import '../templates/pod.jsonnet';
 local service = import '../templates/service.jsonnet';
 
 local app = 'node-exporter';
-local image = 'prom/node-exporter:v1.0.1';
+local version = 'v1.0.1';
+local image = 'prom/node-exporter:' + version;
 
 function(global)
   [
@@ -13,7 +14,7 @@ function(global)
     metadata.new(app, global.namespace) +
     service.port(9100, name='http'),
 
-    daemonset.new() +
+    daemonset.new(version=version) +
     metadata.new(app, global.namespace) +
     daemonset.pod(
       pod.new() +

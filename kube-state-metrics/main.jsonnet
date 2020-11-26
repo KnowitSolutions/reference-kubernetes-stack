@@ -9,7 +9,8 @@ local service = import '../templates/service.jsonnet';
 local serviceaccount = import '../templates/serviceaccount.jsonnet';
 
 local app = 'kube-state-metrics';
-local image = 'quay.io/coreos/kube-state-metrics:v1.9.5';
+local version = 'v1.9.5';
+local image = 'quay.io/coreos/kube-state-metrics:' + version;
 
 function(global)
   [
@@ -144,7 +145,7 @@ function(global)
     service.port(8080) +
     service.port(8081, name='http-telemetry'),
 
-    deployment.new() +
+    deployment.new(version=version) +
     metadata.new(app, global.namespace) +
     deployment.pod(
       pod.new() +

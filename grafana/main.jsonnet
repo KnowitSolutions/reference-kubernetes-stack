@@ -14,7 +14,8 @@ local statefulset = import '../templates/statefulset.jsonnet';
 local virtualservice = import '../templates/virtualservice.jsonnet';
 
 local app = 'grafana';
-local image = 'grafana/grafana:7.3.2';
+local version = '7.3.2';
+local image = 'grafana/grafana:' + version;
 
 local reduce = function(arr) std.foldl(function(a, b) a + b, arr, {});
 
@@ -73,7 +74,7 @@ function(global, grafana, sql, keycloak)
       GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: grafana.oidc.clientSecret,
     }),
 
-    (if sql.vendor == 'postgres' then deployment else statefulset).new(replicas=grafana.replicas) +
+    (if sql.vendor == 'postgres' then deployment else statefulset).new(version=version, replicas=grafana.replicas) +
     metadata.new(app, global.namespace) +
     (if sql.vendor == 'postgres' then deployment else statefulset).pod(
       pod.new() +

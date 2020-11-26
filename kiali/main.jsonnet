@@ -15,7 +15,8 @@ local serviceaccount = import '../templates/serviceaccount.jsonnet';
 local virtualservice = import '../templates/virtualservice.jsonnet';
 
 local app = 'kiali';
-local image = 'quay.io/kiali/kiali:v1.18.1';
+local version = 'v1.18.1';
+local image = 'quay.io/kiali/kiali:' + version;
 
 function(global, kiali, grafana, jaeger)
   [
@@ -120,7 +121,7 @@ function(global, kiali, grafana, jaeger)
       'config.yaml': std.manifestYamlDoc((import 'kiali.yaml.jsonnet')(global, grafana, jaeger)),
     }),
 
-    deployment.new(replicas=kiali.replicas) +
+    deployment.new(version=version, replicas=kiali.replicas) +
     metadata.new(app, global.namespace) +
     deployment.pod(
       pod.new() +

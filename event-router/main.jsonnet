@@ -10,7 +10,8 @@ local service = import '../templates/service.jsonnet';
 local serviceaccount = import '../templates/serviceaccount.jsonnet';
 
 local app = 'event-router';
-local image = 'gcr.io/heptio-images/eventrouter:v0.3';
+local version = 'v0.3';
+local image = 'gcr.io/heptio-images/eventrouter:' + version;
 
 function(global)
   [
@@ -44,7 +45,7 @@ function(global)
       'config.json': std.manifestJson({ sink: 'stdout' }),
     }),
 
-    deployment.new() +
+    deployment.new(version=version) +
     metadata.new(app, global.namespace) +
     deployment.pod(
       pod.new() +

@@ -7,10 +7,11 @@ local pod = import '../templates/pod.jsonnet';
 local service = import '../templates/service.jsonnet';
 
 local app = 'jaeger';
+local version = '1.19.2';
 local collectorApp = 'jaeger-collector';
 local schemaApp = 'jaeger-schema';
-local collectorImage = 'jaegertracing/jaeger-collector:1.19.2';
-local schemaImage = 'jaegertracing/jaeger-cassandra-schema:1.19.2';
+local collectorImage = 'jaegertracing/jaeger-collector:' + version;
+local schemaImage = 'jaegertracing/jaeger-cassandra-schema:' + version;
 
 function(global, jaeger, cassandra)
   [
@@ -27,7 +28,7 @@ function(global, jaeger, cassandra)
     metadata.new(collectorApp, global.namespace) +
     peerauthentication.mtls(false, 9411),
 
-    deployment.new(replicas=jaeger.replicas) +
+    deployment.new(version=version, replicas=jaeger.replicas) +
     metadata.new(collectorApp, global.namespace) +
     deployment.pod(
       pod.new() +
