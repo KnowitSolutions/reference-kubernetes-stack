@@ -72,7 +72,7 @@ function(
 
   KIALI_REPLICAS=2,
   KIALI_ADDRESS,
-  KIALI_CLIENT_SECRET='Regenerate me',
+  KIALI_SIGNING_KEY='Regenerate me',
 
   JAEGER_REPLICAS=2,
   JAEGER_ADDRESS,
@@ -203,7 +203,7 @@ function(
     externalAddress: KIALI_ADDRESS,
     oidc: {
       clientId: 'kiali',
-      clientSecret: KIALI_CLIENT_SECRET,
+      signingKey: KIALI_SIGNING_KEY,
     },
   };
 
@@ -243,5 +243,5 @@ function(
   ) +
   keycloak(globalCfg, keycloakCfg, sqlCfg, grafanaCfg, kialiCfg, jaegerCfg) +
   grafana(globalCfg, grafanaCfg, sqlCfg, keycloakCfg) +
-  kiali(globalCfg, kialiCfg, grafanaCfg, jaegerCfg) +
+  kiali(globalCfg, kialiCfg, keycloakCfg, grafanaCfg, jaegerCfg) +
   jaeger(globalCfg, jaegerCfg, cassandraCfg)

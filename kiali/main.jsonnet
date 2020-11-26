@@ -13,12 +13,13 @@ local secret = import '../templates/secret.jsonnet';
 local service = import '../templates/service.jsonnet';
 local serviceaccount = import '../templates/serviceaccount.jsonnet';
 local virtualservice = import '../templates/virtualservice.jsonnet';
+local kialiYaml = import 'kiali.yaml.jsonnet';
 
 local app = 'kiali';
-local version = 'v1.18.1';
+local version = 'v1.27.0';
 local image = 'quay.io/kiali/kiali:' + version;
 
-function(global, kiali, grafana, jaeger)
+function(global, kiali, keycloak, grafana, jaeger)
   [
     destinationrule.new('istiod.istio-system.svc.cluster.local') +
     metadata.new('istiod.istio-system', global.namespace) +
@@ -95,17 +96,6 @@ function(global, kiali, grafana, jaeger)
     virtualservice.gateway(app) +
     virtualservice.route(app, port=20001),
 
-    accesspolicy.new(app, 'keycloak') +
-    metadata.new(app, global.namespace) +
-    accesspolicy.credentials(app),
-
-    secret.new() +
-    metadata.new(app, global.namespace) +
-    secret.data({
-      clientID: kiali.oidc.clientId,
-      clientSecret: kiali.oidc.clientSecret,
-    }),
-
     destinationrule.new(app) +
     metadata.new(app, global.namespace) +
     destinationrule.circuitBreaker(),
@@ -118,8 +108,12 @@ function(global, kiali, grafana, jaeger)
     configmap.new() +
     metadata.new(app, global.namespace) +
     configmap.data({
-      'config.yaml': std.manifestYamlDoc((import 'kiali.yaml.jsonnet')(global, grafana, jaeger)),
+      'config.yaml': std.manifestYamlDoc(kialiYaml(global, kiali, keycloak, grafana, jaeger)),
     }),
+
+    secret.new() +
+    metadata.new(app, global.namespace) +
+    secret.data({ LOGIN_TOKEN_SIGNING_KEY: kiali.oidc.signingKey }),
 
     deployment.new(version=version, replicas=kiali.replicas) +
     metadata.new(app, global.namespace) +
@@ -132,13 +126,17 @@ function(global, kiali, grafana, jaeger)
       pod.container(
         container.new(app, image) +
         container.args(['-config', '/etc/kiali/config.yaml']) +
+        container.env({
+          LOGIN_TOKEN_SIGNING_KEY:
+            { secretKeyRef: { name: app, key: 'LOGIN_TOKEN_SIGNING_KEY' } },
+        }) +
         container.port('http', 20001) +
         container.port('http-telemetry', 9090) +
         container.volume('config', '/etc/kiali') +
         container.resources('50m', '300m', '64Mi', '64Mi') +
         container.httpProbe('readiness', '/healthz', port='http') +
         container.httpProbe('liveness', '/healthz', port='http') +
-        container.securityContext({ readOnlyRootFilesystem: true })
+        {}  //container.securityContext({ readOnlyRootFilesystem: true })
       ) +
       pod.serviceAccount(app) +
       pod.volumeConfigMap('config', configmap=app) +

@@ -36,14 +36,17 @@ set_email() {
 
 create_client() {
   local text="$("$kcadm" create clients \
-    --set clientId="$1" \
-    --set secret="$2" \
-    --set redirectUris="$3" \
+    --set clientId="$2" \
+    --set publicClient=$([[ "$1" == 'public' ]] && echo 'true' || echo 'false') \
+    --set secret="$3" \
+    --set standardFlowEnabled=$([[ "$1" == 'confidential' ]] && echo 'true' || echo 'false') \
+    --set implicitFlowEnabled=$([[ "$1" == 'public' ]] && echo 'true' || echo 'false') \
+    --set redirectUris="$4" \
     --set fullScopeAllowed=false 2>&1)" && \
   local code=$? || local code=$?
 
   echo "$text"
-  if [[ "$text" == "Client $1 already exists" ]]; then
+  if [[ "$text" == "Client $2 already exists" ]]; then
     code=0
   fi
   return $code
@@ -84,11 +87,11 @@ failed() {
   until login "$KEYCLOAK_USER" "$KEYCLOAK_PASSWORD"; do sleep 10s; done
   echo "Applying migrations"
   set_email "$KEYCLOAK_USER" 'admin@localhost'
-  create_client "$GRAFANA_CLIENT_ID" "$GRAFANA_CLIENT_SECRET" "[\"$GRAFANA_URL\",\"$GRAFANA_CALLBACK_URL\"]"
+  create_client confidential "$GRAFANA_CLIENT_ID" "$GRAFANA_CLIENT_SECRET" "[\"$GRAFANA_URL\",\"$GRAFANA_CALLBACK_URL\"]"
   create_userinfo_roles_mapper "$GRAFANA_CLIENT_ID"
   add_scope "$GRAFANA_CLIENT_ID" 'admin'
-  create_client "$KIALI_CLIENT_ID" "$KIALI_CLIENT_SECRET" "[\"$KIALI_CALLBACK_URL\"]"
-  create_client "$JAEGER_CLIENT_ID" "$JAEGER_CLIENT_SECRET" "[\"$JAEGER_CALLBACK_URL\"]"
+  create_client public "$KIALI_CLIENT_ID" "" "[\"$KIALI_CALLBACK_URL\"]"
+  create_client confidential "$JAEGER_CLIENT_ID" "$JAEGER_CLIENT_SECRET" "[\"$JAEGER_CALLBACK_URL\"]"
   trap - EXIT
 )&
 
