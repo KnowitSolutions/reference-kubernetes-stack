@@ -6,10 +6,6 @@ local base = kubernetesMixin {
     kubeApiserverSelector: 'job="kubernetes-apiservers"',
     kubeletSelector: 'job="kubernetes-nodes"',
     cadvisorSelector: 'job="kubernetes-nodes-cadvisor"',
-    // TODO: kubeControllerManagerSelector: 'job="kubernetes-controller-managers"',
-    // TODO: kubeSchedulerSelector: 'job="kubernetes-schedulers"',
-    // TODO: kubeProxySelector: 'job="kubernetes-proxies"',
-
     nodeExporterSelector: 'job="kubernetes-pods"',
     kubeStateMetricsSelector: 'job="kubernetes-pods"',
 

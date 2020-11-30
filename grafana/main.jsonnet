@@ -19,7 +19,6 @@ local image = 'grafana/grafana:' + version;
 
 local reduce = function(arr) std.foldl(function(a, b) a + b, arr, {});
 
-// TODO: Switch to Istio OIDC
 function(global, grafana, sql, keycloak)
   (if global.tls then [certificate.new(grafana.externalAddress)] else []) +
   [
