@@ -4,16 +4,6 @@
     {
       "source": {
         "git": {
-          "remote": "https://github.com/KnowitSolutions/istio-oidc.git",
-          "subdir": "deployment"
-        }
-      },
-      "version": "521ec7a866fd0959ea0478e69c9829e7412b8677",
-      "sum": "vQo8cb06zNGUNtvaAlaWXjlZm9FHnyI5/MRefxt2Ypg="
-    },
-    {
-      "source": {
-        "git": {
           "remote": "https://github.com/grafana/grafonnet-lib.git",
           "subdir": "grafonnet"
         }

@@ -1,4 +1,3 @@
-local accesspolicy = import '../templates/accesspolicy.jsonnet';
 local certificate = import '../templates/certificate.jsonnet';
 local configmap = import '../templates/configmap.jsonnet';
 local container = import '../templates/container.jsonnet';

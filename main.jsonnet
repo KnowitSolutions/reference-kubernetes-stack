@@ -1,6 +1,5 @@
 local cassandra = import 'cassandra/main.jsonnet';
 local eventRouter = import 'event-router/main.jsonnet';
-local istioOidc = import 'github.com/KnowitSolutions/istio-oidc/deployment/main.jsonnet';
 local grafana = import 'grafana/main.jsonnet';
 local jaeger = import 'jaeger/main.jsonnet';
 local keycloak = import 'keycloak/main.jsonnet';
@@ -75,9 +74,7 @@ function(
   KIALI_SIGNING_KEY='Regenerate me',
 
   JAEGER_REPLICAS=2,
-  JAEGER_ADDRESS,
   JAEGER_KEYSPACE='jaeger',
-  JAEGER_CLIENT_SECRET='Regenerate me',
 )
   local globalCfg = {
     namespace: NAMESPACE,
@@ -210,11 +207,6 @@ function(
   local jaegerCfg = {
     replicas: JAEGER_REPLICAS,
     keyspace: JAEGER_KEYSPACE,
-    externalAddress: JAEGER_ADDRESS,
-    oidc: {
-      clientId: 'jaeger',
-      clientSecret: JAEGER_CLIENT_SECRET,
-    },
   };
 
   [
@@ -234,13 +226,6 @@ function(
   nodeExporter(globalCfg) +
   kubeStateMetrics(globalCfg) +
   eventRouter(globalCfg) +
-  istioOidc(
-    NAMESPACE=NAMESPACE,
-    VERSION='latest',
-    REPLICAS=ISTIO_OIDC_REPLICAS,
-    AFFINITY=pod.affinity(AFFINITY).spec.affinity,
-    TOLERATIONS=pod.tolerations(TOLERATIONS).spec.tolerations,
-  ) +
   keycloak(globalCfg, keycloakCfg, sqlCfg, grafanaCfg, kialiCfg, jaegerCfg) +
   grafana(globalCfg, grafanaCfg, sqlCfg, keycloakCfg) +
   kiali(globalCfg, kialiCfg, keycloakCfg, grafanaCfg, jaegerCfg) +

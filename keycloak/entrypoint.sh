@@ -91,7 +91,6 @@ failed() {
   create_userinfo_roles_mapper "$GRAFANA_CLIENT_ID"
   add_scope "$GRAFANA_CLIENT_ID" 'admin'
   create_client public "$KIALI_CLIENT_ID" "" "[\"$KIALI_CALLBACK_URL\"]"
-  create_client confidential "$JAEGER_CLIENT_ID" "$JAEGER_CLIENT_SECRET" "[\"$JAEGER_CALLBACK_URL\"]"
   trap - EXIT
 )&
 

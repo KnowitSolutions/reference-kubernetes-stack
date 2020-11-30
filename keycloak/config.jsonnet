@@ -24,7 +24,6 @@ function(global, keycloak, sql, grafana, kiali, jaeger)
       GRAFANA_URL: (if global.tls then 'https://' else 'http://') + grafana.externalAddress,
       GRAFANA_CALLBACK_URL: (if global.tls then 'https://' else 'http://') + grafana.externalAddress + '/login/generic_oauth',
       KIALI_CALLBACK_URL: (if global.tls then 'https://' else 'http://') + kiali.externalAddress + '/',
-      JAEGER_CALLBACK_URL: (if global.tls then 'https://' else 'http://') + jaeger.externalAddress + '/oidc/callback',
     }),
     secret: manifestExport({
       DB_USER: sql.username,
@@ -36,8 +35,6 @@ function(global, keycloak, sql, grafana, kiali, jaeger)
       GRAFANA_CLIENT_ID: grafana.oidc.clientId,
       GRAFANA_CLIENT_SECRET: grafana.oidc.clientSecret,
       KIALI_CLIENT_ID: kiali.oidc.clientId,
-      JAEGER_CLIENT_ID: jaeger.oidc.clientId,
-      JAEGER_CLIENT_SECRET: jaeger.oidc.clientSecret,
     }),
     entrypoint: importstr 'entrypoint.sh',
   }

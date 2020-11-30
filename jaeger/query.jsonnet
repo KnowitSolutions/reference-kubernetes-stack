@@ -1,4 +1,3 @@
-local accesspolicy = import '../templates/accesspolicy.jsonnet';
 local certificate = import '../templates/certificate.jsonnet';
 local container = import '../templates/container.jsonnet';
 local deployment = import '../templates/deployment.jsonnet';
@@ -18,21 +17,7 @@ local queryImage = 'jaegertracing/jaeger-query:' + version;
 local schemaImage = 'jaegertracing/jaeger-cassandra-schema:' + version;
 
 function(global, jaeger, cassandra)
-  (if global.tls then [certificate.new(jaeger.externalAddress)] else []) +
   [
-    gateway.new(jaeger.externalAddress, tls=global.tls) +
-    metadata.new(app, global.namespace),
-
-    virtualservice.new() +
-    metadata.new(app, global.namespace) +
-    virtualservice.host(jaeger.externalAddress) +
-    virtualservice.gateway(app) +
-    virtualservice.route(queryApp, port=16686),
-
-    accesspolicy.new(app, 'keycloak') +
-    metadata.new(app, global.namespace) +
-    accesspolicy.credentials(app),
-
     destinationrule.new(queryApp) +
     metadata.new(queryApp, global.namespace) +
     destinationrule.circuitBreaker(),

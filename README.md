@@ -83,7 +83,6 @@ jsonnet \
   --tla-code KIALI_REPLICAS=1 \
   --tla-str KIALI_ADDRESS='kiali.localhost' \
   --tla-code JAEGER_REPLICAS=1 \
-  --tla-str JAEGER_ADDRESS='jaeger.localhost' \
   --jpath vendor \
   --yaml-stream \
   main.jsonnet | kubectl apply --filename -

@@ -32,7 +32,6 @@ function(global, kiali, keycloak, grafana, jaeger) {
     },
     tracing: {
       in_cluster_url: 'http://jaeger-query.%s:16686' % global.namespace,
-      url: '%s://%s' % [if global.tls then 'https' else 'http', jaeger.externalAddress],
     },
   },
 }

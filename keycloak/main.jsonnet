@@ -7,7 +7,6 @@ local gateway = import '../templates/gateway.jsonnet';
 local metadata = import '../templates/metadata.jsonnet';
 local secret = import '../templates/secret.jsonnet';
 //local peerauthentication = import '../templates/peerauthentication.jsonnet';
-local openidprovider = import '../templates/openidprovider.jsonnet';
 local pod = import '../templates/pod.jsonnet';
 local role = import '../templates/role.jsonnet';
 local rolebinding = import '../templates/rolebinding.jsonnet';
@@ -114,8 +113,4 @@ function(global, keycloak, sql, grafana, kiali, jaeger)
       pod.affinity(global.affinity) +
       pod.tolerations(global.tolerations)
     ),
-
-    openidprovider.new('http://keycloak:8080/auth/realms/master') +
-    metadata.new(app, global.namespace) +
-    openidprovider.roleMapping('realm_access.roles'),
   ]
