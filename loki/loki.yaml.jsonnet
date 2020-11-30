@@ -22,7 +22,7 @@ function(loki, cassandra) {
 
   memberlist: {
     randomize_node_name: false,
-    join_members: ['loki-gossip:7946'],
+    join_members: ['loki-headless:7946'],
   },
 
   schema_config: {

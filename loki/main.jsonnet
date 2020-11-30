@@ -21,13 +21,13 @@ function(global, loki, cassandra)
     metadata.new(app, global.namespace) +
     service.port(8080),
 
-    destinationrule.new('%s-gossip' % app) +
-    metadata.new('%s-gossip' % app, global.namespace) +
+    destinationrule.new('%s-headless' % app) +
+    metadata.new('%s-headless' % app, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(app, headless=true, onlyReady=false) +
-    metadata.new(app + '-gossip', global.namespace) +
-    service.port(7946, name='tcp-gossip') +
+    metadata.new(app + '-headless', global.namespace) +
+    service.port(7946, name='tcp-memberlist') +
     service.port(9095, name='tcp-grpc'),
 
     configmap.new() +
@@ -68,7 +68,7 @@ function(global, loki, cassandra)
             { secretKeyRef: { name: app, key: 'CASSANDRA_PASSWORD' } },
         }) +
         container.port('http', 8080) +
-        container.port('tcp-gossip', 7946) +
+        container.port('tcp-memberlist', 7946) +
         container.port('tcp-grpc', 9095) +
         container.volume('config', '/etc/loki') +
         container.resources('50m', '500m', '512Mi', '512Mi') +

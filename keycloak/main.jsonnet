@@ -57,14 +57,14 @@ function(global, keycloak, sql, grafana, kiali, jaeger)
     metadata.new(app, global.namespace) +
     service.port(8080),
 
-    destinationrule.new(app + '-gossip') +
-    metadata.new(app + '-gossip', global.namespace) +
+    destinationrule.new(app + '-headless') +
+    metadata.new(app + '-headless', global.namespace) +
     destinationrule.mtls(false) +
     destinationrule.circuitBreaker(),
 
     service.new(app, headless=true) +
-    metadata.new(app + '-gossip', global.namespace) +
-    service.port(7600, name='tcp-gossip'),
+    metadata.new(app + '-headless', global.namespace) +
+    service.port(7600, name='tcp-jgroups'),
 
     // TODO: Why doesn't it work when adding this and removing the excludeInboundPorts?
     //peerauthentication.new({ app: app }) +
@@ -99,7 +99,7 @@ function(global, keycloak, sql, grafana, kiali, jaeger)
         container.new(app, image) +
         container.command(['/tmp/configmap/entrypoint.sh']) +
         container.port('http', 8080) +
-        container.port('tcp-gossip', 7600) +
+        container.port('tcp-jgroups', 7600) +
         container.volume('configmap', '/tmp/configmap') +
         container.volume('secret', '/tmp/secret') +
         container.resources('50m', '1500m', '768Mi', '768Mi') +

@@ -22,19 +22,19 @@ function(global, cassandra)
     metadata.new(app, global.namespace) +
     service.port(9042, name='tcp-cql'),
 
-    destinationrule.new('%s-gossip' % app) +
-    metadata.new('%s-gossip' % app, global.namespace) +
+    destinationrule.new('%s-headless' % app) +
+    metadata.new('%s-headless' % app, global.namespace) +
     destinationrule.circuitBreaker(),
 
     service.new(app, headless=true, onlyReady=false) +
-    metadata.new('%s-gossip' % app, global.namespace) +
-    service.port(7000, name='tcp-gossip'),
+    metadata.new('%s-headless' % app, global.namespace) +
+    service.port(7000, name='tcp-cluster'),
 
     configmap.new() +
     metadata.new(app, global.namespace) +
     configmap.data((import 'cassandra.env.jsonnet')(app)),
 
-    statefulset.new(version=version, replicas=cassandra.replicas, parallel=true, service='%s-gossip' % app) +
+    statefulset.new(version=version, replicas=cassandra.replicas, parallel=true, service='%s-headless' % app) +
     metadata.new(app, global.namespace) +
     statefulset.pod(
       pod.new() +
@@ -56,7 +56,7 @@ function(global, cassandra)
         container.volume('data', '/var/lib/cassandra') +
         container.volume('tmp', '/tmp') +
         container.port('tcp-cql', 9042) +
-        container.port('tcp-gossip', 7000) +
+        container.port('tcp-cluster', 7000) +
         container.resources('500m', '2', '3Gi', '3Gi') +
         container.execProbe('readiness', ['/bin/sh', '-c', @'nodetool status | grep -E "^UN\s+$CASSANDRA_BROADCAST_ADDRESS"'], timeout=120) +
         container.execProbe('liveness', ['/bin/sh', '-c', 'nodetool status'], delay=120, timeout=120) +
