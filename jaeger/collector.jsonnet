@@ -37,6 +37,24 @@ function(global, jaeger, cassandra)
         'prometheus.io/port': '14269',
       }) +
       pod.container(
+        container.new(collectorApp, collectorImage) +
+        container.args(['--config-file', '/etc/jaeger/collector.yaml']) +
+        container.env({
+          [if cassandra.username != null then 'CASSANDRA_USERNAME']:
+            { secretKeyRef: { name: app, key: 'CASSANDRA_USERNAME' } },
+          [if cassandra.password != null then 'CASSANDRA_PASSWORD']:
+            { secretKeyRef: { name: app, key: 'CASSANDRA_PASSWORD' } },
+          SPAN_STORAGE_TYPE: 'cassandra',
+        }) +
+        container.port('http', 9411) +
+        container.port('http-telemetry', 14269) +
+        container.volume('config', '/etc/jaeger') +
+        container.resources('50m', '200m', '32Mi', '32Mi') +
+        container.httpProbe('readiness', '/', port='http-telemetry') +
+        container.httpProbe('liveness', '/', port='http-telemetry') +
+        container.securityContext({ readOnlyRootFilesystem: true })
+      ) +
+      pod.container(
         container.new(schemaApp, schemaImage) +
         container.command(['sh', '-c', '/cassandra-schema/docker.sh && sleep infinity']) +
         container.env({
@@ -54,24 +72,6 @@ function(global, jaeger, cassandra)
         }) +
         container.resources('0', '100m', '8Mi', '64Mi') +
         container.volume('tmp', '/tmp') +
-        container.securityContext({ readOnlyRootFilesystem: true })
-      ) +
-      pod.container(
-        container.new(collectorApp, collectorImage) +
-        container.args(['--config-file', '/etc/jaeger/collector.yaml']) +
-        container.env({
-          [if cassandra.username != null then 'CASSANDRA_USERNAME']:
-            { secretKeyRef: { name: app, key: 'CASSANDRA_USERNAME' } },
-          [if cassandra.password != null then 'CASSANDRA_PASSWORD']:
-            { secretKeyRef: { name: app, key: 'CASSANDRA_PASSWORD' } },
-          SPAN_STORAGE_TYPE: 'cassandra',
-        }) +
-        container.port('http', 9411) +
-        container.port('http-telemetry', 14269) +
-        container.volume('config', '/etc/jaeger') +
-        container.resources('50m', '200m', '32Mi', '32Mi') +
-        container.httpProbe('readiness', '/', port='http-telemetry') +
-        container.httpProbe('liveness', '/', port='http-telemetry') +
         container.securityContext({ readOnlyRootFilesystem: true })
       ) +
       pod.volumeConfigMap('config', configmap=app) +
