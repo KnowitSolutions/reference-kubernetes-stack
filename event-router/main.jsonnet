@@ -57,12 +57,14 @@ function(global)
         container.new(app, image) +
         container.port('http-telemetry', 8080) +
         container.volume('config', '/etc/eventrouter') +
+        container.volume('tmp', '/tmp') +
         container.resources('10m', '100m', '32Mi', '32Mi') +
         container.httpProbe('readiness', '/metrics', port='http-telemetry') +
         container.securityContext({ readOnlyRootFilesystem: true })
       ) +
       pod.serviceAccount(app) +
       pod.volumeConfigMap('config', configmap=app) +
+      pod.volumeEmptyDir('tmp', '1Mi') +
       pod.securityContext({ runAsUser: 65534, runAsGroup: 65534 }) +
       pod.affinity(global.affinity) +
       pod.tolerations(global.tolerations)
